@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizador Paramétrico de Alas - MVP (Legacy Reference)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0b1a2a; color: #e0e8f0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .app { display: flex; flex: 1; overflow: hidden; }
+        .panel-left { width: 340px; min-width: 340px; background: #112b3f; padding: 16px 12px; overflow-y: auto; border-right: 2px solid #1f4a6a; display: flex; flex-direction: column; gap: 12px; height: 100vh; }
+        .panel-left h2 { font-size: 1.2rem; color: #7fc8f8; border-bottom: 1px solid #1f4a6a; padding-bottom: 6px; margin-bottom: 6px; }
+        .panel-left .control-group { background: #0d2133; border-radius: 8px; padding: 10px 12px; }
+        .control-group label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 2px; }
+        .control-group input[type="range"] { width: 100%; background: #1f4a6a; height: 4px; border-radius: 2px; -webkit-appearance: none; appearance: none; }
+        .control-group input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #4aa3df; cursor: pointer; }
+        .control-group .value { color: #7fc8f8; font-weight: bold; }
+        .btn { background: #1f4a6a; border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; margin-top: 4px; }
+        .btn:hover { background: #2f6a8a; }
+        .btn-primary { background: #2a7aa0; }
+        .btn-primary:hover { background: #3a9ac0; }
+        .profile-2d { width: 100%; height: 120px; background: #0b1a2a; border-radius: 6px; margin-top: 6px; border: 1px solid #1f4a6a; }
+        .right-area { flex: 1; display: flex; flex-direction: column; height: 100vh; }
+        .viewer-3d { flex: 1; background: #0a1620; position: relative; min-height: 200px; }
+        .bottom-panel { height: 280px; min-height: 200px; background: #112b3f; border-top: 2px solid #1f4a6a; display: flex; flex-wrap: wrap; overflow: hidden; }
+        .bottom-panel .chart-box { flex: 2; min-width: 300px; padding: 8px 12px; height: 100%; position: relative; }
+        .bottom-panel .results-box { flex: 1; min-width: 200px; padding: 8px 12px; border-left: 1px solid #1f4a6a; overflow-y: auto; font-size: 0.85rem; }
+        .results-box table { width: 100%; border-collapse: collapse; }
+        .results-box td { padding: 3px 6px; border-bottom: 1px solid #1a3a4a; }
+        .results-box .label { color: #8ab8d8; }
+        .results-box .value { text-align: right; font-weight: bold; color: #7fc8f8; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="panel-left">
+            <h2><i class="fas fa-wing"></i> Parámetros del Ala (Legacy Reference)</h2>
+            <p style="font-size: 0.8rem; color: #9aaec9;">Este archivo se conserva como referencia histórica para la extracción de algoritmos hacia la nueva arquitectura OptimAirWing.</p>
+        </div>
+    </div>
+</body>
+</html>

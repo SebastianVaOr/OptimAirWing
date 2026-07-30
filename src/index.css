@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0b0f17;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a2332;
+  --bg-elevated: #1e293b;
+  --bg-surface: #0f172a;
+  --border-subtle: #1e293b;
+  --border-default: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* Selection */
+::selection { background: rgba(59, 130, 246, 0.3); color: var(--text-primary); }
+
+/* Value flash */
+.value-flash {
+  animation: flashBlue 0.25s ease-out;
+}
+@keyframes flashBlue {
+  0% { color: var(--accent-blue); }
+  100% { color: inherit; }
+}
+
+/* Scan bar */
+.scan-bar {
+  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+  animation: scanMove 1.5s infinite ease-in-out;
+}
+@keyframes scanMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Transitions */
+.panel-transition {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.panel-transition:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+}
+
+/* Glow subtle */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.08);
+}

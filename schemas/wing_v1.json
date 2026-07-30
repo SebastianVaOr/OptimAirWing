@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/wing_v1.json",
+  "title": "WingParams",
+  "schema_version": "1.0.0",
+  "description": "Esquema de parámetros del dominio 'ala' (planta alar + condiciones de vuelo). Unidades internas SIEMPRE en SI; la UI convierte a imperial solo para mostrar/editar, nunca para el cálculo.",
+  "type": "object",
+  "required": ["schema_version", "geometry", "operating_conditions"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Debe coincidir con la versión que consume el Predictor."
+    },
+    "geometry": {
+      "type": "object",
+      "description": "Define la forma del perfil (airfoil) y la planta alar (planform).",
+      "required": ["airfoil", "planform"],
+      "properties": {
+        "airfoil": {
+          "type": "object",
+          "description": "Fuente del perfil 2D. Exactamente una de las tres formas.",
+          "oneOf": [
+            {
+              "properties": {
+                "source": { "const": "naca4" },
+                "naca_code": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}$",
+                  "description": "Código NACA de 4 dígitos, ej. '2412'."
+                }
+              },
+              "required": ["source", "naca_code"],
+              "additionalProperties": false
+            },
+            {
+              "properties": {
+                "source": { "const": "naca5" },
+                "naca_code": {
+                  "type": "string",
+                  "pattern": "^[0-9]{5}$",
+                  "description": "Código NACA de 5 dígitos, ej. '23012'."
+                }
+              },
+              "required": ["source", "naca_code"],
+              "additionalProperties": false
+            },
+            {
+              "properties": {
+                "source": { "const": "custom_csv" },
+                "profile_id": {
+                  "type": "string",
+                  "description": "Referencia al perfil subido (coordenadas x/y normalizadas)."
+                },
+                "point_count": {
+                  "type": "integer",
+                  "minimum": 20,
+                  "maximum": 400
+                }
+              },
+              "required": ["source", "profile_id"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "planform": {
+          "type": "object",
+          "description": "Geometría 3D del ala.",
+          "required": ["span_m", "root_chord_m", "taper_ratio"],
+          "properties": {
+            "span_m": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 80,
+              "description": "Envergadura total (punta a punta), en metros."
+            },
+            "root_chord_m": {
+              "type": "number",
+              "minimum": 0.02,
+              "maximum": 15,
+              "description": "Cuerda en la raíz, en metros."
+            },
+            "taper_ratio": {
+              "type": "number",
+              "minimum": 0.05,
+              "maximum": 1.0,
+              "default": 1.0,
+              "description": "Relación cuerda_punta / cuerda_raíz."
+            },
+            "sweep_deg": {
+              "type": "number",
+              "minimum": -20,
+              "maximum": 60,
+              "default": 0,
+              "description": "Flecha en el cuarto de cuerda, en grados."
+            },
+            "twist_deg": {
+              "type": "number",
+              "minimum": -10,
+              "maximum": 5,
+              "default": 0,
+              "description": "Torsión geométrica (washout) de la punta respecto a la raíz."
+            },
+            "dihedral_deg": {
+              "type": "number",
+              "minimum": -10,
+              "maximum": 15,
+              "default": 0,
+              "description": "Diedro en grados."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "operating_conditions": {
+      "type": "object",
+      "description": "Condiciones de vuelo.",
+      "required": ["alpha_deg", "reynolds"],
+      "properties": {
+        "alpha_deg": {
+          "type": "number",
+          "minimum": -10,
+          "maximum": 20,
+          "description": "Ángulo de ataque, en grados."
+        },
+        "reynolds": {
+          "type": "number",
+          "minimum": 1e4,
+          "maximum": 5e8,
+          "description": "Número de Reynolds."
+        },
+        "mach": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.6,
+          "default": 0,
+          "description": "Número de Mach subsónico."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ui_preferences": {
+      "type": "object",
+      "properties": {
+        "unit_system": {
+          "type": "string",
+          "enum": ["si", "imperial"],
+          "default": "si"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

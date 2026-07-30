@@ -1,0 +1,37 @@
+groups:
+  - name: optimairwing
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Error rate > 5% en los últimos 5 minutos"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_ms_bucket[5m])) by (le)) > 5000
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "p99 latency > 5s en los últimos 5 minutos"
+
+      - alert: ServiceDown
+        expr: up{job="optimairwing-api"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "API caída por más de 1 minuto"
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{job="optimairwing-api"} > 1e9
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Memoria > 1GB sostenido"
+
+      - alert: DatabaseSlow
+        expr: rate(db_query_duration_ms_sum[5m]) / rate(db_query_duration_ms_count[5m]) > 500
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "DB query avg > 500ms"

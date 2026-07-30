@@ -1,0 +1,73 @@
+{
+  "orgs": [
+    {
+      "id": "org_demo",
+      "name": "AeroLab Research Org",
+      "owner_email": "user@aero.com",
+      "plan": "professional",
+      "predictions_used_month": 0,
+      "optimizations_used_month": 0,
+      "extra_credits": 0
+    },
+    {
+      "id": "org_personal_demo",
+      "name": "Org org_personal_demo",
+      "owner_email": "admin@aero.com",
+      "plan": "enterprise",
+      "predictions_used_month": 0,
+      "optimizations_used_month": 0,
+      "extra_credits": 0
+    }
+  ],
+  "auditLogs": [
+    {
+      "org_id": "org_demo",
+      "old_plan": "freemium",
+      "new_plan": "professional",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T10:00:00.000Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "professional",
+      "new_plan": "freemium",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.017Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "freemium",
+      "new_plan": "base",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.019Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "base",
+      "new_plan": "professional",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.019Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "professional",
+      "new_plan": "enterprise",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.020Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "enterprise",
+      "new_plan": "freemium",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.020Z"
+    },
+    {
+      "org_id": "org_demo",
+      "old_plan": "freemium",
+      "new_plan": "professional",
+      "changed_by": "system",
+      "timestamp": "2026-07-27T22:34:01.022Z"
+    }
+  ]
+}

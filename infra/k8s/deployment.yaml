@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: optimairwing-api
+  namespace: optimairwing
+  labels:
+    app: optimairwing-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: optimairwing-api
+  template:
+    metadata:
+      labels:
+        app: optimairwing-api
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+        fsGroup: 2000
+      containers:
+        - name: api
+          image: ghcr.io/optimairwing/api:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: optimairwing-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: optimairwing-worker
+  namespace: optimairwing
+  labels:
+    app: optimairwing-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: optimairwing-worker
+  template:
+    metadata:
+      labels:
+        app: optimairwing-worker
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+      containers:
+        - name: worker
+          image: ghcr.io/optimairwing/api:latest
+          command: ["node", "dist/worker.cjs"]
+          envFrom:
+            - secretRef:
+                name: optimairwing-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"

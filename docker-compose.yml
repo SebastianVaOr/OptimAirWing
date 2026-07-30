@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: optimairwing
+      POSTGRES_USER: optimairwing
+      POSTGRES_PASSWORD: optimairwing
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U optimairwing"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: optimairwing
+      PGUSER: optimairwing
+      PGPASSWORD: optimairwing
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: dev_jwt_secret_change_in_prod
+      ADMIN_SECRET_KEY: dev_secret
+      API_KEY: optimairwing_dev_key_2026
+      VITE_APP_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      LOG_LEVEL: debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:

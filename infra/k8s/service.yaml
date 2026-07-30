@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: optimairwing-api
+  namespace: optimairwing
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app: optimairwing-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+    - name: metrics
+      port: 9090
+      targetPort: 3000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: optimairwing-redis
+  namespace: optimairwing
+spec:
+  clusterIP: None
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: optimairwing-postgres
+  namespace: optimairwing
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
