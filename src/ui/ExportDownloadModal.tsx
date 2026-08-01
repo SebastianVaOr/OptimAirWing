@@ -38,7 +38,7 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
           <head>
             <title>OptimAirWing Report - NACA ${params.nacaCode}</title>
             <style>
-              body { background: #070b12; color: #e8edf4; font-family: sans-serif; padding: 20px; }
+              body { background: #05070c; color: #e8f1fb; font-family: sans-serif; padding: 20px; }
             </style>
           </head>
           <body>
@@ -172,23 +172,23 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in select-none">
-      <div className="relative w-full max-w-2xl bg-[#0a111c] border border-[#1e2d42] rounded-xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-2xl bg-[#0a0f18] border border-[#16202f] rounded-xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e2d42] bg-[#0d1520]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#16202f] bg-[#0e1624]">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#e8edf4]">
+              <h2 className="text-base font-bold text-[#e8f1fb]">
                 Centro de Descargas y Exportación de Ingeniería
               </h2>
-              <p className="text-xs text-[#9aaec9]">
+              <p className="text-xs text-[#8ea3bd]">
                 Exporte modelos CAD 3D, informes PDF, scripts de automatización y conjuntos de datos CSV/JSON.
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#9aaec9] hover:text-white transition cursor-pointer">
+          <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -204,12 +204,12 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
         {/* Content Options */}
         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Option 1: PDF Technical Report */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
             <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
               <FileText className="w-5 h-5 text-cyan-400" />
               <span>Informe Técnico PDF</span>
             </div>
-            <p className="text-xs text-[#9aaec9] flex-1">
+            <p className="text-xs text-[#8ea3bd] flex-1">
               Genera un documento PDF imprimible con portada, ficha geométrica, gráficas aerodinámicas y firmas de ingeniería.
             </p>
             <button
@@ -222,12 +222,12 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
           </div>
 
           {/* Option 2: 3D CAD STEP File */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
               <Download className="w-5 h-5 text-emerald-400" />
               <span>Modelo CAD 3D STEP (.stp)</span>
             </div>
-            <p className="text-xs text-[#9aaec9] flex-1">
+            <p className="text-xs text-[#8ea3bd] flex-1">
               Exporta la geometría 3D en formato neutro ISO 10303 STEP para importación directa en CATIA, SolidWorks, NX o Fusion360.
             </p>
             <button
@@ -240,12 +240,12 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
           </div>
 
           {/* Option 3: Python CAD Automation Script */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
             <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
               <FileCode className="w-5 h-5 text-amber-400" />
               <span>Script Python CAD (.py)</span>
             </div>
-            <p className="text-xs text-[#9aaec9] flex-1">
+            <p className="text-xs text-[#8ea3bd] flex-1">
               Genera un script ejecutable de recubrimiento (Loft Surface API) para SolidWorks, Ansys SpaceClaim y Autodesk Fusion.
             </p>
             <button
@@ -258,12 +258,12 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
           </div>
 
           {/* Option 4: CSV Telemetry & Polars */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
             <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
               <Table className="w-5 h-5 text-blue-400" />
               <span>Telemetría y Polares (CSV)</span>
             </div>
-            <p className="text-xs text-[#9aaec9] flex-1">
+            <p className="text-xs text-[#8ea3bd] flex-1">
               Exporta coeficientes aerodinámicos (CL, CD, L/D, Cm) y la barrida de polares por ángulos de ataque para Excel o MATLAB.
             </p>
             <button
@@ -276,12 +276,12 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
           </div>
 
           {/* Option 5: DAT Airfoil Coordinates (Selig Format) */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition sm:col-span-2">
+          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition sm:col-span-2">
             <div className="flex items-center gap-2 text-purple-400 font-bold text-sm">
               <FileCode className="w-5 h-5 text-purple-400" />
               <span>Coordenadas de Perfil (.DAT Selig Format)</span>
             </div>
-            <p className="text-xs text-[#9aaec9] flex-1">
+            <p className="text-xs text-[#8ea3bd] flex-1">
               Coordenadas (x,y) normalizadas del perfil NACA {params.nacaCode} en formato Selig estándar para importación directa en XFLR5, AirfoilTools, Ansys Fluent y OpenFOAM.
             </p>
             <button
@@ -295,17 +295,17 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
         </div>
 
         {/* Footer with JSON export */}
-        <div className="px-6 py-4 bg-[#0d1520] border-t border-[#1e2d42] flex items-center justify-between">
+        <div className="px-6 py-4 bg-[#0e1624] border-t border-[#16202f] flex items-center justify-between">
           <button
             onClick={handleDownloadJSON}
-            className="flex items-center gap-2 text-xs font-mono text-[#9aaec9] hover:text-white transition cursor-pointer"
+            className="flex items-center gap-2 text-xs font-mono text-[#8ea3bd] hover:text-white transition cursor-pointer"
           >
             <Bookmark className="w-4 h-4 text-cyan-400" />
             <span>Exportar Estado en JSON (.json)</span>
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-[#131f2e] border border-[#1e2d42] text-xs font-semibold text-[#9aaec9] hover:text-white transition cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-[#0e1624] border border-[#16202f] text-xs font-semibold text-[#8ea3bd] hover:text-white transition cursor-pointer"
           >
             Cerrar
           </button>

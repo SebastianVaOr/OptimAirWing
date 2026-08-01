@@ -20,15 +20,15 @@ function buildHtml(data: PdfReportData): string {
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>${data.title}</title>
-<style>body{background:#0a111c;font-family:monospace;padding:20px;color:#e8edf4;}
-h1{color:#0ff;font-size:16px;border-bottom:1px solid #1e2d42;padding-bottom:8px;}
-h2{color:#9aaec9;font-size:13px;margin-top:20px;}
+<style>body{background:#0a0f18;font-family:monospace;padding:20px;color:#e8f1fb;}
+h1{color:#0ff;font-size:16px;border-bottom:1px solid #16202f;padding-bottom:8px;}
+h2{color:#8ea3bd;font-size:13px;margin-top:20px;}
 table{width:100%;border-collapse:collapse;margin-top:8px;}
-.footer{text-align:center;margin-top:30px;font-size:10px;color:#5a7390;border-top:1px solid #1e2d42;padding-top:10px;}
-.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;background:#1e2d42;color:#9aaec9;margin-right:4px;}
+.footer{text-align:center;margin-top:30px;font-size:10px;color:#5b6f8c;border-top:1px solid #16202f;padding-top:10px;}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;background:#16202f;color:#8ea3bd;margin-right:4px;}
 </style></head><body>
 <h1>${data.title}</h1>
-<p style="color:#5a7390;font-size:11px">${data.date}</p>
+<p style="color:#5b6f8c;font-size:11px">${data.date}</p>
 ${data.nacaCode ? `<span class="tag">NACA ${data.nacaCode}</span>` : ''}
 ${data.sector ? `<span class="tag">${data.sector}</span>` : ''}
 

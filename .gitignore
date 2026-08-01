@@ -3,3 +3,10 @@ dist/
 data/
 .env
 *.db
+
+# graphify knowledge-graph pipeline output
+graphify-out/
+
+# local agent tooling
+.agents/
+skills-lock.json

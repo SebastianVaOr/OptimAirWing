@@ -53,9 +53,9 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto select-none">
-      <div className="bg-[#0a111c] border border-[#1e2d42] rounded-2xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#0a0f18] border border-[#16202f] rounded-2xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-4 border-b border-[#1e2d42] flex items-center justify-between bg-[#0d1520]">
+        <div className="p-4 border-b border-[#16202f] flex items-center justify-between bg-[#0e1624]">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <BarChart3 className="w-5 h-5" />
@@ -64,14 +64,14 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 Telemetría y Polares Aerodinámicas de Rendimiento
               </h2>
-              <p className="text-xs text-[#9aaec9]">
+              <p className="text-xs text-[#8ea3bd]">
                 Análisis continuo de curvas de sustentación, resistencia, finura L/D y margen de pérdida (α_stall).
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#142032] text-[#9aaec9] hover:text-white transition cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#0e1624] text-[#8ea3bd] hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -81,39 +81,39 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
         <div className="p-6 space-y-6">
           {/* Key Indicators Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-            <div className="p-3 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-              <span className="text-[10px] text-[#9aaec9] uppercase">Punto Actual (α={currentAlpha}°)</span>
+            <div className="p-3 rounded-xl bg-[#0e1624] border border-[#16202f]">
+              <span className="text-[10px] text-[#8ea3bd] uppercase">Punto Actual (α={currentAlpha}°)</span>
               <div className="text-lg font-bold text-cyan-400 mt-1">C_L = {currentCL.toFixed(3)}</div>
-              <span className="text-[10px] text-[#5a7390]">C_D = {currentCD.toFixed(4)}</span>
+              <span className="text-[10px] text-[#5b6f8c]">C_D = {currentCD.toFixed(4)}</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-              <span className="text-[10px] text-[#9aaec9] uppercase">Finura Actual (L/D)</span>
+            <div className="p-3 rounded-xl bg-[#0e1624] border border-[#16202f]">
+              <span className="text-[10px] text-[#8ea3bd] uppercase">Finura Actual (L/D)</span>
               <div className="text-lg font-bold text-emerald-400 mt-1">{currentLD.toFixed(2)}</div>
-              <span className="text-[10px] text-[#5a7390]">Máx Teórico: {maxLD.toFixed(1)}</span>
+              <span className="text-[10px] text-[#5b6f8c]">Máx Teórico: {maxLD.toFixed(1)}</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-              <span className="text-[10px] text-[#9aaec9] uppercase">Ángulo Óptimo (L/D Max)</span>
+            <div className="p-3 rounded-xl bg-[#0e1624] border border-[#16202f]">
+              <span className="text-[10px] text-[#8ea3bd] uppercase">Ángulo Óptimo (L/D Max)</span>
               <div className="text-lg font-bold text-amber-400 mt-1">α = {optAlpha}°</div>
-              <span className="text-[10px] text-[#5a7390]">Máxima eficiencia</span>
+              <span className="text-[10px] text-[#5b6f8c]">Máxima eficiencia</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-              <span className="text-[10px] text-[#9aaec9] uppercase">Límite de Pérdida (Stall)</span>
+            <div className="p-3 rounded-xl bg-[#0e1624] border border-[#16202f]">
+              <span className="text-[10px] text-[#8ea3bd] uppercase">Límite de Pérdida (Stall)</span>
               <div className="text-lg font-bold text-rose-400 mt-1">α_stall = {stallAlpha}°</div>
-              <span className="text-[10px] text-[#5a7390]">Margen: {stallAlpha - currentAlpha}°</span>
+              <span className="text-[10px] text-[#5b6f8c]">Margen: {stallAlpha - currentAlpha}°</span>
             </div>
           </div>
 
           {/* Chart Tab Selector */}
-          <div className="flex items-center gap-2 border-b border-[#1e2d42] pb-2 text-xs font-semibold">
+          <div className="flex items-center gap-2 border-b border-[#16202f] pb-2 text-xs font-semibold">
             <button
               onClick={() => setActiveTab('cl_alpha')}
               className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
                 activeTab === 'cl_alpha'
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                  : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                  : 'bg-[#0e1624] text-[#8ea3bd] border-[#16202f] hover:text-white'
               }`}
             >
               Curva C_L vs α
@@ -123,7 +123,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
               className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
                 activeTab === 'cd_alpha'
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                  : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                  : 'bg-[#0e1624] text-[#8ea3bd] border-[#16202f] hover:text-white'
               }`}
             >
               Curva C_D vs α
@@ -133,7 +133,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
               className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
                 activeTab === 'ld_alpha'
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                  : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                  : 'bg-[#0e1624] text-[#8ea3bd] border-[#16202f] hover:text-white'
               }`}
             >
               Curva Finura L/D vs α
@@ -143,7 +143,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
               className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
                 activeTab === 'polar'
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                  : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                  : 'bg-[#0e1624] text-[#8ea3bd] border-[#16202f] hover:text-white'
               }`}
             >
               Polar de Lilienthal (C_L vs C_D)
@@ -151,16 +151,16 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
           </div>
 
           {/* Interactive SVG Curve Canvas */}
-          <div className="p-4 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-            <div className="w-full h-60 bg-[#070b12] rounded-lg border border-[#1e2d42] p-4 flex items-center justify-center relative">
+          <div className="p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
+            <div className="w-full h-60 bg-[#05070c] rounded-lg border border-[#16202f] p-4 flex items-center justify-center relative">
               <svg viewBox="-5 -0.5 25 2.5" className="w-full h-full overflow-visible">
                 {/* Axes */}
-                <line x1="-4" y1="0" x2="18" y2="0" stroke="#1e2d42" strokeWidth="0.05" />
-                <line x1="0" y1="-0.4" x2="0" y2="1.8" stroke="#1e2d42" strokeWidth="0.05" />
+                <line x1="-4" y1="0" x2="18" y2="0" stroke="#16202f" strokeWidth="0.05" />
+                <line x1="0" y1="-0.4" x2="0" y2="1.8" stroke="#16202f" strokeWidth="0.05" />
 
                 {/* Gridlines */}
                 {[0, 5, 10, 15].map(x => (
-                  <line key={x} x1={x} y1="-0.4" x2={x} y2="1.8" stroke="#1e2d42" strokeDasharray="0.1" strokeWidth="0.02" />
+                  <line key={x} x1={x} y1="-0.4" x2={x} y2="1.8" stroke="#16202f" strokeDasharray="0.1" strokeWidth="0.02" />
                 ))}
 
                 {/* Active Curve Plot */}
@@ -177,7 +177,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
                   <path
                     d={`M ${sweepData.map(d => `${d.alpha},${d.CD * 8}`).join(' L ')}`}
                     fill="none"
-                    stroke="#f43f5e"
+                    stroke="#fb7185"
                     strokeWidth="0.1"
                   />
                 )}
@@ -186,7 +186,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
                   <path
                     d={`M ${sweepData.map(d => `${d.alpha},${(d.LD / maxLD) * 1.5}`).join(' L ')}`}
                     fill="none"
-                    stroke="#10b981"
+                    stroke="#34d399"
                     strokeWidth="0.1"
                   />
                 )}
@@ -195,7 +195,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
                   <path
                     d={`M ${sweepData.map(d => `${d.CD * 80},${d.CL}`).join(' L ')}`}
                     fill="none"
-                    stroke="#f59e0b"
+                    stroke="#fbbf24"
                     strokeWidth="0.1"
                   />
                 )}
@@ -205,7 +205,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
                 <line x1={currentAlpha} y1="-0.4" x2={currentAlpha} y2="1.8" stroke="#22d3ee" strokeDasharray="0.1" strokeWidth="0.03" />
               </svg>
 
-              <div className="absolute top-3 right-3 text-[10px] font-mono bg-[#0d1520]/80 p-2 rounded border border-[#1e2d42] text-[#9aaec9]">
+              <div className="absolute top-3 right-3 text-[10px] font-mono bg-[#0e1624]/80 p-2 rounded border border-[#16202f] text-[#8ea3bd]">
                 Línea punteada cyan = Punto de operación activo (α = {currentAlpha}°)
               </div>
             </div>
@@ -213,11 +213,11 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#1e2d42] bg-[#0d1520] flex items-center justify-between text-xs text-[#5a7390]">
+        <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between text-xs text-[#5b6f8c]">
           <span>* Polares calculadas con modelos surrogate CFD de alta fidelidad NeuralFoil/XFOIL.</span>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#142032] text-white font-bold hover:bg-[#1e2d42] transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[#0e1624] text-white font-bold hover:bg-[#16202f] transition cursor-pointer"
           >
             Cerrar Telemetría
           </button>

@@ -26,18 +26,18 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-6 flex flex-col items-center justify-center">
-          <div className="max-w-xl w-full bg-slate-900 border border-red-500/30 rounded-xl p-6 shadow-2xl">
+        <div className="min-h-screen bg-[#05070c] text-[#e8f1fb] p-6 flex flex-col items-center justify-center">
+          <div className="max-w-xl w-full bg-[#0a0f18] border border-red-500/30 rounded-xl p-6 shadow-2xl">
             <h2 className="text-xl font-bold text-red-400 mb-2">Error de Ejecución</h2>
-            <p className="text-slate-300 text-sm mb-4">
+            <p className="text-[#8ea3bd] text-sm mb-4">
               Se ha producido un error durante el renderizado.
             </p>
-            <div className="bg-slate-950 p-3 rounded text-xs font-mono text-red-300 overflow-x-auto">
+            <div className="bg-[#05070c] p-3 rounded text-xs font-mono text-red-300 overflow-x-auto">
               {this.state.error?.message}
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm transition"
+              className="mt-4 px-4 py-2 bg-[#0e1624] hover:bg-[#16202f] text-white rounded-lg text-sm transition"
             >
               Recargar
             </button>

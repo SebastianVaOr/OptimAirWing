@@ -111,25 +111,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#0a111c] border border-[#1e2d42] rounded-xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2d42] bg-[#0d1520]">
+      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#16202f] bg-[#0e1624]">
           <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
             <Lock className="w-4 h-4" />
             <span>Acceso a OptimAirWing IA Engine</span>
           </div>
-          <button onClick={onClose} className="text-[#9aaec9] hover:text-white transition cursor-pointer">
+          <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex border-b border-[#1e2d42] bg-[#070b12]">
+        <div className="flex border-b border-[#16202f] bg-[#05070c]">
           <button onClick={() => setTab('checkout')}
-            className={`flex-1 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${tab === 'checkout' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-[#9aaec9] hover:text-white'}`}>
+            className={`flex-1 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${tab === 'checkout' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-[#8ea3bd] hover:text-white'}`}>
             <CreditCard className="w-3.5 h-3.5" />
             <span>Suscripción a Plan</span>
           </button>
           <button onClick={() => setTab('login')}
-            className={`flex-1 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${tab === 'login' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-[#9aaec9] hover:text-white'}`}>
+            className={`flex-1 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${tab === 'login' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-[#8ea3bd] hover:text-white'}`}>
             <UserCheck className="w-3.5 h-3.5" />
             <span>Iniciar Sesión</span>
           </button>
@@ -143,50 +143,50 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="py-10 flex flex-col items-center text-center gap-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-400 animate-bounce" />
               <h3 className="font-bold text-lg text-white">¡Cuenta Creada con Éxito!</h3>
-              <p className="text-xs text-[#9aaec9]">Iniciando sesión con el plan <strong className="text-cyan-400 uppercase">{selectedPlan}</strong>...</p>
+              <p className="text-xs text-[#8ea3bd]">Iniciando sesión con el plan <strong className="text-cyan-400 uppercase">{selectedPlan}</strong>...</p>
             </div>
           ) : tab === 'checkout' ? (
             <form onSubmit={handleCheckout} className="flex flex-col gap-4">
               <div className="grid grid-cols-3 gap-2 mb-1">
                 <div onClick={() => setSelectedPlan('freemium')}
-                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'freemium' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0d1520] border-[#1e2d42] hover:border-[#2a4060]'}`}>
+                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'freemium' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0e1624] border-[#16202f] hover:border-[#223048]'}`}>
                   <p className="font-bold text-xs text-white">Freemium</p>
-                  <p className="text-[10px] text-[#9aaec9] mt-0.5">Gratis</p>
+                  <p className="text-[10px] text-[#8ea3bd] mt-0.5">Gratis</p>
                 </div>
                 <div onClick={() => setSelectedPlan('professional')}
-                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'professional' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0d1520] border-[#1e2d42] hover:border-[#2a4060]'}`}>
+                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'professional' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0e1624] border-[#16202f] hover:border-[#223048]'}`}>
                   <p className="font-bold text-xs text-cyan-300">Profesional</p>
                   <p className="text-[10px] text-cyan-400 font-semibold mt-0.5">€49 / mes</p>
                 </div>
                 <div onClick={() => setSelectedPlan('enterprise')}
-                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'enterprise' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0d1520] border-[#1e2d42] hover:border-[#2a4060]'}`}>
+                  className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'enterprise' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0e1624] border-[#16202f] hover:border-[#223048]'}`}>
                   <p className="font-bold text-xs text-purple-300">Empresa</p>
                   <p className="text-[10px] text-purple-400 font-semibold mt-0.5">Custom CFD</p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-[#9aaec9] uppercase mb-1">Correo Profesional</label>
+                <label className="block text-[11px] font-bold text-[#8ea3bd] uppercase mb-1">Correo Profesional</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  className="w-full bg-[#0d1520] border border-[#1e2d42] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                  className="w-full bg-[#0e1624] border border-[#16202f] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-[#9aaec9] uppercase mb-1">Contraseña (mín. 8 caracteres)</label>
+                <label className="block text-[11px] font-bold text-[#8ea3bd] uppercase mb-1">Contraseña (mín. 8 caracteres)</label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8}
-                  className="w-full bg-[#0d1520] border border-[#1e2d42] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                  className="w-full bg-[#0e1624] border border-[#16202f] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
               </div>
               {selectedPlan !== 'freemium' && (
-                <div className="bg-[#070b12] p-3 rounded-lg border border-[#1e2d42] flex flex-col gap-2">
+                <div className="bg-[#05070c] p-3 rounded-lg border border-[#16202f] flex flex-col gap-2">
                   <div className="flex items-center justify-between text-[11px] font-bold text-cyan-400">
                     <span className="flex items-center gap-1"><CreditCard className="w-3.5 h-3.5" /> Pago vía Stripe Checkout</span>
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   </div>
-                  <p className="text-[10px] text-[#5a7390]">Serás redirigido a Stripe para completar el pago de forma segura.</p>
+                  <p className="text-[10px] text-[#5b6f8c]">Serás redirigido a Stripe para completar el pago de forma segura.</p>
                 </div>
               )}
 
               <button type="submit" disabled={loading}
-                className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs hover:brightness-110 transition shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-[#05070c] font-bold text-xs hover:brightness-110 transition shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer mt-2">
                 {loading ? (
                   <span>Procesando...</span>
                 ) : (
@@ -197,17 +197,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ) : (
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <div>
-                <label className="block text-[11px] font-bold text-[#9aaec9] uppercase mb-1">Correo Electrónico</label>
+                <label className="block text-[11px] font-bold text-[#8ea3bd] uppercase mb-1">Correo Electrónico</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  className="w-full bg-[#0d1520] border border-[#1e2d42] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                  className="w-full bg-[#0e1624] border border-[#16202f] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-[#9aaec9] uppercase mb-1">Contraseña</label>
+                <label className="block text-[11px] font-bold text-[#8ea3bd] uppercase mb-1">Contraseña</label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                  className="w-full bg-[#0d1520] border border-[#1e2d42] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                  className="w-full bg-[#0e1624] border border-[#16202f] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
               </div>
               <button type="submit" disabled={loading}
-                className="w-full py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2">
+                className="w-full py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#05070c] font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2">
                 <UserCheck className="w-4 h-4" /><span>Acceder al Simulador</span>
               </button>
             </form>

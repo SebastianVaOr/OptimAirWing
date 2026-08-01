@@ -28,25 +28,25 @@ export function generateTechnicalReportHtml(
   const viability = viabilityInput || computeViabilityAnalysis(params, result, defaultReqs);
 
   return `
-    <div style="font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #070b12; color: #e8edf4; padding: 32px; border-radius: 12px; border: 1px solid #1e2d42; max-width: 840px; margin: 0 auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+    <div style="font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #05070c; color: #e8f1fb; padding: 32px; border-radius: 12px; border: 1px solid #16202f; max-width: 840px; margin: 0 auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
       
       <!-- Report Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e2d42; padding-bottom: 16px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #16202f; padding-bottom: 16px; margin-bottom: 24px;">
         <div>
           <h1 style="margin: 0; font-size: 24px; color: #38bdf8; letter-spacing: 0.5px; font-weight: 800;">OptimAirWing Engineering Report</h1>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: #9aaec9;">Plataforma de Decisión Técnica y Evaluación de Viabilidad Comercial</p>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: #8ea3bd;">Plataforma de Decisión Técnica y Evaluación de Viabilidad Comercial</p>
         </div>
         <div style="text-align: right;">
           <span style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid rgba(34, 211, 238, 0.3);">
             ${result.fidelity.toUpperCase()} MODEL
           </span>
-          <p style="margin: 4px 0 0 0; font-size: 11px; color: #5a7390;">Versión ${result.model_version}</p>
+          <p style="margin: 4px 0 0 0; font-size: 11px; color: #5b6f8c;">Versión ${result.model_version}</p>
         </div>
       </div>
 
       <!-- SECCIÓN A: RESUMEN EJECUTIVO Y VIABILIDAD ECONÓMICA -->
-      <div style="background: #0d1520; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 20px; margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e2d42; padding-bottom: 10px; margin-bottom: 14px;">
+      <div style="background: #0e1624; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 10px; margin-bottom: 14px;">
           <h2 style="margin: 0; font-size: 15px; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
             A. Resumen Ejecutivo de Viabilidad Técnico-Económica
           </h2>
@@ -62,7 +62,7 @@ export function generateTechnicalReportHtml(
 
         ${
           viability.stabilityStatus === 'danger'
-            ? `<div style="background: rgba(244, 63, 94, 0.2); border: 2px solid #f43f5e; color: #fecdd3; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);">
+            ? `<div style="background: rgba(244, 63, 94, 0.2); border: 2px solid #fb7185; color: #fecdd3; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);">
                 🔴 GEOMETRÍA EN LISTA NEGRA PROHIBIDA - DESCALIFICACIÓN DE RIESGO (0/100)<br/>
                 <span style="font-weight: 400; font-size: 12px; color: #fda4af;">${viability.stabilityMessage}</span>
               </div>`
@@ -75,60 +75,60 @@ export function generateTechnicalReportHtml(
         }
 
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center; margin-bottom: 16px;">
-          <div style="background: #070b12; padding: 12px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="display: block; font-size: 11px; color: #9aaec9;">Coste Fab. Estimado</span>
+          <div style="background: #05070c; padding: 12px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="display: block; font-size: 11px; color: #8ea3bd;">Coste Fab. Estimado</span>
             <strong style="font-size: 16px; color: #fcd34d;">${viability.estimatedCostEur.toLocaleString()} €</strong>
-            <span style="display: block; font-size: 10px; color: #5a7390;">Max: ${defaultReqs.max_budget_eur.toLocaleString()} €</span>
+            <span style="display: block; font-size: 10px; color: #5b6f8c;">Max: ${defaultReqs.max_budget_eur.toLocaleString()} €</span>
           </div>
 
-          <div style="background: #070b12; padding: 12px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="display: block; font-size: 11px; color: #9aaec9;">Peso Estructural</span>
-            <strong style="font-size: 16px; color: #e8edf4;">${viability.estimatedWeightKg} kg</strong>
-            <span style="display: block; font-size: 10px; color: #5a7390;">Obj: ${defaultReqs.estimated_weight_kg} kg</span>
+          <div style="background: #05070c; padding: 12px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="display: block; font-size: 11px; color: #8ea3bd;">Peso Estructural</span>
+            <strong style="font-size: 16px; color: #e8f1fb;">${viability.estimatedWeightKg} kg</strong>
+            <span style="display: block; font-size: 10px; color: #5b6f8c;">Obj: ${defaultReqs.estimated_weight_kg} kg</span>
           </div>
 
-          <div style="background: #070b12; padding: 12px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="display: block; font-size: 11px; color: #9aaec9;">Coste / Eficiencia</span>
+          <div style="background: #05070c; padding: 12px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="display: block; font-size: 11px; color: #8ea3bd;">Coste / Eficiencia</span>
             <strong style="font-size: 16px; color: #38bdf8;">${viability.costEfficiencyEurPerLD} €/L/D</strong>
-            <span style="display: block; font-size: 10px; color: #5a7390;">Por punto de razón L/D</span>
+            <span style="display: block; font-size: 10px; color: #5b6f8c;">Por punto de razón L/D</span>
           </div>
 
-          <div style="background: #070b12; padding: 12px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="display: block; font-size: 11px; color: #9aaec9;">Retorno Inversión Est.</span>
+          <div style="background: #05070c; padding: 12px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="display: block; font-size: 11px; color: #8ea3bd;">Retorno Inversión Est.</span>
             <strong style="font-size: 16px; color: #34d399;">~${viability.paybackMonths} meses</strong>
-            <span style="display: block; font-size: 10px; color: #5a7390;">En sector ${defaultReqs.sector.toUpperCase()}</span>
+            <span style="display: block; font-size: 10px; color: #5b6f8c;">En sector ${defaultReqs.sector.toUpperCase()}</span>
           </div>
         </div>
 
         <!-- Submódulo de Estabilidad y Seguridad Aeroelástica -->
-        <div style="background: #070b12; padding: 12px 16px; border-radius: 6px; border: 1px solid ${viability.stabilityStatus === 'danger' ? '#f43f5e' : viability.stabilityStatus === 'warning' ? '#f59e0b' : '#10b981'}; font-size: 12px;">
+        <div style="background: #05070c; padding: 12px 16px; border-radius: 6px; border: 1px solid ${viability.stabilityStatus === 'danger' ? '#fb7185' : viability.stabilityStatus === 'warning' ? '#fbbf24' : '#34d399'}; font-size: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <strong style="color: ${viability.stabilityStatus === 'danger' ? '#fda4af' : viability.stabilityStatus === 'warning' ? '#fcd34d' : '#34d399'}; text-transform: uppercase;">
               A.1 Estabilidad Estructural y Aeroelástica (${(viability.stabilityStatus || 'safe').toUpperCase()})
             </strong>
-            <span style="color: #9aaec9; font-size: 11px;">Factor de Seguridad Global: <strong>${viability.globalSafetyFactor || 1.5}x</strong></span>
+            <span style="color: #8ea3bd; font-size: 11px;">Factor de Seguridad Global: <strong>${viability.globalSafetyFactor || 1.5}x</strong></span>
           </div>
-          <p style="margin: 0 0 4px 0; color: #e8edf4;">${viability.stabilityMessage || 'Configuración aeroelásticamente estable.'}</p>
-          ${viability.stabilityRecommendation ? `<p style="margin: 0 0 4px 0; color: #9aaec9; font-style: italic;">Recomendación: ${viability.stabilityRecommendation}</p>` : ''}
-          <div style="display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid #1e2d42; pt: 4px; margin-top: 6px;">
-            <span style="color: #5a7390;">Refuerzos Estructurales: <strong style="color: #38bdf8;">${viability.reinforcementsNeeded || 'Estándar'}</strong></span>
-            <span style="color: #5a7390;">Análisis de Pérdida (Stall): <strong style="color: #e8edf4;">${viability.stallMessage || 'Normal'}</strong></span>
+          <p style="margin: 0 0 4px 0; color: #e8f1fb;">${viability.stabilityMessage || 'Configuración aeroelásticamente estable.'}</p>
+          ${viability.stabilityRecommendation ? `<p style="margin: 0 0 4px 0; color: #8ea3bd; font-style: italic;">Recomendación: ${viability.stabilityRecommendation}</p>` : ''}
+          <div style="display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid #16202f; pt: 4px; margin-top: 6px;">
+            <span style="color: #5b6f8c;">Refuerzos Estructurales: <strong style="color: #38bdf8;">${viability.reinforcementsNeeded || 'Estándar'}</strong></span>
+            <span style="color: #5b6f8c;">Análisis de Pérdida (Stall): <strong style="color: #e8f1fb;">${viability.stallMessage || 'Normal'}</strong></span>
           </div>
         </div>
 
         <!-- Submódulo A.2: Configuración de Optimización y Restricciones -->
-        <div style="background: #070b12; padding: 12px 16px; border-radius: 6px; border: 1px solid #1e2d42; font-size: 11px; margin-top: 12px;">
+        <div style="background: #05070c; padding: 12px 16px; border-radius: 6px; border: 1px solid #16202f; font-size: 11px; margin-top: 12px;">
           <strong style="color: #38bdf8; font-size: 12px; display: block; margin-bottom: 6px;">
             A.2 Configuración del Algoritmo Genético y Restricciones Activas
           </strong>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; color: #9aaec9;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; color: #8ea3bd;">
             <div>
               <strong>Modo de Inicio:</strong> 
-              <span style="color: #e8edf4; font-weight: 600;">${defaultReqs.optimization_mode_type === 'from_sliders' ? 'Refinar Sliders Activos' : 'Explorar desde cero'}</span>
+              <span style="color: #e8f1fb; font-weight: 600;">${defaultReqs.optimization_mode_type === 'from_sliders' ? 'Refinar Sliders Activos' : 'Explorar desde cero'}</span>
             </div>
             <div>
               <strong>Prioridad de Optimización:</strong> 
-              <span style="color: #e8edf4; font-weight: 600;">${defaultReqs.optimization_mode === 'weight' ? 'Mínimo Peso' : defaultReqs.optimization_mode === 'efficiency' ? 'Máxima Eficiencia (L/D)' : 'Balance (L/D / peso)'}</span>
+              <span style="color: #e8f1fb; font-weight: 600;">${defaultReqs.optimization_mode === 'weight' ? 'Mínimo Peso' : defaultReqs.optimization_mode === 'efficiency' ? 'Máxima Eficiencia (L/D)' : 'Balance (L/D / peso)'}</span>
             </div>
             <div>
               <strong>Motor de Predicción:</strong> 
@@ -151,124 +151,124 @@ export function generateTechnicalReportHtml(
 
       <!-- SECCIÓN B: DATOS TÉCNICOS GEOMETRÍA Y RENDIMIENTO -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42;">
-          <h3 style="margin-top: 0; font-size: 14px; color: #22d3ee; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f;">
+          <h3 style="margin-top: 0; font-size: 14px; color: #22d3ee; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
             B.1 Geometría de Planta Alar
           </h3>
           <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Perfil NACA:</td><td style="font-weight: 600; text-align: right;">${params.nacaCode}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Envergadura (b):</td><td style="font-weight: 600; text-align: right;">${params.b} m</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Cuerda Raíz (Cr):</td><td style="font-weight: 600; text-align: right;">${params.Cr} m</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Cuerda Punta (Ct):</td><td style="font-weight: 600; text-align: right;">${params.Ct} m</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Afinamiento (λ):</td><td style="font-weight: 600; text-align: right;">${(params.Ct / params.Cr).toFixed(3)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Flecha (Sweep):</td><td style="font-weight: 600; text-align: right;">${params.sweep_deg}°</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Torsión (Twist):</td><td style="font-weight: 600; text-align: right;">${params.twist_deg}°</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Perfil NACA:</td><td style="font-weight: 600; text-align: right;">${params.nacaCode}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Envergadura (b):</td><td style="font-weight: 600; text-align: right;">${params.b} m</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Cuerda Raíz (Cr):</td><td style="font-weight: 600; text-align: right;">${params.Cr} m</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Cuerda Punta (Ct):</td><td style="font-weight: 600; text-align: right;">${params.Ct} m</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Afinamiento (λ):</td><td style="font-weight: 600; text-align: right;">${(params.Ct / params.Cr).toFixed(3)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Flecha (Sweep):</td><td style="font-weight: 600; text-align: right;">${params.sweep_deg}°</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Torsión (Twist):</td><td style="font-weight: 600; text-align: right;">${params.twist_deg}°</td></tr>
           </table>
         </div>
 
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42;">
-          <h3 style="margin-top: 0; font-size: 14px; color: #22d3ee; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f;">
+          <h3 style="margin-top: 0; font-size: 14px; color: #22d3ee; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
             B.2 Desempeño Aerodinámico
           </h3>
           <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Ángulo de Ataque (α):</td><td style="font-weight: 600; text-align: right;">${params.alpha_deg}°</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Sustentación (CL) [adim]:</td><td style="font-weight: 600; text-align: right; color: #34d399;">${result.CL.toFixed(4)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Resistencia (CD) [adim]:</td><td style="font-weight: 600; text-align: right; color: #fbbf24;">${result.CD.toFixed(4)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Eficiencia (L/D) [adim]:</td><td style="font-weight: 600; text-align: right; color: #22d3ee; font-size: 15px;">${result.LD.toFixed(2)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Momento (Cm) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.Cm.toFixed(4)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Superficie Alar (S):</td><td style="font-weight: 600; text-align: right;">${result.S_m2.toFixed(2)} m²</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Alargamiento (AR) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.AR.toFixed(2)}</td></tr>
-            <tr><td style="color: #9aaec9; padding: 4px 0;">Eficiencia Oswald (e) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.e.toFixed(4)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Ángulo de Ataque (α):</td><td style="font-weight: 600; text-align: right;">${params.alpha_deg}°</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Sustentación (CL) [adim]:</td><td style="font-weight: 600; text-align: right; color: #34d399;">${result.CL.toFixed(4)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Resistencia (CD) [adim]:</td><td style="font-weight: 600; text-align: right; color: #fbbf24;">${result.CD.toFixed(4)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Eficiencia (L/D) [adim]:</td><td style="font-weight: 600; text-align: right; color: #22d3ee; font-size: 15px;">${result.LD.toFixed(2)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Momento (Cm) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.Cm.toFixed(4)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Superficie Alar (S):</td><td style="font-weight: 600; text-align: right;">${result.S_m2.toFixed(2)} m²</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Alargamiento (AR) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.AR.toFixed(2)}</td></tr>
+            <tr><td style="color: #8ea3bd; padding: 4px 0;">Eficiencia Oswald (e) [adim]:</td><td style="font-weight: 600; text-align: right;">${result.e.toFixed(4)}</td></tr>
           </table>
         </div>
       </div>
 
       <!-- SECCIÓN B.3: ANÁLISIS ESTRUCTURAL Y SEGURIDAD QUANTITATIVA -->
-      <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+      <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
           B.3 Verificación de Seguridad y Estabilidad Aeroelástica
         </h3>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;">
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Momento Flector Raíz:</span>
-            <strong style="font-size: 14px; color: #e8edf4;">${viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Momento Flector Raíz:</span>
+            <strong style="font-size: 14px; color: #e8f1fb;">${viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Tensión Máx. Sostenida:</span>
-            <strong style="font-size: 14px; color: #e8edf4;">${viability.maxStressMpa ?? '-'} MPa</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Tensión Máx. Sostenida:</span>
+            <strong style="font-size: 14px; color: #e8f1fb;">${viability.maxStressMpa ?? '-'} MPa</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">FS a Flexión:</span>
-            <strong style="font-size: 14px; color: ${(viability.flexuralSafetyFactor ?? 2) >= 1.5 ? '#34d399' : '#f43f5e'};">${viability.flexuralSafetyFactor ?? '-'}x</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">FS a Flexión:</span>
+            <strong style="font-size: 14px; color: ${(viability.flexuralSafetyFactor ?? 2) >= 1.5 ? '#34d399' : '#fb7185'};">${viability.flexuralSafetyFactor ?? '-'}x</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Deflexión de Punta:</span>
-            <strong style="font-size: 14px; color: ${(viability.tipDeflectionPercent ?? 0) < 5 ? '#38bdf8' : '#f43f5e'};">${viability.tipDeflectionMm ?? '-'} mm (${viability.tipDeflectionPercent ?? '-'}% b)</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Deflexión de Punta:</span>
+            <strong style="font-size: 14px; color: ${(viability.tipDeflectionPercent ?? 0) < 5 ? '#38bdf8' : '#fb7185'};">${viability.tipDeflectionMm ?? '-'} mm (${viability.tipDeflectionPercent ?? '-'}% b)</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Velocidad Divergencia (V_d):</span>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Velocidad Divergencia (V_d):</span>
             <strong style="font-size: 14px; color: #34d399;">${viability.divergenceSpeedMs ?? '-'} m/s</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Riesgo de Flutter:</span>
-            <strong style="font-size: 14px; color: ${viability.flutterRisk === 'alto' ? '#f43f5e' : '#34d399'}; text-transform: uppercase;">${viability.flutterRisk ?? 'Bajo'}</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Riesgo de Flutter:</span>
+            <strong style="font-size: 14px; color: ${viability.flutterRisk === 'alto' ? '#fb7185' : '#34d399'}; text-transform: uppercase;">${viability.flutterRisk ?? 'Bajo'}</strong>
           </div>
         </div>
       </div>
 
       <!-- SECCIÓN B.4: ESTABILIDAD AL PANDEO -->
-      <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+      <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
           B.4 Estabilidad al Pandeo Estructural (Euler)
         </h3>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px;">
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Carga Crítica (P_crit):</span>
-            <strong style="font-size: 13px; color: #e8edf4;">${viability.bucklingAnalysis?.P_crit_N ?? 12500} N</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Carga Crítica (P_crit):</span>
+            <strong style="font-size: 13px; color: #e8f1fb;">${viability.bucklingAnalysis?.P_crit_N ?? 12500} N</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Carga Aplicada:</span>
-            <strong style="font-size: 13px; color: #e8edf4;">${viability.bucklingAnalysis?.P_applied_N ?? 2400} N</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Carga Aplicada:</span>
+            <strong style="font-size: 13px; color: #e8f1fb;">${viability.bucklingAnalysis?.P_applied_N ?? 2400} N</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">FS Pandeo:</span>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">FS Pandeo:</span>
             <strong style="font-size: 13px; color: #38bdf8;">${viability.bucklingAnalysis?.fs_buckling ?? 5.2}x</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Estado Pandeo:</span>
-            <strong style="font-size: 13px; color: ${(viability.bucklingAnalysis?.status ?? 'Seguro') === 'Seguro' ? '#34d399' : '#f43f5e'};">${viability.bucklingAnalysis?.status ?? 'Seguro'}</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Estado Pandeo:</span>
+            <strong style="font-size: 13px; color: ${(viability.bucklingAnalysis?.status ?? 'Seguro') === 'Seguro' ? '#34d399' : '#fb7185'};">${viability.bucklingAnalysis?.status ?? 'Seguro'}</strong>
           </div>
         </div>
       </div>
 
       <!-- SECCIÓN B.5: ESTABILIDAD DE VUELO LONGITUDINAL -->
-      <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+      <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
           B.5 Estabilidad de Vuelo Longitudinal (Modelo 3 DoF)
         </h3>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px;">
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Cm_alpha (dCm/dalpha):</span>
-            <strong style="font-size: 13px; color: #e8edf4;">${viability.flightDynamics?.Cm_alpha ?? -0.12} rad⁻¹</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Cm_alpha (dCm/dalpha):</span>
+            <strong style="font-size: 13px; color: #e8f1fb;">${viability.flightDynamics?.Cm_alpha ?? -0.12} rad⁻¹</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Margen Estático:</span>
-            <strong style="font-size: 13px; color: #e8edf4;">${viability.flightDynamics?.staticMarginPct ?? 10.5}% MAC</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Margen Estático:</span>
+            <strong style="font-size: 13px; color: #e8f1fb;">${viability.flightDynamics?.staticMarginPct ?? 10.5}% MAC</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Freq. Phugoid:</span>
-            <strong style="font-size: 13px; color: #e8edf4;">${viability.flightDynamics?.omegaPhugoidRadS ?? 0.278} rad/s</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Freq. Phugoid:</span>
+            <strong style="font-size: 13px; color: #e8f1fb;">${viability.flightDynamics?.omegaPhugoidRadS ?? 0.278} rad/s</strong>
           </div>
-          <div style="background: #070b12; padding: 10px; border-radius: 6px; border: 1px solid #1e2d42;">
-            <span style="font-size: 11px; color: #9aaec9; display: block;">Estado Dinámico:</span>
-            <strong style="font-size: 13px; color: ${(viability.flightDynamics?.status ?? 'Estable') === 'Estable' ? '#34d399' : '#f43f5e'};">${viability.flightDynamics?.status ?? 'Estable'}</strong>
+          <div style="background: #05070c; padding: 10px; border-radius: 6px; border: 1px solid #16202f;">
+            <span style="font-size: 11px; color: #8ea3bd; display: block;">Estado Dinámico:</span>
+            <strong style="font-size: 13px; color: ${(viability.flightDynamics?.status ?? 'Estable') === 'Estable' ? '#34d399' : '#fb7185'};">${viability.flightDynamics?.status ?? 'Estable'}</strong>
           </div>
         </div>
       </div>
 
       <!-- SECCIÓN B.6: RECOMENDACIONES PARA REDUCIR PESO Y COSTE -->
-      <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; margin-bottom: 10px;">
+      <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 10px;">
           <h3 style="margin: 0; font-size: 14px; color: #38bdf8; font-weight: 700;">
             B.6 Recomendaciones para Reducir Peso y Coste (Factor de Seguridad Dinámico)
           </h3>
@@ -276,18 +276,18 @@ export function generateTechnicalReportHtml(
             Estado FS: ${viability.fsStatus || 'Ajustado'} (${viability.fsReal || 2.5}x vs ${viability.fsTarget || 2.5}x Obj)
           </span>
         </div>
-        <p style="font-size: 11px; color: #5a7390; margin: 0 0 8px 0;">
-          Modo Seleccionado: <strong style="color: #e8edf4; text-transform: uppercase;">${viability.optimizationMode || 'balance'}</strong> | FS Objetivo Solicitado: <strong style="color: #38bdf8;">${viability.fsTarget || 2.5}x</strong> | Motor Usado: <strong style="color: #38bdf8;">${viability.surrogateModelSource || 'NeuralFoil v2.1'}</strong>
+        <p style="font-size: 11px; color: #5b6f8c; margin: 0 0 8px 0;">
+          Modo Seleccionado: <strong style="color: #e8f1fb; text-transform: uppercase;">${viability.optimizationMode || 'balance'}</strong> | FS Objetivo Solicitado: <strong style="color: #38bdf8;">${viability.fsTarget || 2.5}x</strong> | Motor Usado: <strong style="color: #38bdf8;">${viability.surrogateModelSource || 'NeuralFoil v2.1'}</strong>
         </p>
-        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #e8edf4; line-height: 1.6;">
+        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #e8f1fb; line-height: 1.6;">
           ${(viability.weightOptimizationRecommendations || ['Diseño ajustado al factor de seguridad objetivo sin peso superfluo.']).map(rec => `<li style="margin-bottom: 6px;">${rec}</li>`).join('')}
         </ul>
       </div>
 
       <!-- SECCIÓN B.7: VALIDACIÓN CON CFD EXTERNO -->
       ${viability.cfdValidation ? `
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; margin-bottom: 10px;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 10px;">
             <h3 style="margin: 0; font-size: 14px; color: #38bdf8; font-weight: 700;">
               B.7 Validación con CFD Externo (SU2 / High-Fidelity)
             </h3>
@@ -296,26 +296,26 @@ export function generateTechnicalReportHtml(
             </span>
           </div>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 11px;">
-            <div style="background: #070b12; padding: 8px; border-radius: 4px;">
-              <span style="color: #9aaec9; display: block;">CL CFD vs Base:</span>
-              <strong style="color: #e8edf4;">${viability.cfdValidation.cfd.CL} vs ${viability.cfdValidation.baseline.CL} (Δ ${viability.cfdValidation.deltaCLPct}%)</strong>
+            <div style="background: #05070c; padding: 8px; border-radius: 4px;">
+              <span style="color: #8ea3bd; display: block;">CL CFD vs Base:</span>
+              <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CL} vs ${viability.cfdValidation.baseline.CL} (Δ ${viability.cfdValidation.deltaCLPct}%)</strong>
             </div>
-            <div style="background: #070b12; padding: 8px; border-radius: 4px;">
-              <span style="color: #9aaec9; display: block;">CD CFD vs Base:</span>
-              <strong style="color: #e8edf4;">${viability.cfdValidation.cfd.CD} vs ${viability.cfdValidation.baseline.CD} (Δ ${viability.cfdValidation.deltaCDPct}%)</strong>
+            <div style="background: #05070c; padding: 8px; border-radius: 4px;">
+              <span style="color: #8ea3bd; display: block;">CD CFD vs Base:</span>
+              <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CD} vs ${viability.cfdValidation.baseline.CD} (Δ ${viability.cfdValidation.deltaCDPct}%)</strong>
             </div>
-            <div style="background: #070b12; padding: 8px; border-radius: 4px;">
-              <span style="color: #9aaec9; display: block;">Solucionador:</span>
+            <div style="background: #05070c; padding: 8px; border-radius: 4px;">
+              <span style="color: #8ea3bd; display: block;">Solucionador:</span>
               <strong style="color: #38bdf8;">${viability.cfdValidation.solver}</strong>
             </div>
           </div>
           ${
             viability.cfdValidation.deltaCLPct > 30 || viability.cfdValidation.deltaCDPct > 30
-              ? `<div style="background: rgba(244, 63, 94, 0.15); border: 1px solid #f43f5e; color: #fda4af; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
+              ? `<div style="background: rgba(244, 63, 94, 0.15); border: 1px solid #fb7185; color: #fda4af; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
                   🔴 DIFERENCIA CRÍTICA: El diseño no debe fabricarse sin una validación CFD adicional. El panel no es fiable para esta configuración.
                 </div>`
               : viability.cfdValidation.deltaCLPct > 20 || viability.cfdValidation.deltaCDPct > 20
-              ? `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fcd34d; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
+              ? `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; color: #fcd34d; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
                   ⚠️ ADVERTENCIA: El modelo de panel (NeuralFoil) muestra una diferencia significativa con el CFD. Esto puede deberse a efectos no lineales (separación, compresibilidad) o a que el perfil tiene alta comba. Se recomienda validar este diseño con simulaciones de alta fidelidad antes de fabricar.
                 </div>`
               : ''
@@ -324,27 +324,27 @@ export function generateTechnicalReportHtml(
       ` : ''}
 
       <!-- SECCIÓN C: ANÁLISIS DE SENSIBILIDAD Y RECOMENDACIONES -->
-      <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-        <h3 style="margin-top: 0; font-size: 14px; color: #60a5fa; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+      <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #60a5fa; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
           C. Análisis de Sensibilidad y Recomendaciones para Toma de Decisiones
         </h3>
-        <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; color: #9aaec9; line-height: 1.6;">
+        <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; color: #8ea3bd; line-height: 1.6;">
           ${viability.sensitivityRecommendations.map(rec => `<li style="margin-bottom: 6px;">${rec}</li>`).join('')}
         </ul>
       </div>
 
       <!-- SECCIÓN C.1: ANÁLISIS DE INCERTIDUMBRE (MONTE CARLO) -->
       ${viability.monteCarloAnalysis ? `
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; margin-bottom: 8px;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 8px;">
             <h3 style="margin: 0; font-size: 14px; color: #38bdf8; font-weight: 700;">
               C.1 Análisis de Incertidumbre y Sensibilidad (Monte Carlo - ${viability.monteCarloAnalysis.samplesCount} Muestras)
             </h3>
             <span style="font-size: 11px; color: #34d399; font-weight: 600;">Consistencia de Coste P50 = Sección A ✓</span>
           </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #e8edf4; margin-top: 8px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #e8f1fb; margin-top: 8px;">
             <thead>
-              <tr style="border-bottom: 1px solid #1e2d42; color: #9aaec9; text-align: left;">
+              <tr style="border-bottom: 1px solid #16202f; color: #8ea3bd; text-align: left;">
                 <th style="padding: 6px;">Métrica de Rendimiento</th>
                 <th style="padding: 6px;">Percentil 5% (Conservador)</th>
                 <th style="padding: 6px;">Percentil 50% (Mediana)</th>
@@ -352,33 +352,33 @@ export function generateTechnicalReportHtml(
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom: 1px solid #132030;">
-                <td style="padding: 6px; color: #9aaec9;">Eficiencia Aerodinámica (L/D)</td>
+              <tr style="border-bottom: 1px solid #0e1624;">
+                <td style="padding: 6px; color: #8ea3bd;">Eficiencia Aerodinámica (L/D)</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.LD.p5}</td>
                 <td style="padding: 6px; font-weight: bold; color: #38bdf8;">${viability.monteCarloAnalysis.LD.p50}</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.LD.p95}</td>
               </tr>
-              <tr style="border-bottom: 1px solid #132030;">
-                <td style="padding: 6px; color: #9aaec9;">Factor de Seguridad Real (FS)</td>
+              <tr style="border-bottom: 1px solid #0e1624;">
+                <td style="padding: 6px; color: #8ea3bd;">Factor de Seguridad Real (FS)</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.FS.p5}x</td>
                 <td style="padding: 6px; font-weight: bold; color: #38bdf8;">${viability.monteCarloAnalysis.FS.p50}x</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.FS.p95}x</td>
               </tr>
-              <tr style="border-bottom: 1px solid #132030;">
-                <td style="padding: 6px; color: #9aaec9;">Peso Estructural Estimado</td>
+              <tr style="border-bottom: 1px solid #0e1624;">
+                <td style="padding: 6px; color: #8ea3bd;">Peso Estructural Estimado</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.Peso.p5} kg</td>
                 <td style="padding: 6px; font-weight: bold; color: #38bdf8;">${viability.monteCarloAnalysis.Peso.p50} kg</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.Peso.p95} kg</td>
               </tr>
               <tr>
-                <td style="padding: 6px; color: #9aaec9;">Coste Total Fabricación</td>
+                <td style="padding: 6px; color: #8ea3bd;">Coste Total Fabricación</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.Coste.p5} €</td>
                 <td style="padding: 6px; font-weight: bold; color: #38bdf8;">${viability.monteCarloAnalysis.Coste.p50} €</td>
                 <td style="padding: 6px;">${viability.monteCarloAnalysis.Coste.p95} €</td>
               </tr>
             </tbody>
           </table>
-          <p style="font-size: 10px; color: #5a7390; margin: 6px 0 0 0; text-align: right;">
+          <p style="font-size: 10px; color: #5b6f8c; margin: 6px 0 0 0; text-align: right;">
             * El coste P50 de Monte Carlo (${viability.monteCarloAnalysis.Coste.p50} €) coincide exactamente con la estimación de la sección A (${viability.estimatedCostEur} €) gracias al motor de costes unificado v11.0.
           </p>
         </div>
@@ -386,18 +386,18 @@ export function generateTechnicalReportHtml(
 
       <!-- SECCIÓN C.2: FRENTE DE PARETO (OPCIONES DE DECISIÓN) -->
       ${viability.paretoDesigns && viability.paretoDesigns.length > 0 ? `
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-          <div style="border-bottom: 1px solid #1e2d42; padding-bottom: 6px; margin-bottom: 12px;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+          <div style="border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 12px;">
             <h3 style="margin: 0; font-size: 14px; color: #22d3ee; font-weight: 700;">
               C.2 Frente de Pareto – Diseños Óptimos para Decisión Empresarial
             </h3>
-            <p style="margin: 2px 0 0 0; font-size: 11px; color: #9aaec9;">
+            <p style="margin: 2px 0 0 0; font-size: 11px; color: #8ea3bd;">
               Configuraciones no dominadas generadas por el Algoritmo Genético Multi-Objetivo v11.0.
             </p>
           </div>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
             ${viability.paretoDesigns.map(p => `
-              <div style="background: #070b12; padding: 12px; border-radius: 6px; border: 1px solid #1e2d42; display: flex; flex-col; justify-content: space-between;">
+              <div style="background: #05070c; padding: 12px; border-radius: 6px; border: 1px solid #16202f; display: flex; flex-col; justify-content: space-between;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <strong style="color: #38bdf8; font-size: 12px;">Opción ${p.id}: ${p.name}</strong>
@@ -405,12 +405,12 @@ export function generateTechnicalReportHtml(
                       L/D ${p.aero.LD}
                     </span>
                   </div>
-                  <p style="font-size: 10px; color: #9aaec9; margin: 0 0 8px 0; line-height: 1.4;">${p.recommendation}</p>
-                  <table style="width: 100%; font-size: 10px; color: #e8edf4; border-collapse: collapse;">
-                    <tr><td style="color: #5a7390; padding: 2px 0;">Envergadura (b):</td><td style="text-align: right; font-weight: 600;">${p.params.b} m</td></tr>
-                    <tr><td style="color: #5a7390; padding: 2px 0;">Peso Estructural:</td><td style="text-align: right; font-weight: 600;">${p.weight_kg} kg</td></tr>
-                    <tr><td style="color: #5a7390; padding: 2px 0;">Coste Fabricación:</td><td style="text-align: right; font-weight: 600; color: #fcd34d;">${p.cost_eur} €</td></tr>
-                    <tr><td style="color: #5a7390; padding: 2px 0;">FS Objetivo:</td><td style="text-align: right; font-weight: 600;">${p.fs}x</td></tr>
+                  <p style="font-size: 10px; color: #8ea3bd; margin: 0 0 8px 0; line-height: 1.4;">${p.recommendation}</p>
+                  <table style="width: 100%; font-size: 10px; color: #e8f1fb; border-collapse: collapse;">
+                    <tr><td style="color: #5b6f8c; padding: 2px 0;">Envergadura (b):</td><td style="text-align: right; font-weight: 600;">${p.params.b} m</td></tr>
+                    <tr><td style="color: #5b6f8c; padding: 2px 0;">Peso Estructural:</td><td style="text-align: right; font-weight: 600;">${p.weight_kg} kg</td></tr>
+                    <tr><td style="color: #5b6f8c; padding: 2px 0;">Coste Fabricación:</td><td style="text-align: right; font-weight: 600; color: #fcd34d;">${p.cost_eur} €</td></tr>
+                    <tr><td style="color: #5b6f8c; padding: 2px 0;">FS Objetivo:</td><td style="text-align: right; font-weight: 600;">${p.fs}x</td></tr>
                   </table>
                 </div>
               </div>
@@ -421,13 +421,13 @@ export function generateTechnicalReportHtml(
 
       <!-- SECCIÓN C.3: EVOLUCIÓN DEL DISEÑO -->
       ${viability.previousDesignComparison && viability.previousDesignComparison.length > 0 ? `
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-          <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+          <h3 style="margin-top: 0; font-size: 14px; color: #38bdf8; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
             C.3 Evolución del Diseño (Comparativa con Iteración Anterior)
           </h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #e8edf4; margin-top: 8px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #e8f1fb; margin-top: 8px;">
             <thead>
-              <tr style="border-bottom: 1px solid #1e2d42; color: #9aaec9; text-align: left;">
+              <tr style="border-bottom: 1px solid #16202f; color: #8ea3bd; text-align: left;">
                 <th style="padding: 6px;">Parámetro</th>
                 <th style="padding: 6px;">Valor Anterior</th>
                 <th style="padding: 6px;">Valor Actual</th>
@@ -437,14 +437,14 @@ export function generateTechnicalReportHtml(
             </thead>
             <tbody>
               ${viability.previousDesignComparison.map(comp => `
-                <tr style="border-bottom: 1px solid #132030;">
-                  <td style="padding: 6px; font-weight: 600; color: #e8edf4;">${comp.parameter}</td>
-                  <td style="padding: 6px; color: #9aaec9;">${comp.previousValue}</td>
+                <tr style="border-bottom: 1px solid #0e1624;">
+                  <td style="padding: 6px; font-weight: 600; color: #e8f1fb;">${comp.parameter}</td>
+                  <td style="padding: 6px; color: #8ea3bd;">${comp.previousValue}</td>
                   <td style="padding: 6px; font-weight: bold; color: #38bdf8;">${comp.currentValue}</td>
-                  <td style="padding: 6px; font-weight: bold; color: ${comp.isImprovement ? '#34d399' : '#f43f5e'};">
+                  <td style="padding: 6px; font-weight: bold; color: ${comp.isImprovement ? '#34d399' : '#fb7185'};">
                     ${comp.deltaPercent}
                   </td>
-                  <td style="padding: 6px; font-size: 10px; color: #9aaec9;">${comp.interpretation}</td>
+                  <td style="padding: 6px; font-size: 10px; color: #8ea3bd;">${comp.interpretation}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -455,11 +455,11 @@ export function generateTechnicalReportHtml(
       ${
         optHistory && optHistory.best.length > 0
           ? `
-        <div style="background: #0d1520; padding: 16px; border-radius: 8px; border: 1px solid #1e2d42; margin-bottom: 24px;">
-          <h3 style="margin-top: 0; font-size: 14px; color: #60a5fa; border-bottom: 1px solid #1e2d42; padding-bottom: 6px; font-weight: 700;">
+        <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
+          <h3 style="margin-top: 0; font-size: 14px; color: #60a5fa; border-bottom: 1px solid #16202f; padding-bottom: 6px; font-weight: 700;">
             Historial de Convergencia del Algoritmo Genético
           </h3>
-          <p style="font-size: 12px; color: #9aaec9; margin: 6px 0 0 0;">
+          <p style="font-size: 12px; color: #8ea3bd; margin: 6px 0 0 0;">
             Generaciones ejecutadas: <strong>${optHistory.best.length}</strong> | 
             Mejora de L/D Ponderado: <strong>${optHistory.best[0]?.toFixed(2)} → ${optHistory.best[optHistory.best.length - 1]?.toFixed(2)}</strong>
           </p>
@@ -490,7 +490,7 @@ export function generateTechnicalReportHtml(
         </ul>
       </div>
 
-      <div style="text-align: center; font-size: 11px; color: #5a7390; margin-top: 20px;">
+      <div style="text-align: center; font-size: 11px; color: #5b6f8c; margin-top: 20px;">
         OptimAirWing Enterprise Platform • Generated ${new Date().toLocaleString()}
       </div>
     </div>

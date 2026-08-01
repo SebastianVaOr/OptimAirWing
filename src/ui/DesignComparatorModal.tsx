@@ -42,9 +42,9 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto select-none">
-      <div className="bg-[#0a111c] border border-[#1e2d42] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#0a0f18] border border-[#16202f] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-4 border-b border-[#1e2d42] flex items-center justify-between bg-[#0d1520]">
+        <div className="p-4 border-b border-[#16202f] flex items-center justify-between bg-[#0e1624]">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
               <GitCompare className="w-5 h-5" />
@@ -53,14 +53,14 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 Comparador Multi-Diseño A/B Benchmarking
               </h2>
-              <p className="text-xs text-[#9aaec9]">
+              <p className="text-xs text-[#8ea3bd]">
                 Compare métricas, finura aerodinámica (L/D), pesos y perfil superpuesto en tiempo real.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#142032] text-[#9aaec9] hover:text-white transition cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#0e1624] text-[#8ea3bd] hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -69,10 +69,10 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6">
           {/* Top Control Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
             <div>
               <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Estado de Referencia</span>
-              <p className="text-sm text-[#e8edf4]">
+              <p className="text-sm text-[#e8f1fb]">
                 {designA ? (
                   <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" /> Diseño A Fijado (NACA {designA.params.nacaCode}, b={designA.params.b}m)
@@ -94,68 +94,68 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
           {/* Side by Side Comparison Grid */}
           <div className="grid md:grid-cols-2 gap-6">
             {/* Design A Card */}
-            <div className={`p-4 rounded-xl border transition ${designA ? 'bg-[#0d1520] border-cyan-500/30' : 'bg-[#0a111c] border-[#1e2d42] opacity-60'}`}>
+            <div className={`p-4 rounded-xl border transition ${designA ? 'bg-[#0e1624] border-cyan-500/30' : 'bg-[#0a0f18] border-[#16202f] opacity-60'}`}>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                   DISEÑO A (Baseline)
                 </span>
                 {designA && (
-                  <span className="text-xs text-[#9aaec9] font-mono">NACA {designA.params.nacaCode}</span>
+                  <span className="text-xs text-[#8ea3bd] font-mono">NACA {designA.params.nacaCode}</span>
                 )}
               </div>
 
               {designA ? (
                 <div className="space-y-3 font-mono text-xs">
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Envergadura (b):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Envergadura (b):</span>
                     <span className="text-white font-bold">{designA.params.b.toFixed(2)} m</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Cuerda Raíz (Cr):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Cuerda Raíz (Cr):</span>
                     <span className="text-white font-bold">{designA.params.Cr.toFixed(2)} m</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Ángulo Ataque (α):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Ángulo Ataque (α):</span>
                     <span className="text-white font-bold">{designA.params.alpha_deg}°</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Coef. Sustentación (C_L):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Coef. Sustentación (C_L):</span>
                     <span className="text-cyan-300 font-bold">{designA.prediction?.CL?.toFixed(3) || '-'}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Coef. Resistencia (C_D):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Coef. Resistencia (C_D):</span>
                     <span className="text-rose-300 font-bold">{designA.prediction?.CD?.toFixed(4) || '-'}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                    <span className="text-[#9aaec9]">Finura Aerodinámica (L/D):</span>
+                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                    <span className="text-[#8ea3bd]">Finura Aerodinámica (L/D):</span>
                     <span className="text-emerald-400 font-bold">{designA.prediction?.LD?.toFixed(2) || '-'}</span>
                   </div>
                   {designA.prediction?.weight_kg && (
                     <div className="flex justify-between py-1">
-                      <span className="text-[#9aaec9]">Peso Estimado:</span>
+                      <span className="text-[#8ea3bd]">Peso Estimado:</span>
                       <span className="text-amber-300 font-bold">{designA.prediction.weight_kg.toFixed(1)} kg</span>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="h-48 flex items-center justify-center text-center p-6 text-xs text-[#5a7390]">
+                <div className="h-48 flex items-center justify-center text-center p-6 text-xs text-[#5b6f8c]">
                   Haz clic en "Fijar Actual como Diseño A" para guardar una captura de comparación.
                 </div>
               )}
             </div>
 
             {/* Design B Card */}
-            <div className="p-4 rounded-xl bg-[#0d1520] border border-amber-500/30">
+            <div className="p-4 rounded-xl bg-[#0e1624] border border-amber-500/30">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   DISEÑO B (Actual)
                 </span>
-                <span className="text-xs text-[#9aaec9] font-mono">NACA {currentParams.nacaCode}</span>
+                <span className="text-xs text-[#8ea3bd] font-mono">NACA {currentParams.nacaCode}</span>
               </div>
 
               <div className="space-y-3 font-mono text-xs">
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Envergadura (b):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Envergadura (b):</span>
                   <div className="flex items-center gap-2">
                     <span className="text-white font-bold">{currentParams.b.toFixed(2)} m</span>
                     {designA && (
@@ -166,8 +166,8 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Cuerda Raíz (Cr):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Cuerda Raíz (Cr):</span>
                   <div className="flex items-center gap-2">
                     <span className="text-white font-bold">{currentParams.Cr.toFixed(2)} m</span>
                     {designA && (
@@ -178,13 +178,13 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Ángulo Ataque (α):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Ángulo Ataque (α):</span>
                   <span className="text-white font-bold">{currentParams.alpha_deg}°</span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Coef. Sustentación (C_L):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Coef. Sustentación (C_L):</span>
                   <div className="flex items-center gap-2">
                     <span className="text-cyan-300 font-bold">{currentPrediction?.CL?.toFixed(3) || '-'}</span>
                     {designA && currentPrediction?.CL && designA.prediction?.CL && (
@@ -195,8 +195,8 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Coef. Resistencia (C_D):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Coef. Resistencia (C_D):</span>
                   <div className="flex items-center gap-2">
                     <span className="text-rose-300 font-bold">{currentPrediction?.CD?.toFixed(4) || '-'}</span>
                     {designA && currentPrediction?.CD && designA.prediction?.CD && (
@@ -207,8 +207,8 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-[#1e2d42]/60">
-                  <span className="text-[#9aaec9]">Finura Aerodinámica (L/D):</span>
+                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
+                  <span className="text-[#8ea3bd]">Finura Aerodinámica (L/D):</span>
                   <div className="flex items-center gap-2">
                     <span className="text-emerald-400 font-bold">{currentPrediction?.LD?.toFixed(2) || '-'}</span>
                     {designA && currentPrediction?.LD && designA.prediction?.LD && (
@@ -221,7 +221,7 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
 
                 {currentPrediction?.weight_kg && (
                   <div className="flex justify-between py-1">
-                    <span className="text-[#9aaec9]">Peso Estimado:</span>
+                    <span className="text-[#8ea3bd]">Peso Estimado:</span>
                     <span className="text-amber-300 font-bold">{currentPrediction.weight_kg.toFixed(1)} kg</span>
                   </div>
                 )}
@@ -230,8 +230,8 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
           </div>
 
           {/* Superposed Airfoil SVG Canvas */}
-          <div className="p-4 rounded-xl bg-[#0d1520] border border-[#1e2d42]">
-            <h3 className="text-xs font-bold text-[#e8edf4] mb-3 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
+            <h3 className="text-xs font-bold text-[#e8f1fb] mb-3 flex items-center justify-between">
               <span>Superposición de Perfiles Aero 2D (NACA A vs NACA B)</span>
               <div className="flex items-center gap-4 text-[11px] font-mono">
                 <span className="text-cyan-400 font-bold">― Diseño A (NACA {designA?.params.nacaCode || 'N/A'})</span>
@@ -239,11 +239,11 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
               </div>
             </h3>
 
-            <div className="w-full h-44 bg-[#070b12] rounded-lg border border-[#1e2d42] p-2 flex items-center justify-center">
+            <div className="w-full h-44 bg-[#05070c] rounded-lg border border-[#16202f] p-2 flex items-center justify-center">
               <svg viewBox="-0.1 -0.3 1.2 0.6" className="w-full h-full overflow-visible">
                 {/* Center Line Grid */}
-                <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="#1e2d42" strokeDasharray="0.02" strokeWidth="0.005" />
-                <line x1="0.25" y1="-0.25" x2="0.25" y2="0.25" stroke="#1e2d42" strokeDasharray="0.02" strokeWidth="0.005" />
+                <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
+                <line x1="0.25" y1="-0.25" x2="0.25" y2="0.25" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
 
                 {/* Profile A Path */}
                 {pointsA && pointsA.upper && (
@@ -261,7 +261,7 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
                   <path
                     d={`M ${pointsB.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${pointsB.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
                     fill="rgba(245, 158, 11, 0.15)"
-                    stroke="#f59e0b"
+                    stroke="#fbbf24"
                     strokeWidth="0.012"
                   />
                 )}
@@ -271,8 +271,8 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-[#1e2d42] bg-[#0d1520] flex items-center justify-between">
-          <span className="text-xs text-[#5a7390]">
+        <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between">
+          <span className="text-xs text-[#5b6f8c]">
             * Los deltas indican variación porcentual respecto al baseline del Diseño A.
           </span>
           {designA && (

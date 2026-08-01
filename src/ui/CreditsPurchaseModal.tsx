@@ -50,13 +50,13 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0a111c] border border-[#1e2d42] rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2d42] bg-[#0d1520]">
+      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#16202f] bg-[#0e1624]">
           <div className="flex items-center gap-2.5 text-cyan-400 font-bold">
             <Zap className="w-5 h-5 fill-current text-cyan-400" />
             <span>Paquetes de Créditos de Optimización OptimAirWing</span>
           </div>
-          <button onClick={onClose} className="text-[#9aaec9] hover:text-white transition cursor-pointer">
+          <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -72,30 +72,30 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
             </div>
           )}
 
-          <div className="text-xs text-[#9aaec9] leading-relaxed">
+          <div className="text-xs text-[#8ea3bd] leading-relaxed">
             Los créditos permiten ejecutar optimizaciones avanzadas con el Algoritmo Genético, análisis aeroelásticos y evaluación de costes de fabricación.
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {packs.map(pack => (
               <div key={pack.size}
-                className={`p-4 rounded-xl border flex flex-col justify-between transition relative ${pack.highlight ? 'bg-gradient-to-b from-[#0d1f33] to-[#0a1424] border-cyan-400 shadow-lg shadow-cyan-500/10' : 'bg-[#070b12] border-[#1e2d42]'}`}>
+                className={`p-4 rounded-xl border flex flex-col justify-between transition relative ${pack.highlight ? 'bg-gradient-to-b from-[#131d2e] to-[#0e1624] border-cyan-400 shadow-lg shadow-cyan-500/10' : 'bg-[#05070c] border-[#16202f]'}`}>
                 {pack.highlight && (
-                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-cyan-400 text-[#070b12] text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">{pack.badge}</span>
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-cyan-400 text-[#05070c] text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">{pack.badge}</span>
                 )}
                 <div>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-sm font-bold text-white">{pack.size} Créditos</span>
-                    {!pack.highlight && <span className="text-[10px] text-[#5a7390] bg-[#101a29] px-2 py-0.5 rounded border border-[#1e2d42]">{pack.badge}</span>}
+                    {!pack.highlight && <span className="text-[10px] text-[#5b6f8c] bg-[#0e1624] px-2 py-0.5 rounded border border-[#16202f]">{pack.badge}</span>}
                   </div>
                   <div className="mt-3">
                     <span className="text-2xl font-extrabold text-cyan-300">{pack.price} €</span>
-                    <span className="text-[11px] text-[#5a7390] block mt-0.5">{pack.pricePerCredit}</span>
+                    <span className="text-[11px] text-[#5b6f8c] block mt-0.5">{pack.pricePerCredit}</span>
                   </div>
-                  <p className="text-[11px] text-[#889cb5] mt-3 leading-normal">{pack.desc}</p>
+                  <p className="text-[11px] text-[#8ea3bd] mt-3 leading-normal">{pack.desc}</p>
                 </div>
                 <button onClick={() => handleBuy(pack.size)} disabled={buyingPack !== null}
-                  className={`w-full mt-5 py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${pack.highlight ? 'bg-cyan-400 hover:bg-cyan-300 text-[#070b12]' : 'bg-[#132030] hover:bg-[#1a2b40] text-cyan-300 border border-[#1e2d42]'}`}>
+                  className={`w-full mt-5 py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${pack.highlight ? 'bg-cyan-400 hover:bg-cyan-300 text-[#05070c]' : 'bg-[#0e1624] hover:bg-[#16202f] text-cyan-300 border border-[#16202f]'}`}>
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>{buyingPack === pack.size ? 'Procesando...' : 'Comprar Paquete'}</span>
                 </button>
@@ -103,7 +103,7 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
             ))}
           </div>
 
-          <div className="flex items-center gap-2 pt-2 text-[11px] text-[#5a7390]">
+          <div className="flex items-center gap-2 pt-2 text-[11px] text-[#5b6f8c]">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>Pago seguro garantizado. Los créditos adicionales no caducan y se suman a su saldo disponible.</span>
           </div>

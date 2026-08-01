@@ -23,7 +23,7 @@ export function renderProfile2D(container: HTMLElement, nacaCode: string): void 
     .append('svg')
     .attr('width', width)
     .attr('height', height)
-    .style('background', '#0a111c')
+    .style('background', '#05070c')
     .style('border-radius', '6px');
 
   const xScale = d3
@@ -52,7 +52,7 @@ export function renderProfile2D(container: HTMLElement, nacaCode: string): void 
     .attr('y1', yScale(0))
     .attr('x2', xScale(1))
     .attr('y2', yScale(0))
-    .attr('stroke', '#1e2d42')
+    .attr('stroke', '#16202f')
     .attr('stroke-width', 1)
     .attr('stroke-dasharray', '3,3');
 

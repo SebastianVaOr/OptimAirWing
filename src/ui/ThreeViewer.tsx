@@ -44,8 +44,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x070b12);
-    scene.fog = new THREE.Fog(0x070b12, 20, 40);
+    scene.background = new THREE.Color(0x05070c);
+    scene.fog = new THREE.Fog(0x05070c, 20, 40);
     sceneRef.current = scene;
 
     // Camera setup
@@ -77,7 +77,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     const ambient = new THREE.AmbientLight(0x404060, 0.8);
     scene.add(ambient);
 
-    const hemisphere = new THREE.HemisphereLight(0x22d3ee, 0x070b12, 0.6);
+    const hemisphere = new THREE.HemisphereLight(0x22d3ee, 0x05070c, 0.6);
     scene.add(hemisphere);
 
     const dirLight = new THREE.DirectionalLight(0x22d3ee, 2.0);
@@ -96,8 +96,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     scene.add(fillLight);
 
     // Grid Helper
-    const gridColor = isHydrofoil ? 0x0284c7 : isF1 ? 0xd97706 : 0x1e2d42;
-    const grid = new THREE.GridHelper(24, 24, gridColor, 0x0d1520);
+    const gridColor = isHydrofoil ? 0x0284c7 : isF1 ? 0xd97706 : 0x16202f;
+    const grid = new THREE.GridHelper(24, 24, gridColor, 0x0e1624);
     grid.position.y = -2;
     scene.add(grid);
 
@@ -235,7 +235,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
   };
 
   return (
-    <div className="relative w-full h-full bg-[#070b12] overflow-hidden select-none">
+    <div className="relative w-full h-full bg-[#05070c] overflow-hidden select-none">
       <div ref={containerRef} className="w-full h-full" />
 
       {/* Viewport Top Controls Overlay & Category Domain Switcher */}
@@ -246,7 +246,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition cursor-pointer ${
               autoRotate
                 ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                : 'bg-[#0d1520]/90 text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                : 'bg-[#0e1624]/90 text-[#8ea3bd] border-[#16202f] hover:text-white'
             }`}
           >
             <RotateCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin' : ''}`} />
@@ -258,7 +258,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition cursor-pointer ${
               showWireframe
                 ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                : 'bg-[#0d1520]/90 text-[#9aaec9] border-[#1e2d42] hover:text-white'
+                : 'bg-[#0e1624]/90 text-[#8ea3bd] border-[#16202f] hover:text-white'
             }`}
             title="Toggle Wireframe"
           >
@@ -267,7 +267,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
           </button>
           <button
             onClick={resetCamera}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[#0d1520]/90 text-[#9aaec9] border border-[#1e2d42] hover:text-white transition cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[#0e1624]/90 text-[#8ea3bd] border border-[#16202f] hover:text-white transition cursor-pointer"
             title="Reset Vista (R)"
           >
             <Compass className="w-3.5 h-3.5" />
@@ -276,11 +276,11 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
         </div>
 
         {/* Dedicated Domain Vehicle Tabs */}
-        <div className="flex items-center gap-1 bg-[#0d1520]/95 p-1 rounded-xl border border-[#1e2d42] text-xs font-bold pointer-events-auto shadow-lg">
+        <div className="flex items-center gap-1 bg-[#0e1624]/95 p-1 rounded-xl border border-[#16202f] text-xs font-bold pointer-events-auto shadow-lg">
           <button
             onClick={() => store.setVehicleCategory('aircraft')}
             className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${
-              selectedVehicle === 'aircraft' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-[#9aaec9] hover:text-white'
+              selectedVehicle === 'aircraft' ? 'bg-cyan-500 text-[#05070c] font-black shadow-sm' : 'text-[#8ea3bd] hover:text-white'
             }`}
           >
             <span>✈️ Aviación</span>
@@ -288,7 +288,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
           <button
             onClick={() => store.setVehicleCategory('f1_motorsport')}
             className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${
-              selectedVehicle === 'f1_motorsport' ? 'bg-amber-500 text-slate-950 font-black shadow-sm' : 'text-[#9aaec9] hover:text-white'
+              selectedVehicle === 'f1_motorsport' ? 'bg-amber-500 text-[#05070c] font-black shadow-sm' : 'text-[#8ea3bd] hover:text-white'
             }`}
           >
             <span>🏎️ F1 Motorsport</span>
@@ -296,7 +296,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
           <button
             onClick={() => store.setVehicleCategory('hydrofoil_nautical')}
             className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${
-              selectedVehicle === 'hydrofoil_nautical' ? 'bg-sky-500 text-slate-950 font-black shadow-sm' : 'text-[#9aaec9] hover:text-white'
+              selectedVehicle === 'hydrofoil_nautical' ? 'bg-sky-500 text-[#05070c] font-black shadow-sm' : 'text-[#8ea3bd] hover:text-white'
             }`}
           >
             <span>🛥️ Hydrofoil Náutico</span>
@@ -305,7 +305,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
       </div>
 
       {/* 3D Coordinates & Dimensions HUD (Top Right) */}
-      <div className="absolute top-14 right-3 hidden sm:flex flex-col items-end gap-1 text-[11px] font-mono bg-[#0d1520]/80 backdrop-blur-sm p-2.5 rounded-lg border border-[#1e2d42] text-[#9aaec9]">
+      <div className="absolute top-14 right-3 hidden sm:flex flex-col items-end gap-1 text-[11px] font-mono bg-[#0e1624]/80 backdrop-blur-sm p-2.5 rounded-lg border border-[#16202f] text-[#8ea3bd]">
         <div className="flex items-center gap-2">
           <span className="text-red-400 font-bold">Envergadura (b):</span>
           <span className="text-white font-bold">{params.b.toFixed(2)} m</span>
@@ -319,13 +319,13 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
           <span className="text-white font-bold">{params.Cr.toFixed(2)} m / {params.Ct.toFixed(2)} m</span>
         </div>
         {selectedVehicle === 'f1_motorsport' && (
-          <div className="flex items-center gap-2 text-amber-400 text-[10px] pt-1 border-t border-[#1e2d42]">
+          <div className="flex items-center gap-2 text-amber-400 text-[10px] pt-1 border-t border-[#16202f]">
             <span>Configuración multi-elemento (Mainplane + DRS Flap)</span>
           </div>
         )}
       </div>
 
-      <div className="absolute bottom-3 right-3 text-[10px] text-[#5a7390] font-mono bg-[#0d1520]/80 px-2 py-0.5 rounded border border-[#1e2d42]">
+      <div className="absolute bottom-3 right-3 text-[10px] text-[#5b6f8c] font-mono bg-[#0e1624]/80 px-2 py-0.5 rounded border border-[#16202f]">
         OptimAirWing 3D • Renderizado de Geometría
       </div>
     </div>

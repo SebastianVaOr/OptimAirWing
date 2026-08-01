@@ -30,8 +30,8 @@ import { useTranslation } from 'react-i18next';
 
 const Spinner = () => (
   <div className="flex items-center justify-center gap-2 py-6">
-    <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-    <span className="text-xs text-cyan-400 font-semibold">Cargando...</span>
+    <div className="w-5 h-5 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+    <span className="text-xs text-[#22d3ee] font-semibold">Cargando...</span>
   </div>
 );
 
@@ -138,7 +138,7 @@ export default function App() {
 
   if (viewMode === 'landing') {
     return (
-      <div className="flex flex-col min-h-screen w-full bg-[#070b12] text-[#e8edf4]">
+      <div className="flex flex-col min-h-screen w-full bg-[#05070c] text-[#e8f1fb]">
         <LandingPage onEnterSimulator={() => setViewMode('simulator')} />
         <InfoSectionModal
           isOpen={infoModalTab !== null}
@@ -150,7 +150,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#070b12] text-[#e8edf4] overflow-hidden select-none">
+    <div className="flex flex-col h-screen w-screen bg-[#05070c] text-[#e8f1fb] overflow-hidden select-none">
       {/* Fixed Top Navigation Bar */}
       <Header
         org={state.org}
@@ -175,13 +175,13 @@ export default function App() {
       />
 
       {/* Mobile/Tablet Segmented View Bar */}
-      <div className="flex lg:hidden items-center justify-around bg-[#0a111c] border-b border-[#1e2d42] px-2 py-1.5 text-xs font-semibold shrink-0">
+      <div className="flex lg:hidden items-center justify-around bg-[#0a0f18] border-b border-[#16202f] px-2 py-1.5 text-xs font-semibold shrink-0">
         <button
           onClick={() => setMobileTab('params')}
           className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
             mobileTab === 'params'
-              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-              : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42]'
+              ? 'chip-active'
+              : 'bg-[#05070c] text-[#8ea3bd] border-[#16202f]'
           }`}
         >
           Parámetros
@@ -190,8 +190,8 @@ export default function App() {
           onClick={() => setMobileTab('viewer')}
           className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
             mobileTab === 'viewer'
-              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-              : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42]'
+              ? 'chip-active'
+              : 'bg-[#05070c] text-[#8ea3bd] border-[#16202f]'
           }`}
         >
           Vista 3D
@@ -200,8 +200,8 @@ export default function App() {
           onClick={() => setMobileTab('results')}
           className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
             mobileTab === 'results'
-              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-              : 'bg-[#0d1520] text-[#9aaec9] border-[#1e2d42]'
+              ? 'chip-active'
+              : 'bg-[#05070c] text-[#8ea3bd] border-[#16202f]'
           }`}
         >
           Resultados

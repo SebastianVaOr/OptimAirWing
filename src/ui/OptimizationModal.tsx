@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, Zap, StopCircle, CheckCircle, Cpu, Layers, Award, AlertTriangle, Activity, Lock, ArrowUpRight, Weight, Scale } from 'lucide-react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { GeneticOptimizer } from '../domains/wing/geneticOptimizer';
@@ -220,17 +220,17 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
             maintainAspectRatio: false,
             plugins: {
               legend: {
-                labels: { color: '#e8edf4', font: { size: 11 } }
+                labels: { color: '#e8f1fb', font: { size: 11 } }
               }
             },
             scales: {
               x: {
-                grid: { color: '#1e2d42' },
-                ticks: { color: '#9aaec9' }
+                grid: { color: '#16202f' },
+                ticks: { color: '#8ea3bd' }
               },
               y: {
-                grid: { color: '#1e2d42' },
-                ticks: { color: '#9aaec9' }
+                grid: { color: '#16202f' },
+                ticks: { color: '#8ea3bd' }
               }
             }
           }
@@ -380,9 +380,9 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-[#0a111c] border border-[#1e2d42] rounded-xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[92vh]">
+      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[92vh]">
         {/* Modal Header */}
-        <div className="flex flex-wrap items-center justify-between px-5 py-3.5 border-b border-[#1e2d42] bg-[#0d1520] shrink-0 gap-2">
+        <div className="flex flex-wrap items-center justify-between px-5 py-3.5 border-b border-[#16202f] bg-[#0e1624] shrink-0 gap-2">
           <div className="flex items-center gap-2.5 text-cyan-400 font-bold">
             <Zap className="w-5 h-5 fill-current text-cyan-400" />
             <span className="text-sm sm:text-base">Optimizador Técnico-Económico OptimAirWing</span>
@@ -408,7 +408,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               <span>+ Comprar Créditos</span>
             </button>
 
-            <button onClick={onClose} className="text-[#9aaec9] hover:text-white transition cursor-pointer">
+            <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -440,7 +440,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           )}
 
           {/* Selección de Modo de Optimización & Nivel (Consumo de Créditos) */}
-          <div className="bg-[#0d1520] border border-[#1e2d42] rounded-lg p-3.5 flex flex-col gap-3">
+          <div className="bg-[#0e1624] border border-[#16202f] rounded-lg p-3.5 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu className="w-3.5 h-3.5" /> Nivel de Optimización & Consumo
@@ -452,7 +452,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
             {/* Modo de Optimización Multiobjetivo */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-[#9aaec9] flex items-center gap-1">
+              <label className="text-xs font-medium text-[#8ea3bd] flex items-center gap-1">
                 <Scale className="w-3.5 h-3.5 text-cyan-400" /> Modo de Optimización Objetivo:
               </label>
               <div className="grid grid-cols-3 gap-2 text-xs">
@@ -462,11 +462,11 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
                     optMode === 'efficiency'
                       ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                   }`}
                 >
                   <span className="font-bold">Máxima Eficiencia</span>
-                  <span className="text-[10px] text-[#5a7390]">Prioriza L/D (+0 cred)</span>
+                  <span className="text-[10px] text-[#5b6f8c]">Prioriza L/D (+0 cred)</span>
                 </button>
 
                 <button
@@ -475,13 +475,13 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
                     optMode === 'weight'
                       ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                   }`}
                 >
                   <span className="font-bold flex items-center gap-1">
                     Mínimo Peso <span className="text-[9px] bg-cyan-500/30 text-cyan-200 px-1 rounded">+2 cred</span>
                   </span>
-                  <span className="text-[10px] text-[#5a7390]">Prioriza reducir kg</span>
+                  <span className="text-[10px] text-[#5b6f8c]">Prioriza reducir kg</span>
                 </button>
 
                 <button
@@ -490,13 +490,13 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
                     optMode === 'balance'
                       ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                   }`}
                 >
                   <span className="font-bold flex items-center gap-1">
                     Balance L/D vs Peso <span className="text-[9px] bg-cyan-500/30 text-cyan-200 px-1 rounded">+2 cred</span>
                   </span>
-                  <span className="text-[10px] text-[#5a7390]">Compromiso óptimo</span>
+                  <span className="text-[10px] text-[#5b6f8c]">Compromiso óptimo</span>
                 </button>
               </div>
             </div>
@@ -508,12 +508,12 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
                   optLevel === 'basic'
                     ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8edf4]">Básica</div>
-                  <div className="text-[10px] text-[#5a7390] mt-0.5">Aerodinámica empírica sola</div>
+                  <div className="font-bold text-[#e8f1fb]">Básica</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Aerodinámica empírica sola</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 w-fit">
                   {1 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
@@ -526,12 +526,12 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
                   optLevel === 'neuralfoil'
                     ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8edf4]">NeuralFoil IA</div>
-                  <div className="text-[10px] text-[#5a7390] mt-0.5">+ Inferencia red neuronal</div>
+                  <div className="font-bold text-[#e8f1fb]">NeuralFoil IA</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ Inferencia red neuronal</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 w-fit">
                   {2 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
@@ -544,12 +544,12 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
                   optLevel === 'structural'
                     ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8edf4]">Estructural</div>
-                  <div className="text-[10px] text-[#5a7390] mt-0.5">+ FS, deflexión y V_d</div>
+                  <div className="font-bold text-[#e8f1fb]">Estructural</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ FS, deflexión y V_d</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 w-fit">
                   {5 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
@@ -562,12 +562,12 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
                   optLevel === 'full_custom'
                     ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#070b12] border-[#1e2d42] text-[#9aaec9] hover:border-[#2a3f5c]'
+                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8edf4]">Costes Reales</div>
-                  <div className="text-[10px] text-[#5a7390] mt-0.5">+ Material & Mano de obra</div>
+                  <div className="font-bold text-[#e8f1fb]">Costes Reales</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ Material & Mano de obra</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 w-fit">
                   {7 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
@@ -621,19 +621,19 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           {/* Progress Bar */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-[#9aaec9]">
+              <span className="text-[#8ea3bd]">
                 {isRunning ? `Generación ${currentGen} de ${maxGen}` : isFinished ? 'Optimización Técnico-Económica Finalizada' : 'Listo para iniciar'}
               </span>
               <span className="text-cyan-400 font-bold">
                 {liveScore > 0 ? `Score: ${liveScore}/100 Pts` : viability ? `Score: ${viability.riskAdjustedScore}/100 Pts` : ''}
               </span>
               {viability?.monteCarloAnalysis && (
-                <span className="text-[10px] text-[#5a7390] font-mono" title="Intervalo de confianza P50 ± P95 (Monte Carlo)">
+                <span className="text-[10px] text-[#5b6f8c] font-mono" title="Intervalo de confianza P50 ± P95 (Monte Carlo)">
                   &nbsp;| MC: L/D P50={viability.monteCarloAnalysis.LD.p50.toFixed(1)} P95={viability.monteCarloAnalysis.LD.p95.toFixed(1)}
                 </span>
               )}
             </div>
-            <div className="w-full bg-[#1e2d42] h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-[#16202f] h-2 rounded-full overflow-hidden">
               <div
                 className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-150"
                 style={{ width: `${progressPercent}%` }}
@@ -653,8 +653,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
           {/* COMPARADOR Y DATOS EN VIVO DEL ALA OPTIMIZADA */}
           {(isRunning || bestCandidate) && (
-            <div className="bg-[#0d1520] border border-cyan-500/40 rounded-lg p-3.5 flex flex-col gap-3 shadow-lg shadow-cyan-500/5">
-              <div className="flex flex-wrap items-center justify-between border-b border-[#1e2d42] pb-2 gap-2">
+            <div className="bg-[#0e1624] border border-cyan-500/40 rounded-lg p-3.5 flex flex-col gap-3 shadow-lg shadow-cyan-500/5">
+              <div className="flex flex-wrap items-center justify-between border-b border-[#16202f] pb-2 gap-2">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
                   <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider">
@@ -662,7 +662,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-semibold text-[#9aaec9]">Puntuación de Viabilidad (0-100):</span>
+                  <span className="text-[10px] uppercase font-semibold text-[#8ea3bd]">Puntuación de Viabilidad (0-100):</span>
                   <span className={`px-2.5 py-0.5 rounded text-xs font-black border ${
                     (viability?.riskAdjustedScore ?? liveScore) >= 80
                       ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
@@ -678,82 +678,82 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               {/* Grid Comparativo Parámetros del Ala */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
                 {/* Envergadura b */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Envergadura (b)</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Envergadura (b)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.b}m</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.b}m</span>
                     <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.b : effectiveParams.b} m</span>
                   </div>
                 </div>
 
                 {/* Cuerda Raíz Cr */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Cuerda Raíz (Cr)</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Cuerda Raíz (Cr)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.Cr}m</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.Cr}m</span>
                     <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.Cr : effectiveParams.Cr} m</span>
                   </div>
                 </div>
 
                 {/* Cuerda Punta Ct */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Cuerda Punta (Ct)</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Cuerda Punta (Ct)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.Ct}m</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.Ct}m</span>
                     <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.Ct : effectiveParams.Ct} m</span>
                   </div>
                 </div>
 
                 {/* Perfil NACA */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Perfil NACA</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Perfil NACA</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.nacaCode}</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.nacaCode}</span>
                     <span className="font-extrabold text-purple-300 text-xs">→ {bestCandidate ? bestCandidate.nacaCode : effectiveParams.nacaCode}</span>
                   </div>
                 </div>
 
                 {/* Flecha Sweep */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Flecha (Sweep)</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Flecha (Sweep)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.sweep_deg}°</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.sweep_deg}°</span>
                     <span className="font-extrabold text-amber-300 text-xs">→ {bestCandidate ? bestCandidate.sweep_deg : effectiveParams.sweep_deg}°</span>
                   </div>
                 </div>
 
                 {/* Torsión Twist */}
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Torsión (Twist)</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Torsión (Twist)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#9aaec9] line-through">{effectiveParams.twist_deg}°</span>
+                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.twist_deg}°</span>
                     <span className="font-extrabold text-emerald-300 text-xs">→ {bestCandidate ? bestCandidate.twist_deg : effectiveParams.twist_deg}°</span>
                   </div>
                 </div>
               </div>
 
               {/* Resumen Físico Resultante */}
-              <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-[#1e2d42]/60">
-                <div className="flex items-center gap-2 bg-[#070b12] p-2 rounded border border-[#1e2d42]">
+              <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-[#16202f]/60">
+                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
                   <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-[#5a7390] block">Eficiencia Aerodinámica (L/D)</span>
+                    <span className="text-[10px] text-[#5b6f8c] block">Eficiencia Aerodinámica (L/D)</span>
                     <strong className="text-cyan-300 text-xs">{liveLD > 0 ? liveLD.toFixed(2) : bestLD > 0 ? bestLD.toFixed(2) : '-'}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-[#070b12] p-2 rounded border border-[#1e2d42]">
+                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
                   <Weight className="w-4 h-4 text-amber-400 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-[#5a7390] block">Peso Estructural Est.</span>
+                    <span className="text-[10px] text-[#5b6f8c] block">Peso Estructural Est.</span>
                     <strong className="text-amber-300 text-xs">{liveWeight > 0 ? `${liveWeight.toFixed(1)} kg` : viability ? `${viability.estimatedWeightKg} kg` : '-'}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-[#070b12] p-2 rounded border border-[#1e2d42]">
+                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
 
                   <div>
-                    <span className="text-[10px] text-[#5a7390] block">Coste Fabricación Est.</span>
+                    <span className="text-[10px] text-[#5b6f8c] block">Coste Fabricación Est.</span>
                     <strong className="text-emerald-300 text-xs">{liveCost > 0 ? `${liveCost.toLocaleString()} €` : viability ? `${viability.estimatedCostEur.toLocaleString()} €` : '-'}</strong>
                   </div>
                 </div>
@@ -763,13 +763,13 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
           {/* Result Viability Dashboard Card if Available */}
           {viability && (
-            <div className="bg-[#0d1520] border border-cyan-500/30 rounded-lg p-3.5 flex flex-col gap-3">
-              <div className="flex items-center justify-between border-b border-[#1e2d42] pb-2">
+            <div className="bg-[#0e1624] border border-cyan-500/30 rounded-lg p-3.5 flex flex-col gap-3">
+              <div className="flex items-center justify-between border-b border-[#16202f] pb-2">
                 <span className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
                   <Award className="w-4 h-4 text-emerald-400" /> Evaluación Técnico-Económica & Estabilidad
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#070b12] border border-[#1e2d42] text-[#9aaec9]">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#05070c] border border-[#16202f] text-[#8ea3bd]">
                     Base: {viability.viabilityScore}/100
                   </span>
                   <span className={`px-2 py-0.5 rounded text-xs font-bold border ${
@@ -785,8 +785,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               </div>
 
               {/* SEMÁFOROS DE SEGURIDAD ESTRUCTURAL CUANTITATIVA */}
-              <div className="bg-[#070b12] p-3 rounded-lg border border-[#1e2d42] flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-[#9aaec9] uppercase tracking-wider">
+              <div className="bg-[#05070c] p-3 rounded-lg border border-[#16202f] flex flex-col gap-2">
+                <span className="text-[11px] font-bold text-[#8ea3bd] uppercase tracking-wider">
                   Márgenes de Seguridad y Estabilidad Estructural (Semáforos Cuantitativos)
                 </span>
 
@@ -866,29 +866,29 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               )}
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Momento Flector Raíz</span>
-                  <span className="font-bold text-[#e8edf4]">{viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</span>
-                  <span className="text-[10px] text-[#9aaec9] block">Factor de Carga: {safetyFactor * 2.5}g</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Momento Flector Raíz</span>
+                  <span className="font-bold text-[#e8f1fb]">{viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</span>
+                  <span className="text-[10px] text-[#8ea3bd] block">Factor de Carga: {safetyFactor * 2.5}g</span>
                 </div>
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Carga Alar & V_stall</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Carga Alar & V_stall</span>
                   <span className="font-bold text-cyan-300">{viability.wingLoadingKgM2 ?? '-'} kg/m²</span>
-                  <span className="text-[10px] text-[#9aaec9] block">V_pérdida: {viability.stallSpeedMs ?? '-'} m/s</span>
+                  <span className="text-[10px] text-[#8ea3bd] block">V_pérdida: {viability.stallSpeedMs ?? '-'} m/s</span>
                 </div>
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Coste Fab. Est.</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Coste Fab. Est.</span>
                   <span className="font-bold text-amber-300">{viability.estimatedCostEur.toLocaleString()} €</span>
-                  <span className="text-[10px] text-[#9aaec9] block">(Máx: {maxBudgetEur.toLocaleString()} €)</span>
+                  <span className="text-[10px] text-[#8ea3bd] block">(Máx: {maxBudgetEur.toLocaleString()} €)</span>
                 </div>
-                <div className="bg-[#070b12] p-2 rounded border border-[#1e2d42]">
-                  <span className="text-[#5a7390] block text-[10px]">Retorno Est.</span>
+                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
+                  <span className="text-[#5b6f8c] block text-[10px]">Retorno Est.</span>
                   <span className="font-bold text-emerald-300">~{viability.paybackMonths} Meses</span>
                 </div>
               </div>
 
               {viability.sensitivityRecommendations.length > 0 && (
-                <div className="text-[11px] text-[#9aaec9] bg-[#070b12] p-2 rounded border border-[#1e2d42]">
+                <div className="text-[11px] text-[#8ea3bd] bg-[#05070c] p-2 rounded border border-[#16202f]">
                   <strong className="text-cyan-400 block mb-0.5">Recomendaciones de Sensibilidad & Refuerzos:</strong>
                   <ul className="list-disc list-inside space-y-0.5">
                     {viability.sensitivityRecommendations.map((rec, i) => (
@@ -911,7 +911,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           )}
 
           {/* Chart Canvas Container */}
-          <div className="w-full h-52 bg-[#070b12] rounded-lg border border-[#1e2d42] p-3">
+          <div className="w-full h-52 bg-[#05070c] rounded-lg border border-[#16202f] p-3">
             <canvas ref={chartCanvasRef} />
           </div>
         </div>
@@ -923,12 +923,12 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
       {/* Modal Popup para Confirmación de Guardarraíles Incompatibles */}
       {showGuardrailWarningConfirm && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0a111c] border border-rose-500/50 rounded-xl w-full max-w-md p-5 flex flex-col gap-4 shadow-2xl">
+          <div className="bg-[#0a0f18] border border-rose-500/50 rounded-xl w-full max-w-md p-5 flex flex-col gap-4 shadow-2xl">
             <div className="flex items-center gap-2 text-rose-400 font-bold text-base">
               <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
               <span>Advertencia de Inviabilidad Sectorial</span>
             </div>
-            <div className="text-xs text-[#9aaec9] space-y-2">
+            <div className="text-xs text-[#8ea3bd] space-y-2">
               <p>
                 La geometría actual (b: {effectiveParams.b} m, Cr: {effectiveParams.Cr} m) sobrepasa los límites característicos para el sector <strong className="text-white uppercase">{sector}</strong>.
               </p>
@@ -943,10 +943,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 Si continúa, el Algoritmo Genético acotará automáticamente la geometría a los límites del sector y aplicará penalizaciones.
               </p>
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#1e2d42]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#16202f]">
               <button
                 onClick={() => setShowGuardrailWarningConfirm(false)}
-                className="px-3 py-1.5 rounded bg-[#132030] text-[#9aaec9] hover:text-white text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded bg-[#0e1624] text-[#8ea3bd] hover:text-white text-xs font-semibold cursor-pointer"
               >
                 Ajustar Parámetros
               </button>
