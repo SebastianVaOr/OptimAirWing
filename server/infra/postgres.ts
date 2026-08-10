@@ -1,17 +1,38 @@
-import { Pool } from 'pg';
+import { Pool, type PoolConfig } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { logger } from '../lib/logger';
 
-const pool = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: parseInt(process.env.PGPORT || '5432'),
-  database: process.env.PGDATABASE || 'optimairwing',
-  user: process.env.PGUSER || 'optimairwing',
-  password: process.env.PGPASSWORD || 'optimairwing',
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
+function resolveSsl(): PoolConfig['ssl'] {
+  const sslMode = process.env.PGSSLMODE || '';
+  if (sslMode === 'require' || sslMode === 'verify-ca' || sslMode === 'verify-full' || sslMode === 'no-verify') {
+    return { rejectUnauthorized: sslMode === 'verify-ca' || sslMode === 'verify-full' };
+  }
+  return undefined;
+}
+
+function resolvePoolConfig(): PoolConfig {
+  if (process.env.DATABASE_URL) {
+    return {
+      connectionString: process.env.DATABASE_URL,
+      ssl: resolveSsl(),
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    };
+  }
+  return {
+    host: process.env.PGHOST || 'localhost',
+    port: parseInt(process.env.PGPORT || '5432', 10),
+    database: process.env.PGDATABASE || 'optimairwing',
+    user: process.env.PGUSER || 'optimairwing',
+    password: process.env.PGPASSWORD || 'optimairwing',
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  };
+}
+
+const pool = new Pool(resolvePoolConfig());
 
 pool.on('error', (err) => {
   logger.error({ err }, 'Error inesperado en pool PostgreSQL');
