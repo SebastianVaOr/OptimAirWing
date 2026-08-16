@@ -31,6 +31,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@types/pg": "^8.20.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.1",
     "bullmq": "^5.81.2",
     "chart.js": "^4.5.1",
