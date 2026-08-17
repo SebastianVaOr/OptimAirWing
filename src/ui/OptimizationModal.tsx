@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Zap, StopCircle, CheckCircle, Cpu, Layers, Award, AlertTriangle, Activity, Lock, ArrowUpRight, Weight, Scale } from 'lucide-react';
-import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import { Chart, LineController, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { GeneticOptimizer } from '../domains/wing/geneticOptimizer';
 import { DesignRequirements, LegacyWingPayload, OptimizationMode, OptimizationSourceMode, StructuralMaterial, TargetSector, ViabilityAnalysis } from '../core/types';
 import { MATERIALS_DB } from '../domains/wing/materials';
@@ -10,7 +10,7 @@ import { CreditsPurchaseModal } from './CreditsPurchaseModal';
 import { OptimizationLockedParams } from './OptimizationLockedParams';
 import { OptimizationForm } from './OptimizationForm';
 
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+Chart.register(LineController, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface OptimizationModalProps {
   isOpen: boolean;
