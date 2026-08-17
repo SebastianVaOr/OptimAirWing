@@ -1,8 +1,9 @@
 FROM node:22-slim AS build
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ unzip && rm -rf /var/lib/apt/lists/*
+ENV PUPPETEER_CACHE_DIR=/app/.puppeteer_cache
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 
@@ -11,6 +12,8 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
+ENV PUPPETEER_CACHE_DIR=/app/.puppeteer_cache
+COPY --from=build /app/.puppeteer_cache /app/.puppeteer_cache
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 \
     libatk1.0-0 \
