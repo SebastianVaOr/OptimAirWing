@@ -196,7 +196,9 @@ export interface DesignRequirements {
   material: StructuralMaterial;
   flight_hours: number;
   max_budget_eur: number;
-  safety_factor: number; // Factor de Seguridad objetivo (1.5 - 4.0)
+  safety_factor: number; // Margen sobre tensiones límite (1.5 - 4.0). NO es factor de carga.
+  maneuver_load_factor_g?: number; // Factor de carga de maniobra (n-g). Default 2.5
+  cruise_altitude_m?: number; // Altitud de crucero (m) para densidad ISA. Default por sector.
   cruise_velocity_ms?: number; // Velocidad de crucero (m/s) - default 50
   cost_per_kg_material?: number; // €/kg (custom u opcional)
   labor_cost_per_hour?: number; // €/h (default 50 €/h)

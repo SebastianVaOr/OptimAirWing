@@ -1,4 +1,5 @@
 import { LegacyWingPayload } from '../../core/types';
+import { computeSparBox, nacaThicknessRatio } from './sparGeometry';
 
 export interface BucklingAnalysisResult {
   P_crit_N: number;
@@ -38,11 +39,10 @@ export function analyzeBucklingStability(
   loadFactor: number = 2.5
 ): BucklingAnalysisResult {
   const E_Pa = E_Gpa * 1e9;
-  // Approximated main spar moment of inertia at root
+  // Caja de larguero hueca realista compartida (misma inercia que stability/montecarlo)
   const rootChord = Math.max(0.1, params.Cr);
-  const sparThickness = rootChord * 0.12; // 12% max thickness
-  const sparWidth = rootChord * 0.20; // 20% chord box width
-  const I_m4 = (sparWidth * Math.pow(sparThickness, 3)) / 12;
+  const box = computeSparBox(rootChord, nacaThicknessRatio(params.nacaCode));
+  const I_m4 = box.I_m4;
 
   const semiSpan = Math.max(0.1, params.b / 2);
   const P_crit_N = computeEulerBuckling(E_Pa, I_m4, semiSpan, 'fixed-free');

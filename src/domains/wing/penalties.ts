@@ -9,6 +9,7 @@ import { submitAndPollCFD } from './cfdValidator';
 import { runMonteCarloSimulations } from './montecarlo';
 import { computeLongitudinalStability } from './flightDynamics';
 import { getSurrogateModelInfo } from './surrogateRegistry';
+import { computeSparBox, nacaThicknessRatio } from './sparGeometry';
 
 export type AeroData = AerodynamicResult | {
   CL: number;
@@ -35,19 +36,8 @@ export function computeEstimatedWeight(
   req: DesignRequirements
 ): number {
   const mat = MATERIALS_DB[req.material] || MATERIALS_DB.al2024;
-  const nacaCode = params.nacaCode || '2412';
-  const thicknessRatio = (parseInt(nacaCode.substring(2) || '12', 10)) / 100; // e.g. 0.12
-  const meanChord = (params.Cr + params.Ct) / 2;
   const surfaceArea = 'S' in aero ? (aero.S ?? 10) : (aero.S_m2 || 10);
-  const taperRatio = params.Ct / Math.max(0.01, params.Cr);
-  
-  // Forma de la estructura del ala: factor de forma dinámico (0.05 a 0.12)
-  const formFactor = compute_form_factor(params.sweep_deg, taperRatio, params.twist_deg);
-  const volumeEst = surfaceArea * (meanChord * thicknessRatio) * formFactor;
-  
-  // Factor de refuerzo estructural según estabilidad aeroelástica (flecha negativa, etc.)
-  const stability = checkSweepStability(params.sweep_deg, params.twist_deg, req.material, params.b, params.Cr, params.Ct);
-  const reinfFactor = stability.weight_penalty_factor || 1.0;
+  const AR = aero.AR || ((params.b * params.b) / Math.max(0.01, surfaceArea));
 
   // Masa base de ensamblaje estructural por sector (largueros, herrajes de anclaje, costillas)
   let baseAssemblyMassKg = 0.5;
@@ -59,11 +49,17 @@ export function computeEstimatedWeight(
     baseAssemblyMassKg = 15.0;
   }
 
-  // Peso estimado con factor de seguridad y refuerzos
-  const rawWeightKg = volumeEst * mat.density * (1 + 0.02 * aero.AR) * reinfFactor + baseAssemblyMassKg;
-  const totalWeightKg = rawWeightKg * (req.safety_factor || 1.5);
-  
-  return Math.max(0.5, parseFloat(totalWeightKg.toFixed(2)));
+  // Modelo físico híbrido: fracción estructural del MTOW (~10% a escala UAV, decreciente
+  // con el tamaño según estadística tipo Roskam), ajustada por densidad del material y
+  // carga alar. El factor de seguridad NO multiplica masa.
+  const mtowKg = req.estimated_weight_kg || 25;
+  const wingFraction = 0.10 * Math.pow(25 / Math.max(25, mtowKg), 0.12);
+  const densityFactor = 0.6 + 0.4 * (mat.density / 2700);
+  const spanLoadFactor = 1 + 0.06 * (AR - 5);
+
+  const wingMassKg = mtowKg * wingFraction * densityFactor * spanLoadFactor + baseAssemblyMassKg;
+
+  return Math.max(0.5, parseFloat(wingMassKg.toFixed(2)));
 }
 
 export function compute_structure_penalty(
@@ -81,10 +77,9 @@ export function compute_structure_penalty(
   }
 
   let penaltyBuckling = 1.0;
-  if (bucklingFs && bucklingFs > 10.0) {
-    penaltyBuckling = Math.max(0.1, 10.0 / bucklingFs);
-  } else if (bucklingFs && bucklingFs < 1.0) {
-    penaltyBuckling = 0.1;
+  // Solo se penaliza el riesgo real (fs < 1.5); el sobredimensionamiento NO se castiga
+  if (bucklingFs !== undefined && bucklingFs < 1.5) {
+    penaltyBuckling = bucklingFs < 1.0 ? 0.2 : 0.3 + 0.7 * (bucklingFs - 1.0) / 0.5;
   }
 
   return Math.max(0.1, penaltyThickness * penaltyBuckling);
@@ -156,16 +151,23 @@ export function computeCostPenalty(estimatedCostEur: number, maxBudgetEur: numbe
 
 export function computeFatiguePenalty(
   req: DesignRequirements,
-  aero: AeroData
+  params: LegacyWingPayload
 ): number {
   const mat = MATERIALS_DB[req.material] || MATERIALS_DB.al2024;
-  const stressProxy = aero.CL * 100 * req.safety_factor; // proxy de esfuerzo operativo
+  // Tensión de flexión real derivada de la caja de larguero y la carga de maniobra L = W·n
+  const rootChord = Math.max(0.05, params.Cr || 1);
+  const box = computeSparBox(rootChord, nacaThicknessRatio(params.nacaCode));
+  const n = req.maneuver_load_factor_g ?? 2.5;
+  const W = req.estimated_weight_kg || 25;
+  const b = params.b || 5;
+  const M_root = (W * 9.81 * n) * b / 8;
+  const sigmaMpa = ((M_root * (box.h_m / 2)) / Math.max(1e-9, box.I_m4)) / 1e6;
   const requiredCycles = req.flight_hours * 120; // ~120 ciclos/hora
   if (requiredCycles > mat.fatigue_life) {
     return 0.35; // Penalización sustancial por vida a fatiga excedida
   }
-  if (stressProxy > mat.yield_strength * 0.7) {
-    return 0.25;
+  if (sigmaMpa > mat.yield_strength * 0.7) {
+    return 0.25; // Tensión por encima del límite de resistencia a fatiga (0.7·σ_y)
   }
   return 0;
 }
@@ -191,6 +193,7 @@ export function computeViabilityAnalysis(
 
   // 1. ANÁLISIS DE MONTE CARLO Y MOTOR DE COSTES UNIFICADO (Single Source of Truth)
   const sArea = 'S' in aero ? (aero.S ?? 10) : (aero.S_m2 || 10);
+  // Una sola corrida de Monte Carlo reutilizada para scoring y para el reporte
   const monteCarloRes = runMonteCarloSimulations(params, 300, req, { CL: aero.CL, CD: aero.CD, S: sArea, AR: aero.AR });
   
   // Unificación de datos para erradicar el State Desync: Peso P50 y Coste P50 de Monte Carlo rigen la Sección A
@@ -199,9 +202,12 @@ export function computeViabilityAnalysis(
   const costObj = computeEstimatedCost(estimatedWeightKg, params, req);
   const formFactor = compute_form_factor(params.sweep_deg, taperRatio, params.twist_deg);
   
-  const wPen = computeWeightPenalty(estimatedWeightKg, req.estimated_weight_kg);
+  // Peso estructural del ala comparado contra un presupuesto estructural (~15% MTOW),
+  // no contra el MTOW completo: el ala no es todo el avión.
+  const structuralBudgetKg = Math.max(1, req.estimated_weight_kg * 0.15);
+  const wPen = computeWeightPenalty(estimatedWeightKg, structuralBudgetKg);
   const cPen = computeCostPenalty(estimatedCostEur, req.max_budget_eur);
-  const fPen = computeFatiguePenalty(req, aero);
+  const fPen = computeFatiguePenalty(req, params);
   const sPen = computeSectorPenalty(req.sector, aero, params);
   
   const isMotorsport = req.sector?.startsWith('f1_') || req.sector === 'gt_spoiler';
@@ -223,14 +229,18 @@ export function computeViabilityAnalysis(
   const baseScore = Math.min(100, Math.max(0, (ldVal / maxTargetLD) * 100));
   const viabilityScore = Math.round(baseScore * (1 - totalPenalty));
   
-  // CFD Validation
-  const cfdVal = submitAndPollCFD(params, { CL: aero.CL, CD: aero.CD, Cm: aero.Cm ?? 0 });
+  // CFD Validation (solo si el usuario lo solicita explícitamente)
+  const cfdVal = req.run_cfd_validation === true
+    ? submitAndPollCFD(params, { CL: aero.CL, CD: aero.CD, Cm: aero.Cm ?? 0 })
+    : undefined;
 
   // Análisis Estructural Cuantitativo, Pandeo y Dinámica de Vuelo
+  // totalWeightKg = MTOW completo; wingMassKg = masa estructural del ala (para inercia torsional)
   const quantStruct = computeQuantitativeStructuralAnalysis(
     params,
     { S: sArea, AR: aero.AR, CL: aero.CL },
     req,
+    req.estimated_weight_kg,
     estimatedWeightKg
   );
   const flightDyn = computeLongitudinalStability(
@@ -242,7 +252,7 @@ export function computeViabilityAnalysis(
     params,
     (MATERIALS_DB[req.material] || MATERIALS_DB.al2024).elastic_modulus,
     estimatedWeightKg,
-    req.safety_factor || 2.5
+    req.maneuver_load_factor_g ?? 2.5
   );
 
   // Puntuación de Viabilidad Ajustada por Riesgo Estructural, Pandeo, Deflexión y Discrepancia CFD
@@ -255,8 +265,8 @@ export function computeViabilityAnalysis(
     riskPenaltyFactor *= 0.8;
   }
 
-  // RULE 3: REGLA DEL 15% DE DISCREPANCIA CFD (Penalización del -50% si CFD difiere >15%)
-  const hasCfdDiscrepancy = cfdVal.deltaCLPct > 15.0 || cfdVal.deltaCDPct > 15.0;
+  // RULE 3: REGLA DEL 15% DE DISCREPANCIA CFD (solo aplica si run_cfd_validation === true)
+  const hasCfdDiscrepancy = !!cfdVal && (cfdVal.deltaCLPct > 15.0 || cfdVal.deltaCDPct > 15.0);
   if (hasCfdDiscrepancy) {
     riskPenaltyFactor *= 0.50; // Reducción a la mitad de la nota por falta de confiabilidad
   }
@@ -275,10 +285,8 @@ export function computeViabilityAnalysis(
     riskPenaltyFactor *= defFactor;
   }
 
-  if (buckAnal.fs_buckling > 10.0 && riskPenaltyFactor > 0) {
-    const buckFactor = Math.max(0.1, 10.0 / buckAnal.fs_buckling);
-    riskPenaltyFactor *= buckFactor;
-  } else if (buckAnal.fs_buckling < 1.0) {
+  // Solo se penaliza el riesgo real de pandeo (fs < 1.0); el sobredimensionamiento no se castiga
+  if (buckAnal.fs_buckling < 1.0 && riskPenaltyFactor > 0) {
     riskPenaltyFactor *= 0.2;
   }
 
@@ -300,8 +308,8 @@ export function computeViabilityAnalysis(
   if (quantStruct.tipDeflectionPercent > 2.0) {
     recs.push(`⚠️ DEFLEXIÓN DE PUNTA: ${quantStruct.tipDeflectionMm.toFixed(1)} mm (${quantStruct.tipDeflectionPercent.toFixed(2)}% b > 2.0%). Penalización aeroelástica aplicada.`);
   }
-  if (buckAnal.fs_buckling > 10.0) {
-    recs.push(`⚠️ PANDEO EXCESIVO: FS Pandeo ${buckAnal.fs_buckling.toFixed(1)}x (>10.0x). Sobredimensionamiento extremo penalizado.`);
+  if (buckAnal.fs_buckling < 1.5) {
+    recs.push(`⚠️ PANDEO: FS Pandeo ${buckAnal.fs_buckling.toFixed(1)}x (<1.5x). Riesgo estructural real de pandeo del larguero.`);
   }
   if (stability.status === 'warning') {
     recs.push(`ESTABILIDAD (${stability.status.toUpperCase()}): ${stability.message} -> ${stability.recommendation}`);
@@ -309,8 +317,8 @@ export function computeViabilityAnalysis(
   if (stall.status !== 'safe') {
     recs.push(`PÉRDIDA (STALL): ${stall.message} -> ${stall.recommendation}`);
   }
-  if (estimatedWeightKg > req.estimated_weight_kg) {
-    recs.push(`Peso estimado (${estimatedWeightKg} kg) supera el objetivo (${req.estimated_weight_kg} kg). Considere usar Fibra de Carbono o reducir la envergadura.`);
+  if (estimatedWeightKg > structuralBudgetKg) {
+    recs.push(`Peso estructural del ala (${estimatedWeightKg} kg) supera el presupuesto estructural (~15% del MTOW ${req.estimated_weight_kg} kg). Considere usar Fibra de Carbono o reducir la envergadura.`);
   }
   if (estimatedCostEur > req.max_budget_eur) {
     recs.push(`Coste de fabricación (${estimatedCostEur} €) excede el presupuesto (${req.max_budget_eur} €). Reduzca el ángulo de flecha o cambie el material a Aluminio 2024.`);
@@ -412,7 +420,7 @@ export function computeViabilityAnalysis(
     // Novedades v10.0: Pre-diseño Espacial
     bucklingAnalysis: buckAnal,
     cfdValidation: cfdVal,
-    monteCarloAnalysis: runMonteCarloSimulations(params, 300, req, { CL: aero.CL, CD: aero.CD, S: sArea, AR: aero.AR }),
+    monteCarloAnalysis: monteCarloRes,
     flightDynamics: flightDyn,
     surrogateModelSource: getSurrogateModelInfo(undefined, req.optimization_level).name,
   };

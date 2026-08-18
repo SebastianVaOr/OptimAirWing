@@ -1,5 +1,8 @@
 import { DesignRequirements, LegacyWingPayload } from '../../core/types';
 import { computeEstimatedCost, computeEstimatedWeight } from './penalties';
+import { MATERIALS_DB } from './materials';
+import { calcularEmpirico } from './empirical';
+import { computeSparBox, nacaThicknessRatio } from './sparGeometry';
 
 export interface MonteCarloPercentiles {
   p5: number;
@@ -37,7 +40,7 @@ export function runMonteCarloSimulations(
   params: LegacyWingPayload,
   nSamples: number = 500,
   req?: DesignRequirements,
-  baselineAero?: { CL: number; CD: number; S?: number; AR?: number }
+  _baselineAero?: { CL: number; CD: number; S?: number; AR?: number }
 ): MonteCarloAnalysisResult {
   const lds: number[] = [];
   const fss: number[] = [];
@@ -53,9 +56,18 @@ export function runMonteCarloSimulations(
     safety_factor: 2.5
   };
 
+  const mat = MATERIALS_DB[defaultReq.material] || MATERIALS_DB.al2024;
+  const nacaCode = params.nacaCode || '2412';
+  const tOverC = nacaThicknessRatio(nacaCode);
+  const n = defaultReq.maneuver_load_factor_g ?? 2.5;
+  const W = defaultReq.estimated_weight_kg || 25;
+
   const baseB = params.b || 5.0;
   const baseCr = params.Cr || 1.2;
   const baseCt = params.Ct || 0.8;
+  const baseSweep = params.sweep_deg || 0;
+  const baseTwist = params.twist_deg || 0;
+  const baseAlpha = params.alpha_deg || 4;
 
   for (let i = 0; i < nSamples; i++) {
     // For i === 0 (or median anchor), use exact nominal values
@@ -63,30 +75,32 @@ export function runMonteCarloSimulations(
     const b = isNominal ? baseB : Math.max(0.2, gaussianRandom(baseB, baseB * 0.03));
     const Cr = isNominal ? baseCr : Math.max(0.1, gaussianRandom(baseCr, baseCr * 0.03));
     const Ct = isNominal ? baseCt : Math.max(0.05, gaussianRandom(baseCt, baseCt * 0.03));
-
-    const S = ((Cr + Ct) / 2) * b;
-    const AR = (b * b) / Math.max(0.01, S);
-    const OswaldE = 0.85;
-    const CL = baselineAero ? baselineAero.CL : (2 * Math.PI * 0.07) * (1 / (1 + 2 / AR));
-    const CD = baselineAero ? baselineAero.CD : (0.015 + (CL * CL) / (Math.PI * OswaldE * AR));
-    const LD = CL / Math.max(0.001, CD);
+    const sweep_deg = isNominal ? baseSweep : gaussianRandom(baseSweep, 0.5);
+    const twist_deg = isNominal ? baseTwist : gaussianRandom(baseTwist, 0.3);
+    const alpha_deg = isNominal ? baseAlpha : gaussianRandom(baseAlpha, 0.3);
 
     const sampledParams: LegacyWingPayload = {
       ...params,
       b,
       Cr,
-      Ct
+      Ct,
+      sweep_deg,
+      twist_deg,
+      alpha_deg
     };
 
-    const sampledAero = { CL, CD, LD, S, S_m2: S, AR, e: OswaldE };
+    // L/D real por muestra de geometría (CL/CD recalculado con el motor empírico)
+    const aero = calcularEmpirico(sampledParams);
+    const LD = aero.CL / Math.max(0.001, aero.CD);
+
+    const sampledAero = { CL: aero.CL, CD: aero.CD, LD, S: aero.S, S_m2: aero.S, AR: aero.AR, e: aero.e };
     const weightKg = computeEstimatedWeight(sampledParams, sampledAero, defaultReq);
 
-    const Ix = (Cr * Math.pow(Cr * 0.12, 3)) / 12;
-    const sf = defaultReq.safety_factor || 2.5;
-    const M_root = (weightKg * 9.81 * sf / 2) * (b / 4);
-    const sigma = (M_root * (Cr * 0.06)) / Math.max(1e-9, Ix);
-    const yieldStress = 270e6;
-    const FS = yieldStress / Math.max(1e3, sigma);
+    // FS estructural con el material seleccionado y la caja de larguero compartida
+    const box = computeSparBox(Math.max(0.05, Cr), tOverC);
+    const M_root = (W * 9.81 * n) * b / 8; // momento flector en raíz (carga repartida)
+    const sigma = (M_root * (box.h_m / 2)) / Math.max(1e-9, box.I_m4);
+    const FS = (mat.yield_strength * 1e6) / Math.max(1e3, sigma);
 
     const costObj = computeEstimatedCost(weightKg, sampledParams, defaultReq);
     const costEur = costObj.totalCost;
