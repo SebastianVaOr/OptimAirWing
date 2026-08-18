@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { predictorRegistry } from '../predictors/registry';
-import { WingParamsZodSchema, LegacyWingPayloadSchema } from '../schemas/wingSchema';
+import { WingParamsZodSchema, LegacyWingPayloadSchema, LegacyWingPayloadValidatedSchema } from '../schemas/wingSchema';
 import { db } from '../db/store';
 import { legacyToWingParams } from '../../src/core/store';
 import { GeneticOptimizer } from '../../src/domains/wing/geneticOptimizer';
@@ -57,6 +57,16 @@ const OptimizeRequestSchema = z.object({
   flight_hours: z.number().optional(),
   safety_factor: z.number().optional(),
   cruise_velocity_ms: z.number().optional()
+}).superRefine((body, ctx) => {
+  // Cordura geométrica: Ct ≤ Cr en params/initial_params si ambos están presentes
+  const candidate = body.params || body.initial_params;
+  if (candidate && candidate.Ct !== undefined && candidate.Cr !== undefined && candidate.Ct > candidate.Cr) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Ct no puede exceder Cr (geometría inválida)',
+      path: ['params', 'Ct'],
+    });
+  }
 });
 
 v1Router.get('/user/credits', (req, res) => {
@@ -64,47 +74,18 @@ v1Router.get('/user/credits', (req, res) => {
   return res.json(credits);
 });
 
-function calculateRequiredCredits(level?: string, mode?: string): number {
-  let base = 1;
-  switch (level) {
-    case 'full_custom': base = 7; break;
-    case 'structural': base = 5; break;
-    case 'neuralfoil': base = 2; break;
-    case 'basic': default: base = 1; break;
-  }
-  if (mode === 'balance' || mode === 'weight') {
-    base += 2;
-  }
-  return base;
-}
-
 v1Router.post('/user/credits/use', (req, res) => {
   const parsed = z.object({
     type: z.enum(['prediction', 'optimization']),
-    amount: z.number().int().positive().optional(),
-    level: z.string().optional(),
-    mode: z.string().optional(),
-    optimization_level: z.string().optional(),
-    optimization_mode: z.string().optional()
+    amount: z.number().int().positive().optional()
   }).safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, 'INVALID_PAYLOAD', 'Payload inválido', { details: parsed.error.format() });
   }
 
   const type = parsed.data.type;
-  let amount = 1;
-
-  if (type === 'optimization') {
-    const level = parsed.data.level || parsed.data.optimization_level;
-    const mode = parsed.data.mode || parsed.data.optimization_mode;
-    if (parsed.data.amount) {
-      amount = parsed.data.amount;
-    } else {
-      amount = calculateRequiredCredits(level, mode);
-    }
-  } else if (parsed.data.amount) {
-    amount = parsed.data.amount;
-  }
+  // Facturación plana: cada corrida de optimización cuesta 1 crédito, el nivel es solo etiqueta de fidelidad
+  const amount = type === 'optimization' ? 1 : (parsed.data.amount || 1);
 
   const allowed = db.incrementUsage('org_demo', type, amount);
   if (!allowed) {
@@ -140,7 +121,7 @@ v1Router.post('/predict', requirePlan('freemium'), checkCredit('predictions'), v
   return res.json(result);
 });
 
-v1Router.post('/predict/legacy', requirePlan('freemium'), checkCredit('predictions'), validate(LegacyWingPayloadSchema), (req, res) => {
+v1Router.post('/predict/legacy', requirePlan('freemium'), checkCredit('predictions'), validate(LegacyWingPayloadValidatedSchema), (req, res) => {
   const orgId = (req as any).orgId || 'org_demo';
   const wingParams = legacyToWingParams(req.body as LegacyWingPayload);
   const result = predictorRegistry.predictWithFallback(wingParams);
@@ -182,8 +163,10 @@ v1Router.post('/optimize', requirePlan('professional'), checkCredit('optimizatio
 
   const orgId = (req as any).orgId || 'org_demo';
   orgRepo.incrementOptimizations(orgId);
-  reportUsageByOrgId(orgId, 10).catch(() => {});
+  // Facturación plana: 1 crédito por corrida, independiente del nivel de optimización
+  reportUsageByOrgId(orgId, 1).catch(() => {});
 
+  // Convención de respuesta: snake_case (best_params, best_fitness, history_best)
   return res.json({
     status: 'success',
     best_params: optResult.bestParams,
@@ -196,18 +179,17 @@ v1Router.post('/optimize', requirePlan('professional'), checkCredit('optimizatio
   });
 });
 
-v1Router.get('/optimize/stream', async (req, res) => {
+v1Router.get('/optimize/stream', requirePlan('professional'), checkCredit('optimizations'), async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const level = (req.query.level as string) || 'basic';
-  const mode = (req.query.mode as string) || 'balance';
-  const requiredCredits = calculateRequiredCredits(level, mode);
+  const orgId = (req as any).orgId || 'org_demo';
 
-  const allowed = db.incrementUsage('org_demo', 'optimization', requiredCredits);
+  // Consumo plano: 1 crédito por corrida, mismo gate de plan/créditos que /optimize
+  const allowed = db.incrementUsage(orgId, 'optimization', 1);
   if (!allowed) {
-    res.write(`event: error\ndata: ${JSON.stringify({ message: `Créditos insuficientes (requiere ${requiredCredits} créditos).` })}\n\n`);
+    res.write(`event: error\ndata: ${JSON.stringify({ message: 'Créditos insuficientes (requiere 1 crédito).' })}\n\n`);
     return res.end();
   }
 
@@ -260,13 +242,14 @@ v1Router.get('/optimize/stream', async (req, res) => {
     if (!isCancelled) {
       res.write(`event: complete\ndata: ${JSON.stringify({
         status: 'success',
-        optimal_params: optResult.bestParams,
+        best_params: optResult.bestParams,
         best_fitness: optResult.bestFitness,
         history_best: optResult.historyBest,
         history_avg: optResult.historyAvg,
         viability: optResult.viability,
-        credits: db.getCreditsInfo('org_demo')
+        credits: db.getCreditsInfo(orgId)
       })}\n\n`);
+      reportUsageByOrgId(orgId, 1).catch(() => {});
     }
   } catch (e: any) {
     if (!isCancelled) {

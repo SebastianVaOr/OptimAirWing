@@ -2,7 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { logger } from '../lib/logger';
 
-const completedKeys = new Map<string, { status: number; body: unknown }>();
+interface CachedResponse {
+  status: number;
+  body: unknown;
+  createdAt: number;
+}
+
+const completedKeys = new Map<string, CachedResponse>();
 const TTL_MS = 3600 * 1000;
 
 export function idempotent(ttlMs = TTL_MS) {
@@ -14,13 +20,14 @@ export function idempotent(ttlMs = TTL_MS) {
     const compositeKey = `${key}:${bodyHash}`;
 
     const existing = completedKeys.get(compositeKey);
-    if (existing && Date.now() - existing.status < ttlMs) {
+    if (existing && Date.now() - existing.createdAt < ttlMs) {
       return res.status(existing.status).json(existing.body);
     }
 
     const originalJson = res.json.bind(res);
     res.json = (body: unknown) => {
-      completedKeys.set(compositeKey, { status: res.statusCode, body });
+      // Persistir timestamp real (createdAt) para calcular el TTL correctamente
+      completedKeys.set(compositeKey, { status: res.statusCode, body, createdAt: Date.now() });
       if (completedKeys.size > 10000) {
         const oldest = completedKeys.keys().next().value;
         if (oldest) completedKeys.delete(oldest);
@@ -39,6 +46,6 @@ export function generateIdempotencyKey(): string {
 setInterval(() => {
   const now = Date.now();
   for (const [key, val] of completedKeys) {
-    if (now - val.status > TTL_MS) completedKeys.delete(key);
+    if (now - val.createdAt > TTL_MS) completedKeys.delete(key);
   }
 }, 60000);

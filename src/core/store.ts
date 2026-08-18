@@ -30,7 +30,7 @@ export function legacyToWingParams(legacy: LegacyWingPayload): WingParams {
     operating_conditions: {
       alpha_deg: legacy.alpha_deg,
       reynolds: legacy.Re || 1e6,
-      mach: legacy.Mach || 0.0
+      mach: legacy.Mach ?? 0.05
     }
   };
 }
@@ -69,7 +69,7 @@ class Store {
       twist_deg: 0,
       alpha_deg: 4,
       Re: 1e6,
-      Mach: 0.0
+      Mach: 0.05
     };
 
     const initialWp = legacyToWingParams(initialLegacy);
@@ -100,10 +100,10 @@ class Store {
         id: 'org_personal_demo',
         name: 'AeroLab Research Org',
         plan: 'freemium',
-        monthly_predictions_used: 12,
-        monthly_predictions_limit: 100,
-      monthly_optimizations_used: 0,
-      monthly_optimizations_limit: 5
+        monthly_predictions_used: 2,
+        monthly_predictions_limit: 3,
+        monthly_optimizations_used: 0,
+        monthly_optimizations_limit: 1
       },
       tokenBalance: 2450,
       apiKeys: [
@@ -138,7 +138,7 @@ class Store {
 
   async syncCreditsFromServer(): Promise<void> {
     try {
-      const res = await fetch('/api/v1/user/credits');
+      const res = await fetch('/v1/user/credits');
       if (res.ok) {
         const data = await res.json();
         this.updateOrgCredits(data);
@@ -173,12 +173,13 @@ class Store {
   }
 
   // FIX (6): Verificación server-side para consumir créditos de optimización con fallback a validación local si no hay backend
+  // Créditos planos: 1 crédito por corrida, sin importar el nivel de optimización (no se envía nivel ni monto derivado)
   async recordOptimizationUsed(amount = 1): Promise<boolean> {
     try {
-      const res = await fetch('/api/v1/user/credits/consume', {
+      const res = await fetch('/v1/user/credits/use', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, type: 'optimization' })
+        body: JSON.stringify({ type: 'optimization' })
       });
 
       if (res.ok) {
@@ -315,10 +316,11 @@ class Store {
   }
 
   setOrgPlan(plan: PlanTier): void {
+    // Límites unificados con el servidor (server/db/plans.ts): freemium 3 pred / 1 opt
     const limits = {
-      freemium: { pred: 100, opt: 3 },
-      base: { pred: 1000, opt: 30 },
-      professional: { pred: 5000, opt: 100 },
+      freemium: { pred: 3, opt: 1 },
+      base: { pred: 30, opt: 10 },
+      professional: { pred: 100, opt: 50 },
       enterprise: { pred: 100000, opt: 100000 }
     }[plan];
 

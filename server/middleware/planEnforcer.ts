@@ -1,13 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError } from '../lib/errors';
 import { db } from '../db/store';
-
-const PLAN_LIMITS: Record<string, { predictions: number; optimizations: number }> = {
-  freemium: { predictions: 3, optimizations: 1 },
-  base: { predictions: 30, optimizations: 10 },
-  professional: { predictions: 100, optimizations: 50 },
-  enterprise: { predictions: Infinity, optimizations: Infinity },
-};
+import { PLAN_LIMITS } from '../db/plans';
 
 export function requirePlan(minPlan: string) {
   return (req: Request, _res: Response, next: NextFunction) => {

@@ -6,42 +6,43 @@ console.log('=== RUNNING CREDITS SYSTEM UNIT TESTS ===');
 db.setOrgPlan('org_demo', 'freemium');
 db.resetUsage('org_demo');
 
-// Test 1: Verification of plan tier credit limits
+// Test 1: Verification of plan tier credit limits (unificadas con server/db/plans.ts)
 const freemiumCredits = db.getCreditsInfo('org_demo');
-if (freemiumCredits.optimizations_limit !== 3) throw new Error('Freemium limit should be 3');
+if (freemiumCredits.optimizations_limit !== 1) throw new Error('Freemium optimization limit should be 1');
+if (freemiumCredits.predictions_limit !== 3) throw new Error('Freemium predictions limit should be 3');
 
 db.setOrgPlan('org_demo', 'base');
 const baseCredits = db.getCreditsInfo('org_demo');
-if (baseCredits.optimizations_limit !== 30) throw new Error('Base limit should be 30');
+if (baseCredits.optimizations_limit !== 10) throw new Error('Base limit should be 10');
 
 db.setOrgPlan('org_demo', 'professional');
 const proCredits = db.getCreditsInfo('org_demo');
-if (proCredits.optimizations_limit !== 100) throw new Error('Professional limit should be 100');
+if (proCredits.optimizations_limit !== 50) throw new Error('Professional limit should be 50');
 
 db.setOrgPlan('org_demo', 'enterprise');
 const entCredits = db.getCreditsInfo('org_demo');
 if (entCredits.optimizations_limit !== 100000) throw new Error('Enterprise limit should be 100000');
 
-console.log('✔ Test 1 Passed: Plan Tier Limits verified (0€/3, 150€/30, 250€/100, 500€/unlimited)');
+console.log('✔ Test 1 Passed: Plan Tier Limits verified (freemium 3 pred/1 opt, base 30/10, professional 100/50, enterprise 100000/100000)');
 
 // Reset to freemium for deduction test
 db.setOrgPlan('org_demo', 'freemium');
 db.resetUsage('org_demo');
 
-// Test 2: Variable Credit Deduction
+// Test 2: Flat Credit Deduction (1 credit per optimization run, independiente del nivel)
 const initialLimit = db.getCreditsInfo('org_demo').optimizations_limit;
 const initialUsed = db.getCreditsInfo('org_demo').optimizations_used;
 
-// Deduct 2 credits for NeuralFoil
-const success1 = db.incrementUsage('org_demo', 'optimization', 2);
-if (!success1) throw new Error('Should succeed consuming 2 credits');
-if (db.getCreditsInfo('org_demo').optimizations_used !== initialUsed + 2) throw new Error('Should consume 2 credits');
-console.log('✔ Test 2 Passed: Variable credit deduction (2 credits for NeuralFoil) verified');
+// Consume 1 credit for one optimization run
+const success1 = db.incrementUsage('org_demo', 'optimization', 1);
+if (!success1) throw new Error('Should succeed consuming 1 credit');
+if (db.getCreditsInfo('org_demo').optimizations_used !== initialUsed + 1) throw new Error('Should consume exactly 1 credit');
+console.log('✔ Test 2 Passed: Flat credit deduction (1 credit per optimization run) verified');
 
-// Test 3: Insufficient credits check (attempt to consume 5 credits when only 1 left)
-const success2 = db.incrementUsage('org_demo', 'optimization', 5);
+// Test 3: Insufficient credits check (attempt to consume another credit when freemium limit (1) is reached)
+const success2 = db.incrementUsage('org_demo', 'optimization', 1);
 if (success2 !== false) throw new Error('Should fail when consuming more credits than available');
-if (db.getCreditsInfo('org_demo').optimizations_used !== initialUsed + 2) throw new Error('Used credits should remain unchanged');
+if (db.getCreditsInfo('org_demo').optimizations_used !== initialUsed + 1) throw new Error('Used credits should remain unchanged');
 console.log('✔ Test 3 Passed: Insufficient credits blocking verified');
 
 // Test 4: Extra Credits Purchase Pack

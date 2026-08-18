@@ -19,18 +19,18 @@ export const WingParamsZodSchema = z.object({
       })
     ]),
     planform: z.object({
-      span_m: z.number().min(0.1).max(80),
-      root_chord_m: z.number().min(0.02).max(15),
-      taper_ratio: z.number().min(0.05).max(1.0).default(1.0),
-      sweep_deg: z.number().min(-20).max(60).default(0),
-      twist_deg: z.number().min(-10).max(5).default(0),
-      dihedral_deg: z.number().min(-10).max(15).default(0)
+      span_m: z.coerce.number().min(0.1).max(80),
+      root_chord_m: z.coerce.number().min(0.02).max(15),
+      taper_ratio: z.coerce.number().min(0.05).max(1.0).default(1.0),
+      sweep_deg: z.coerce.number().min(-60).max(60).default(0),
+      twist_deg: z.coerce.number().min(-20).max(10).default(0),
+      dihedral_deg: z.coerce.number().min(-10).max(15).default(0)
     })
   }),
   operating_conditions: z.object({
-    alpha_deg: z.number().min(-10).max(20),
-    reynolds: z.number().min(1e4).max(5e8),
-    mach: z.number().min(0).max(0.6).default(0)
+    alpha_deg: z.coerce.number().min(-10).max(25),
+    reynolds: z.coerce.number().min(1e4).max(1e7),
+    mach: z.coerce.number().min(0.05).max(3.0).default(0.05)
   }),
   ui_preferences: z
     .object({
@@ -39,14 +39,28 @@ export const WingParamsZodSchema = z.object({
     .optional()
 });
 
+// Base sin refinamientos para poder usar .partial() en /optimize
 export const LegacyWingPayloadSchema = z.object({
   nacaCode: z.string(),
-  Cr: z.number().min(0.02),
-  Ct: z.number().min(0.01),
-  b: z.number().min(0.1),
-  sweep_deg: z.number(),
-  twist_deg: z.number(),
-  alpha_deg: z.number(),
-  Re: z.number().optional(),
-  Mach: z.number().optional()
+  Cr: z.coerce.number().min(0.02),
+  Ct: z.coerce.number().min(0.01),
+  b: z.coerce.number().min(0.1),
+  sweep_deg: z.coerce.number().min(-60).max(60),
+  twist_deg: z.coerce.number().min(-20).max(10),
+  alpha_deg: z.coerce.number().min(-10).max(25),
+  Re: z.coerce.number().min(1e4).max(1e7).optional(),
+  Mach: z.coerce.number().min(0.05).max(3.0).optional(),
+  v_mps: z.coerce.number().min(0).max(500).optional(),
+  // Campos multi-elemento (F1 / hidroala) que deben preservarse
+  isMultiElement: z.boolean().optional(),
+  numElements: z.coerce.number().int().min(1).max(3).optional(),
+  flapGapMm: z.coerce.number().min(0).max(50).optional(),
+  flapOverlapMm: z.coerce.number().min(0).max(50).optional(),
+  flapAngleDeg: z.coerce.number().min(-60).max(60).optional()
 });
+
+// Variante con cordura geométrica (Ct ≤ Cr) para payloads completos
+export const LegacyWingPayloadValidatedSchema = LegacyWingPayloadSchema.refine(
+  (data) => data.Ct === undefined || data.Cr === undefined || data.Ct <= data.Cr,
+  { message: 'Ct no puede exceder Cr (geometría inválida)', path: ['Ct'] }
+);

@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { logger } from '../lib/logger';
+import { PLAN_LIMITS } from './plans';
 
 export type PlanTier = 'freemium' | 'base' | 'professional' | 'enterprise';
 
@@ -207,29 +208,24 @@ class BackendDatabase {
   }
 
   getPlanLimits(plan: PlanTier) {
-    switch (plan) {
-      case 'freemium': return { pred: 100, opt: 3 };
-      case 'base': return { pred: 1000, opt: 30 };
-      case 'professional': return { pred: 5000, opt: 100 };
-      case 'enterprise': return { pred: 100000, opt: 100000 };
-      default: return { pred: 100, opt: 3 };
-    }
+    // Limites centralizados en server/db/plans.ts (misma fuente que planEnforcer)
+    return PLAN_LIMITS[plan] || PLAN_LIMITS.freemium;
   }
 
   getCreditsInfo(orgId: string = 'org_demo') {
     const org = this.getOrg(orgId) || this.setOrgPlan(orgId, 'freemium');
     const limits = this.getPlanLimits(org.plan);
-    const totalOptLimit = limits.opt + (org.extra_credits || 0);
+    const totalOptLimit = limits.optimizations + (org.extra_credits || 0);
     const optimizationsRemaining = Math.max(0, totalOptLimit - org.optimizations_used_month);
 
     return {
       org_id: org.id,
       plan: org.plan,
       predictions_used: org.predictions_used_month,
-      predictions_limit: limits.pred,
-      predictions_remaining: Math.max(0, limits.pred - org.predictions_used_month),
+      predictions_limit: limits.predictions,
+      predictions_remaining: Math.max(0, limits.predictions - org.predictions_used_month),
       optimizations_used: org.optimizations_used_month,
-      optimizations_limit: limits.opt,
+      optimizations_limit: limits.optimizations,
       extra_credits: org.extra_credits || 0,
       total_optimizations_limit: totalOptLimit,
       optimizations_remaining: optimizationsRemaining,
@@ -241,11 +237,11 @@ class BackendDatabase {
     const limits = this.getPlanLimits(org.plan);
 
     if (type === 'prediction') {
-      if (org.predictions_used_month + amount > limits.pred) return false;
+      if (org.predictions_used_month + amount > limits.predictions) return false;
       this.sqlite.prepare('UPDATE organizations SET predictions_used_month = predictions_used_month + ? WHERE id = ?')
         .run(amount, orgId);
     } else {
-      const totalAllowed = limits.opt + (org.extra_credits || 0);
+      const totalAllowed = limits.optimizations + (org.extra_credits || 0);
       if (org.optimizations_used_month + amount > totalAllowed) return false;
       this.sqlite.prepare('UPDATE organizations SET optimizations_used_month = optimizations_used_month + ? WHERE id = ?')
         .run(amount, orgId);
