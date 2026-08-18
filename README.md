@@ -1,5 +1,5 @@
-# OPTIMIRWING — AERODYNAMIC OPTIMIZER & CFD SIMULATOR
-> **Plataforma Industrial de Análisis Aerodinámico, Simulación 3D CFD, Optimización Genética Multi-Dominio y Exportación CAD/PDF**
+# OPTIMAIRWING — AERODYNAMIC DESIGN & OPTIMIZATION PLATFORM
+> **Plataforma Industrial de Análisis Aerodinámico (modelo empírico de línea sustentadora), Optimización Genética Multi-Dominio y Exportación CAD/PDF**
 
 ---
 
