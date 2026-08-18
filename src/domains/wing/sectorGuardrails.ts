@@ -15,11 +15,12 @@ export interface SectorPreset {
 
 export const SECTOR_PRESETS: Record<TargetSector, SectorPreset> = {
   uav: { b: 5.0, Cr: 1.0, Ct: 0.4, sweep: 0, twist: 0, naca: "2412", max_weight_kg: 60, max_cost_eur: 20000, min_ld: 12, safety_factor: 2.5 },
-  glider: { b: 15.0, Cr: 1.2, Ct: 0.6, sweep: 5, twist: -3, naca: "0606", max_weight_kg: 120, max_cost_eur: 45000, min_ld: 22, safety_factor: 2.0 },
-  comercial: { b: 35.0, Cr: 4.0, Ct: 2.0, sweep: 25, twist: -2, naca: "2412", max_weight_kg: 350, max_cost_eur: 150000, min_ld: 18, safety_factor: 3.0 },
+  // FIX (3): MTOW físicamente consistentes con la geometría del preset (el ala no es todo el avión).
+  glider: { b: 15.0, Cr: 1.2, Ct: 0.6, sweep: 5, twist: -3, naca: "0606", max_weight_kg: 650, max_cost_eur: 45000, min_ld: 22, safety_factor: 2.0 },
+  comercial: { b: 35.0, Cr: 4.0, Ct: 2.0, sweep: 25, twist: -2, naca: "2412", max_weight_kg: 78000, max_cost_eur: 150000, min_ld: 18, safety_factor: 3.0 },
   evtol: { b: 10.0, Cr: 1.5, Ct: 0.8, sweep: 10, twist: -2, naca: "0606", max_weight_kg: 100, max_cost_eur: 75000, min_ld: 14, safety_factor: 2.5 },
-  sport: { b: 8.0, Cr: 1.2, Ct: 0.6, sweep: 5, twist: -1, naca: "0606", max_weight_kg: 80, max_cost_eur: 30000, min_ld: 12, safety_factor: 2.5 },
-  experimental: { b: 10.0, Cr: 1.5, Ct: 0.8, sweep: 0, twist: 0, naca: "2412", max_weight_kg: 90, max_cost_eur: 35000, min_ld: 10, safety_factor: 2.5 },
+  sport: { b: 8.0, Cr: 1.2, Ct: 0.6, sweep: 5, twist: -1, naca: "0606", max_weight_kg: 550, max_cost_eur: 30000, min_ld: 12, safety_factor: 2.5 },
+  experimental: { b: 10.0, Cr: 1.5, Ct: 0.8, sweep: 0, twist: 0, naca: "2412", max_weight_kg: 500, max_cost_eur: 35000, min_ld: 10, safety_factor: 2.5 },
   // F1 Motorsport Presets
   f1_rear_wing: { b: 1.05, Cr: 0.42, Ct: 0.35, sweep: 0, twist: -2, naca: "2412", max_weight_kg: 12, max_cost_eur: 45000, min_ld: 4.5, safety_factor: 2.0 },
   f1_front_wing: { b: 1.80, Cr: 0.35, Ct: 0.25, sweep: 8, twist: -1, naca: "0606", max_weight_kg: 15, max_cost_eur: 35000, min_ld: 5.0, safety_factor: 2.0 },
@@ -67,7 +68,9 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.4, max: 1.5, typicalMax: 1.2 },
     Ct: { min: 0.25, max: 1.0, typicalMax: 0.8 },
     AR: { min: 3.0, max: 18.0 },
-    S: { min: 0.3, max: 6.0 },
+    // FIX (3): S derivado de los extremos de b/Cr/Ct (esquinas conjuntas factibles).
+    // S.max ≥ b.max·(Cr.max+Ct.max)/2 = 10.0; S.min ≤ b.min·(Cr.min+Ct.min)/2 = 0.65.
+    S: { min: 0.3, max: 10.0 },
     // FIX (1): Límites específicos de sweep y twist
     sweep: { min: 0, max: 12 },
     twist: { min: -4, max: 2 }
@@ -79,7 +82,9 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 1.8, max: 12.0, typicalMax: 10.0 },
     Ct: { min: 0.4, max: 4.0, typicalMax: 3.2 },
     AR: { min: 6.0, max: 14.0 },
-    S: { min: 20.0, max: 500.0 },
+    // FIX (3): S.max ≥ b.max·(Cr.max+Ct.max)/2 = 80·8 = 640 (esquina b=80/Cr=12/Ct=4 factible, AR=10);
+    // S.min ≤ b.min·(Cr.min+Ct.min)/2 = 12·1.1 = 13.2 (esquina b=12/Cr=1.8/Ct=0.4, AR=10.9).
+    S: { min: 13.2, max: 640.0 },
     // FIX (1): Flecha de crucero comercial [15°, 32°] integrada para eliminar truncamiento no deseado
     sweep: { min: 15, max: 32 },
     twist: { min: -4, max: 2 }
@@ -88,10 +93,13 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     sector: 'glider',
     sectorName: 'Velero de Gran Eficiencia',
     b: { min: 8.0, max: 32.0, typicalMax: 28.0 },
-    Cr: { min: 0.3, max: 1.6, typicalMax: 1.3 },
-    Ct: { min: 0.1, max: 0.7, typicalMax: 0.5 },
+    Cr: { min: 0.5, max: 1.6, typicalMax: 1.3 },
+    Ct: { min: 0.2, max: 0.7, typicalMax: 0.5 },
     AR: { min: 14.0, max: 35.0 },
-    S: { min: 4.0, max: 28.0 },
+    // FIX (3): Cuerdas mínimas subidas a valores de velero real (Cr<0.5 m en 8 m de envergadura no es físico);
+    // así la esquina b=8/Cr=0.5/Ct=0.2 da AR=22.9 (dentro de [14,35]).
+    // S.max ≥ 32·1.15 = 36.8; S.min ≤ 8·0.35 = 2.8.
+    S: { min: 2.8, max: 36.8 },
     // FIX (1):
     sweep: { min: 0, max: 6 },
     twist: { min: -4, max: 2 }
@@ -103,7 +111,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.6, max: 2.5, typicalMax: 2.0 },
     Ct: { min: 0.3, max: 1.8, typicalMax: 1.4 },
     AR: { min: 4.5, max: 12.0 },
-    S: { min: 6.0, max: 30.0 },
+    // FIX (3): S.max ≥ 15·2.15 = 32.25; S.min ≤ 5·0.45 = 2.25 (esquinas AR 6.98 / 11.1, dentro de rango).
+    S: { min: 2.25, max: 32.25 },
     // FIX (1):
     sweep: { min: 0, max: 6 },
     twist: { min: -4, max: 2 }
@@ -115,7 +124,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.25, max: 2.0, typicalMax: 1.6 },
     Ct: { min: 0.12, max: 1.2, typicalMax: 1.0 },
     AR: { min: 3.5, max: 14.0 },
-    S: { min: 1.0, max: 18.0 },
+    // FIX (3): S.max ≥ 12·1.6 = 19.2; S.min ≤ 1.5·0.185 = 0.2775 (esquinas AR 7.5 / 8.1).
+    S: { min: 0.2775, max: 19.2 },
     // FIX (1):
     sweep: { min: 0, max: 15 },
     twist: { min: -4, max: 2 }
@@ -127,7 +137,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.1, max: 4.0, typicalMax: 3.5 },
     Ct: { min: 0.05, max: 2.5, typicalMax: 2.0 },
     AR: { min: 2.5, max: 28.0 },
-    S: { min: 0.1, max: 60.0 },
+    // FIX (3): S.max ≥ 30·3.25 = 97.5; S.min ≤ 0.5·0.075 = 0.0375 (esquinas AR 9.23 / 6.67).
+    S: { min: 0.0375, max: 97.5 },
     // FIX (1):
     sweep: { min: -5, max: 25 },
     twist: { min: -4, max: 2 }
@@ -137,9 +148,11 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     sectorName: 'F1 Alerón Trasero DRS',
     b: { min: 0.8, max: 1.25, typicalMax: 1.10 },
     Cr: { min: 0.20, max: 0.60, typicalMax: 0.45 },
-    Ct: { min: 0.15, max: 0.50, typicalMax: 0.40 },
+    Ct: { min: 0.16, max: 0.50, typicalMax: 0.40 },
     AR: { min: 1.8, max: 4.5 },
-    S: { min: 0.2, max: 0.8 },
+    // FIX (3): Ct.min 0.16 para que la esquina b=0.8/Cr=0.2/Ct=0.16 quede con AR=4.44 ≤ 4.5;
+    // S.min ≤ 0.8·0.18 = 0.144.
+    S: { min: 0.144, max: 0.8 },
     // FIX (1):
     sweep: { min: 0, max: 0 },
     twist: { min: -3, max: 0 }
@@ -148,10 +161,12 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     sector: 'f1_front_wing',
     sectorName: 'F1 Alerón Delantero',
     b: { min: 1.4, max: 2.0, typicalMax: 1.85 },
-    Cr: { min: 0.20, max: 0.50, typicalMax: 0.40 },
-    Ct: { min: 0.10, max: 0.35, typicalMax: 0.28 },
+    Cr: { min: 0.28, max: 0.50, typicalMax: 0.40 },
+    Ct: { min: 0.12, max: 0.35, typicalMax: 0.28 },
     AR: { min: 3.0, max: 7.5 },
-    S: { min: 0.3, max: 1.2 },
+    // FIX (3): Cuerdas mínimas subidas a valores de F1 reales (Cr<0.28 m no es físico);
+    // esquina b=1.4/Cr=0.28/Ct=0.12 → AR=7.0 ≤ 7.5. S.min ≤ 1.4·0.20 = 0.28.
+    S: { min: 0.28, max: 1.2 },
     // FIX (1):
     sweep: { min: 0, max: 15 },
     twist: { min: -3, max: 0 }
@@ -160,10 +175,12 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     sector: 'gt_spoiler',
     sectorName: 'GT3 / Motorsport Spoiler',
     b: { min: 1.2, max: 2.0, typicalMax: 1.70 },
-    Cr: { min: 0.20, max: 0.50, typicalMax: 0.42 },
-    Ct: { min: 0.15, max: 0.45, typicalMax: 0.35 },
+    Cr: { min: 0.22, max: 0.50, typicalMax: 0.42 },
+    Ct: { min: 0.18, max: 0.45, typicalMax: 0.35 },
     AR: { min: 2.8, max: 6.5 },
-    S: { min: 0.3, max: 1.0 },
+    // FIX (3): Cr/Ct mínimos subidos para que la esquina b=1.2/Cr=0.22/Ct=0.18 dé AR=6.0 ≤ 6.5;
+    // S.min ≤ 1.2·0.20 = 0.24.
+    S: { min: 0.24, max: 1.0 },
     // FIX (1):
     sweep: { min: 0, max: 10 },
     twist: { min: -3, max: 0 }
@@ -175,7 +192,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.15, max: 0.45, typicalMax: 0.32 },
     Ct: { min: 0.08, max: 0.25, typicalMax: 0.18 },
     AR: { min: 6.0, max: 18.0 },
-    S: { min: 0.2, max: 1.2 },
+    // FIX (3): S.max ≥ 3.5·0.35 = 1.225; S.min ≤ 1.2·0.115 = 0.138 (esquinas AR 10.0 / 10.4).
+    S: { min: 0.138, max: 1.225 },
     // FIX (1):
     sweep: { min: 0, max: 20 },
     twist: { min: -3, max: 1 }
@@ -187,7 +205,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.12, max: 0.30, typicalMax: 0.24 },
     Ct: { min: 0.06, max: 0.20, typicalMax: 0.15 },
     AR: { min: 3.5, max: 8.5 },
-    S: { min: 0.08, max: 0.35 },
+    // FIX (3): S.min ≤ 0.5·0.09 = 0.045 (esquina b=0.5/Cr=0.12/Ct=0.06, AR=5.56).
+    S: { min: 0.045, max: 0.35 },
     // FIX (1):
     sweep: { min: 0, max: 10 },
     twist: { min: -2, max: 1 }
@@ -199,7 +218,8 @@ export const SECTOR_LIMITS_DB: Record<TargetSector, SectorLimits> = {
     Cr: { min: 0.5, max: 1.6, typicalMax: 1.2 },
     Ct: { min: 0.3, max: 1.0, typicalMax: 0.7 },
     AR: { min: 4.5, max: 12.0 },
-    S: { min: 1.5, max: 12.0 },
+    // FIX (3): S.max ≥ 10·1.3 = 13.0; S.min ≤ 3.0·0.4 = 1.2 (esquinas AR 7.69 / 7.5).
+    S: { min: 1.2, max: 13.0 },
     // FIX (1):
     sweep: { min: 0, max: 20 },
     twist: { min: -3, max: 1 }
@@ -256,6 +276,12 @@ export function checkSectorViability(
   if (params.Ct > limits.Ct.max) {
     issues.push(`Cuerda de punta (${params.Ct} m) muy elevada para ${limits.sectorName} (máx ${limits.Ct.max} m).`);
     recommendations.push(`Ajuste la cuerda de punta Ct a ≤ ${limits.Ct.max} m.`);
+    scorePoints -= 20;
+    maxPenalty = Math.max(maxPenalty, 0.3);
+  } else if (params.Ct < limits.Ct.min) {
+    // FIX (3): Falta el límite inferior de Ct — la cuerda de punta mínima también se penaliza.
+    issues.push(`Cuerda de punta (${params.Ct} m) insuficiente para ${limits.sectorName} (mín ${limits.Ct.min} m).`);
+    recommendations.push(`Aumente la cuerda de punta Ct a ≥ ${limits.Ct.min} m.`);
     scorePoints -= 20;
     maxPenalty = Math.max(maxPenalty, 0.3);
   }
