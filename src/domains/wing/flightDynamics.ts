@@ -1,5 +1,4 @@
 import { LegacyWingPayload } from '../../core/types';
-import { calcularEmpirico } from './empirical';
 
 export interface FlightDynamicsResult {
   Cm_alpha: number;
@@ -25,8 +24,6 @@ export function computeLongitudinalStability(
   aero: { CL: number; CD: number; Cm?: number; S?: number; AR?: number; e?: number },
   cruiseSpeedMs: number = 50.0
 ): FlightDynamicsResult {
-  const alphaDeg = Math.max(0.1, params.alpha_deg || 4.0);
-
   const Cr = params.Cr || 1.2;
   const Ct = params.Ct || 0.8;
   const b = params.b || 5.0;
@@ -41,17 +38,16 @@ export function computeLongitudinalStability(
   const OswaldE = aero.e ?? 0.85;
   const CL_alpha = (2 * Math.PI) / (1 + (2 * Math.PI) / (Math.PI * OswaldE * AR)); // 1/rad
 
-  // Cm_alpha como pendiente real entre dos ángulos (no secante desde el origen)
-  const alpha1 = alphaDeg;
-  const alpha2 = alphaDeg + 2.0;
-  const cmAlpha1 = calcularEmpirico({ ...params, alpha_deg: alpha1 }).Cm;
-  const cmAlpha2 = calcularEmpirico({ ...params, alpha_deg: alpha2 }).Cm;
-  const Cm_alpha = parseFloat(((cmAlpha2 - cmAlpha1) / ((alpha2 - alpha1) * (Math.PI / 180))).toFixed(4));
+  // Margen estático desde geometría (modelo de ala sola / ala volante, sin cola):
+  // el punto neutro del ala coincide con su centro aerodinámico (~25% MAC) y se asume
+  // un CG adelantado en 20% MAC, lo que da un margen estático positivo del 5%.
+  const xAcOverC = 0.25; // centro aerodinámico del ala (punto neutro de la ala sola)
+  const xCgOverC = 0.20; // supuesto de CG: 20% MAC (adelante del AC para ala volante)
+  const staticMarginPct = parseFloat(((xAcOverC - xCgOverC) * 100).toFixed(2));
 
-  // Margen estático desde geometría: AC del ala ~0.25c, CG supuesto en 0.30c (reportado en el resultado)
-  const xNpOverC = 0.25; // punto neutro del ala (sin datos de cola)
-  const xCgOverC = 0.30; // supuesto de CG: 30% MAC
-  const staticMarginPct = parseFloat(((xNpOverC - xCgOverC) * 100).toFixed(2));
+  // Cm_alpha respecto al CG desde geometría: Cm_α = a·(x_cg − x_ac) [1/rad].
+  // Es la rigidez de cabeceo real (negativa = estable), coherente con el margen estático.
+  const Cm_alpha = parseFloat((CL_alpha * (xCgOverC - xAcOverC)).toFixed(4));
 
   const g = 9.81;
   const omegaPhugoidRadS = parseFloat((Math.SQRT2 * (g / Math.max(5.0, cruiseSpeedMs))).toFixed(3));
@@ -109,7 +105,7 @@ export function computeLongitudinalStability(
     omegaPhugoidRadS,
     dampingRatio,
     macM,
-    x_np_over_c: parseFloat(xNpOverC.toFixed(3)),
+    x_np_over_c: parseFloat(xAcOverC.toFixed(3)),
     x_cg_over_c: parseFloat(xCgOverC.toFixed(3)),
     status,
     penalty: parseFloat(penalty.toFixed(3)),

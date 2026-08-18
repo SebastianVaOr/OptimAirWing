@@ -9,7 +9,6 @@ import { checkSweepStability } from './stability';
 import { checkSectorViability, getSectorLimits, getSectorPreset } from './sectorGuardrails';
 import { generarNACA } from './naca';
 import { analyzeBucklingStability } from './buckling';
-import { computeLongitudinalStability } from './flightDynamics';
 import { MATERIALS_DB } from './materials';
 import { generateParetoFront } from './pareto';
 import {
