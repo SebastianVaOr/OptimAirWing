@@ -25,9 +25,11 @@ export interface AerodynamicResult {
 }
 
 export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
-  const { Cr, Ct, b, sweep_deg, twist_deg, alpha_deg, nacaCode, isMultiElement, numElements = 2, flapGapMm = 12, flapOverlapMm = 8, flapAngleDeg = 25 } = params;
+  const { Cr, Ct, b, sweep_deg, twist_deg = 0, alpha_deg, nacaCode, isMultiElement, numElements = 1, flapGapMm = 12, flapOverlapMm = 8, flapAngleDeg = 25, Re, Mach = 0 } = params;
   
-  const alpha = (alpha_deg * Math.PI) / 180;
+  // Efecto de twist/washout (alpha efectivo)
+  const effAlphaDeg = alpha_deg + 0.7 * twist_deg;
+  const alpha = (effAlphaDeg * Math.PI) / 180;
   const sweep = (sweep_deg * Math.PI) / 180;
 
   // Área alar (trapezoidal) y Alargamiento
@@ -47,7 +49,7 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
   
   // Pendiente 3D para ala finita con corrección por flecha
   const cosSweep = Math.cos(sweep);
-  const a = a0 / (1 + (a0 / (Math.PI * AR * cosSweep)) * (1 + tau));
+  const a = (a0 * cosSweep) / (1 + ((a0 * cosSweep) / (Math.PI * AR)) * (1 + tau));
 
   // Ángulo de sustentación nula (alpha0) estimado por el camber
   const alpha0 = -(m / 0.2) * 0.349;
@@ -77,7 +79,8 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
   CL_raw += multiElementClBonus;
   
   // Clamped a límites físicos realistas (Hasta 3.8 con perfiles multi-elemento de F1)
-  const maxClLimit = (isMultiElement || numElements > 1) ? 3.8 : 1.8;
+  const clMax2d = 1.25 + 0.2 * (m / 0.02) + 0.1 * (t - 0.12);
+  const maxClLimit = (isMultiElement || numElements > 1) ? 3.8 : clMax2d;
   const CL = Math.max(-1.5, Math.min(maxClLimit, CL_raw));
 
   // Factor de eficiencia de Oswald (e) con corrección por afinamiento y flecha (Raymer/Shevell)
@@ -101,14 +104,20 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
 
   // Resistencia parásita (CD0) en función del espesor t/c, Reynolds y elementos extra
   const CD0_base = 0.005;
-  const CD0 = CD0_base + 0.0005 * (t / 0.12) + multiElementCdPenalty;
+  const reCorr = Re ? Math.pow(Math.max(1e4, Re) / 1e7, -0.15) : 1;
+  const Mcrit = Math.max(0.55, 0.62 + 0.18 * Math.sin(sweep) + 0.05 * (0.15 - t));
+  let CD0_wave = 0;
+  if (Mach > Mcrit) {
+    CD0_wave = 20 * Math.pow(Mach - Mcrit, 4);
+  }
+  const CD0 = (CD0_base + 0.0005 * (t / 0.12)) * reCorr + CD0_wave + multiElementCdPenalty;
   const CD = Math.max(0.001, CD0 + CDiCorrected);
 
   // Eficiencia Aerodinámica (L/D)
   const LD = CD > 0 ? CL / CD : 0;
 
   // Coeficiente de momento de cabeceo Cm (alrededor del 25% de la cuerda)
-  const Cm0 = -0.1 * (m / 0.02) - (multiElementClBonus * 0.22);
+  const Cm0 = -0.05 * (m / 0.02) - (multiElementClBonus * 0.22);
   const Cm = Cm0 * Math.cos(alpha);
 
   return {

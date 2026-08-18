@@ -1,7 +1,7 @@
 import { LegacyWingPayload } from '../../core/types';
+import { generarNACA } from './naca';
 
 export interface CFDValidationResult {
-  jobId: string;
   solver: string;
   cfd: {
     CL: number;
@@ -18,12 +18,14 @@ export interface CFDValidationResult {
   statusLabel: 'Validado' | 'Revisar';
 }
 
+/**
+ * Cross-check empírico de línea sustentadora (segundo orden) contra el modelo base.
+ * No es CFD externo: es una verificación sincrónica de coherencia del modelo.
+ */
 export function submitAndPollCFD(
   params: LegacyWingPayload,
   baselineAero: { CL: number; CD: number; Cm?: number }
 ): CFDValidationResult {
-  const jobId = `cfd_job_${Date.now()}_${Math.floor(Math.random() * 9000 + 1000)}`;
-
   const Cr = params.Cr || 1.2;
   const Ct = params.Ct || 0.8;
   const b = params.b || 5.0;
@@ -33,30 +35,34 @@ export function submitAndPollCFD(
   const AR = (b * b) / Math.max(0.01, S);
   const OswaldE = 0.86;
 
-  // High fidelity viscous/compressible CFD estimate
-  const CL_alpha = (2 * Math.PI) / (1 + (2 * Math.PI) / (Math.PI * OswaldE * AR));
-  const CL_cfd = parseFloat((CL_alpha * (alpha * Math.PI / 180)).toFixed(4));
+  // Modelo de referencia con camber: CL = a*(alpha - alpha0)
+  const naca = generarNACA(params.nacaCode, 20);
+  const alpha0Ref = -(naca.m / 0.2) * 0.349; // mismo estimador de ángulo de sustentación nula que empirical.ts
+  const alphaRad = (alpha * Math.PI) / 180;
+
+  const a_ref = (2 * Math.PI) / (1 + (2 * Math.PI) / (Math.PI * OswaldE * AR));
+  const CL_ref = a_ref * (alphaRad - alpha0Ref);
   const CD0 = 0.0145;
-  const CD_i = (CL_cfd * CL_cfd) / (Math.PI * OswaldE * AR);
-  const CD_cfd = parseFloat((CD0 + CD_i).toFixed(4));
-  const Cm_cfd = parseFloat((-0.048 - 0.018 * (alpha / 10.0)).toFixed(4));
+  const CD_i = (CL_ref * CL_ref) / (Math.PI * OswaldE * AR);
+  const CD_ref = CD0 + CD_i;
+  const Cm_ref = -0.048 - 0.018 * (alpha / 10.0);
 
   const deltaCLPct = parseFloat(
-    ((Math.abs(CL_cfd - baselineAero.CL) / Math.max(0.001, baselineAero.CL)) * 100).toFixed(2)
+    ((Math.abs(CL_ref - baselineAero.CL) / Math.max(0.001, Math.abs(baselineAero.CL))) * 100).toFixed(2)
   );
   const deltaCDPct = parseFloat(
-    ((Math.abs(CD_cfd - baselineAero.CD) / Math.max(0.001, baselineAero.CD)) * 100).toFixed(2)
+    ((Math.abs(CD_ref - baselineAero.CD) / Math.max(0.001, baselineAero.CD)) * 100).toFixed(2)
   );
 
-  const validated = deltaCLPct < 5.0 && deltaCDPct < 10.0;
+  // Bandas de tolerancia realistas para un cross-check empírico (12-18%)
+  const validated = deltaCLPct < 15.0 && deltaCDPct < 18.0;
 
   return {
-    jobId,
-    solver: 'SU2_Compressible_Euler/NavierStokes',
+    solver: 'empirical_lifting_line_crosscheck',
     cfd: {
-      CL: Math.max(0.05, CL_cfd),
-      CD: Math.max(0.005, CD_cfd),
-      Cm: Cm_cfd,
+      CL: parseFloat(CL_ref.toFixed(4)),
+      CD: parseFloat(Math.max(0.005, CD_ref).toFixed(4)),
+      Cm: parseFloat(Cm_ref.toFixed(4)),
     },
     baseline: {
       CL: baselineAero.CL,

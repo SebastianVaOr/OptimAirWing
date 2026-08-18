@@ -11,6 +11,7 @@ export interface BucklingAnalysisResult {
 /**
  * Computes Euler Buckling Load for a cantilever wing main spar.
  * P_crit = (pi^2 * E * I) / (K * L)^2
+ * K es el factor de longitud efectiva de Euler (no 1/K^2).
  */
 export function computeEulerBuckling(
   E_Pa: number,
@@ -19,12 +20,12 @@ export function computeEulerBuckling(
   boundaryCondition: 'fixed-free' | 'pinned-pinned' | 'fixed-pinned' | 'fixed-fixed' = 'fixed-free'
 ): number {
   const K_factors = {
-    'fixed-free': 0.25,
-    'pinned-pinned': 1.0,
-    'fixed-pinned': 2.0,
-    'fixed-fixed': 4.0,
+    'fixed-free': 2,
+    'pinned-pinned': 1,
+    'fixed-pinned': 0.7,
+    'fixed-fixed': 0.5,
   };
-  const K = K_factors[boundaryCondition] || 0.25;
+  const K = K_factors[boundaryCondition] || 2;
   const Leff = Math.max(0.01, K * semiSpanM);
   const P_crit = (Math.PI * Math.PI * E_Pa * I_m4) / (Leff * Leff);
   return parseFloat(P_crit.toFixed(2));
@@ -47,6 +48,7 @@ export function analyzeBucklingStability(
   const P_crit_N = computeEulerBuckling(E_Pa, I_m4, semiSpan, 'fixed-free');
 
   const g = 9.81;
+  // Carga axial de columna conservadora: peso total * factor de carga (check de columna de Euler)
   const P_applied_N = Math.max(1.0, weightRealKg * g * loadFactor);
 
   const fs_buckling = parseFloat((P_crit_N / P_applied_N).toFixed(2));
