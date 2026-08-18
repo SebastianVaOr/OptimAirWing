@@ -161,7 +161,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div onClick={() => setSelectedPlan('enterprise')}
                   className={`p-2.5 rounded-lg border cursor-pointer text-center transition ${selectedPlan === 'enterprise' ? 'bg-cyan-500/10 border-cyan-400' : 'bg-[#0e1624] border-[#16202f] hover:border-[#223048]'}`}>
                   <p className="font-bold text-xs text-purple-300">Empresa</p>
-                  <p className="text-[10px] text-purple-400 font-semibold mt-0.5">Custom CFD</p>
+                  <p className="text-[10px] text-purple-400 font-semibold mt-0.5">API Predictiva</p>
                 </div>
               </div>
 

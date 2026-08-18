@@ -181,7 +181,7 @@ export const AirfoilDesignerModal: React.FC<AirfoilDesignerModalProps> = ({
         {/* Footer */}
         <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between">
           <span className="text-xs text-[#5b6f8c]">
-            * El perfil NACA {activeCode} se sincronizará en todos los cálculos CFD y renderizado 3D.
+            * El perfil NACA {activeCode} se sincronizará en todos los cálculos aerodinámicos y el renderizado 3D.
           </span>
           <button
             onClick={handleApply}

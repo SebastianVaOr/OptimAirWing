@@ -89,7 +89,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   <p className="text-xs text-cyan-400 mt-1">$49 / mes</p>
                   <ul className="text-[11px] text-[#5b6f8c] mt-2 space-y-1">
                     <li>• 5,000 pred/mes</li>
-                    <li>• NeuralFoil IA</li>
+                    <li>• Modelo empírico</li>
                   </ul>
                 </div>
               </div>
@@ -105,7 +105,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   <p className="text-xs text-purple-400 mt-1">Personalizado</p>
                   <ul className="text-[11px] text-[#5b6f8c] mt-2 space-y-1">
                     <li>• Ilimitado</li>
-                    <li>• Modelos CFD Custom</li>
+                    <li>• Integración API</li>
                   </ul>
                 </div>
               </div>

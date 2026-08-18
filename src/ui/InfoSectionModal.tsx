@@ -93,17 +93,17 @@ export const InfoSectionModal: React.FC<InfoSectionModalProps> = ({
             <div className="space-y-4">
               <h2 className="text-2xl font-extrabold text-white">Reinventando el Diseño Aeronáutico</h2>
               <p className="text-[#8ea3bd] leading-relaxed">
-                OptimAirWing nació de la necesidad de cerrar la brecha entre los códigos empíricos de diseño preliminar y las simulaciones CFD pesadas que requieren horas de clústeres informáticos.
+                OptimAirWing nació de la necesidad de poner las formulaciones de diseño preliminar al alcance de cualquier ingeniero, sin depender de clústeres CFD pesados.
               </p>
               <p className="text-[#8ea3bd] leading-relaxed">
-                Combinamos las formulaciones analíticas clásicas de Prandtl y Helmbold con redes neuronales surrogate entrenadas en miles de perfiles aerodinámicos NACA para ofrecer predicciones instantáneas sin perder rigor físico.
+                Aplicamos las formulaciones analíticas clásicas de Prandtl y Helmbold sobre perfiles NACA para ofrecer predicciones instantáneas con rigor físico, validadas contra datos de referencia publicados.
               </p>
 
               <div className="grid sm:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 bg-[#0e1624] border border-[#16202f] rounded-xl space-y-2">
                   <Cpu className="w-5 h-5 text-cyan-400" />
-                  <div className="font-bold text-white text-xs">Modelos Surrogate NeuralFoil</div>
-                  <div className="text-xs text-[#8ea3bd]">Aceleración mediante redes neuronales convolucionales 2D/3D.</div>
+                  <div className="font-bold text-white text-xs">Modelo Empírico de Línea Sustentadora</div>
+                  <div className="text-xs text-[#8ea3bd]">Aerodinámica clásica 2D/3D validada contra Abbott & von Doenhoff.</div>
                 </div>
                 <div className="p-4 bg-[#0e1624] border border-[#16202f] rounded-xl space-y-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -138,7 +138,7 @@ export const InfoSectionModal: React.FC<InfoSectionModalProps> = ({
 
                 <div className="p-4 bg-[#0e1624] border border-[#16202f] rounded-xl">
                   <FileText className="w-5 h-5 text-emerald-400 mb-2" />
-                  <h3 className="font-bold text-white text-sm">Informes Técnicos Certificables</h3>
+                  <h3 className="font-bold text-white text-sm">Informes Técnicos Profesionales</h3>
                   <p className="text-xs text-[#8ea3bd] mt-1">Exportación en PDF con tablas de geometría y advertencias de cumplimiento.</p>
                 </div>
               </div>
@@ -170,7 +170,7 @@ export const InfoSectionModal: React.FC<InfoSectionModalProps> = ({
                   <div>
                     <h3 className="font-bold text-white">Profesional</h3>
                     <div className="text-xl font-black text-cyan-400 font-mono mt-1">250 € / mes</div>
-                    <p className="text-xs text-[#8ea3bd] mt-2">100 créditos/mes, motor IA NeuralFoil, optimizador completo.</p>
+                    <p className="text-xs text-[#8ea3bd] mt-2">100 créditos/mes, modelo empírico de línea sustentadora, optimizador completo.</p>
                   </div>
                   <button
                     onClick={() => {

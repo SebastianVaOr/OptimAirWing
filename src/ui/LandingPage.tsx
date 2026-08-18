@@ -23,7 +23,7 @@ const features = [
   {
     icon: Zap,
     title: 'Simulación instantánea',
-    desc: 'Predice CL, CD, Cm y L/D en milisegundos usando NeuralFoil. Sin esperas ni clústeres CFD.',
+    desc: 'Predice CL, CD, Cm y L/D en milisegundos con el modelo empírico de línea sustentadora. Sin esperas ni clústeres CFD.',
   },
   {
     icon: BarChart3,
@@ -38,7 +38,7 @@ const features = [
   {
     icon: FileText,
     title: 'Informes técnicos PDF',
-    desc: 'Documentación profesional con parámetros, resultados y badges de fidelidad. Lista para certificación.',
+    desc: 'Documentación profesional con parámetros, resultados y nivel de fidelidad del modelo. Exportable a PDF.',
   },
   {
     icon: Shield,
@@ -54,7 +54,7 @@ const features = [
 
 const steps = [
   { step: '01', title: 'Parametriza', desc: 'Define geometría, perfil NACA y condiciones de operación. Los límites sectoriales se ajustan automáticamente.' },
-  { step: '02', title: 'Simula', desc: 'El motor NeuralFoil predice coeficientes aerodinámicos en milisegundos. Visualiza la malla de presiones en 3D.' },
+  { step: '02', title: 'Simula', desc: 'El motor empírico predice coeficientes aerodinámicos en milisegundos. Visualiza el campo de presiones en 3D.' },
   { step: '03', title: 'Optimiza', desc: 'Ejecuta el algoritmo genético aeroestructural. Obtén la mejor relación L/D con restricciones de peso y coste.' },
 ];
 
@@ -75,7 +75,7 @@ const plans = [
     currency: '€',
     period: '/mes',
     desc: 'Para ingenieros y consultores',
-    features: ['100 créditos / mes', 'Motor NeuralFoil IA', 'Optimización genética', 'PDF sin marca de agua', 'Análisis estructural'],
+    features: ['100 créditos / mes', 'Modelo empírico de línea sustentadora', 'Optimización genética', 'PDF sin marca de agua', 'Análisis estructural'],
     cta: 'Suscribirse',
     featured: true,
   },
@@ -85,15 +85,15 @@ const plans = [
     currency: '€',
     period: '/mes',
     desc: 'Para equipos y fabricantes',
-    features: ['Créditos ilimitados', 'API completa', 'CFD personalizable', 'SLA prioritario', 'Integración directa'],
+    features: ['Créditos ilimitados', 'API completa', 'Predicción a escala', 'SLA prioritario', 'Integración directa'],
     cta: 'Contactar',
     featured: false,
   },
 ];
 
 const stats = [
-  { value: '< 2ms', label: 'Inferencia IA' },
-  { value: '96.4%', label: 'Precisión vs CFD' },
+  { value: '< 2ms', label: 'Predicción empírica' },
+  { value: '±3%', label: 'Error vs datos de referencia' },
   { value: '80 gen.', label: 'Algoritmo genético' },
   { value: '3 formatos', label: 'Exportación (PDF, DXF, STEP)' },
 ];
@@ -124,7 +124,7 @@ const HeroInstrument: React.FC = () => {
         </span>
         <span className="hud-label flex items-center gap-1.5 text-[#34d399]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] hud-pulse" />
-          NeuralFoil
+          Empírico
         </span>
       </div>
 

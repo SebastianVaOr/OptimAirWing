@@ -24,15 +24,10 @@ export function getSurrogateModelInfo(
       name: custom.name,
       caseCount: custom.caseCount,
     };
-  } else if (level === 'neuralfoil') {
-    return {
-      type: 'neuralfoil',
-      name: 'NeuralFoil v2.1 (Deep Learning Aero Surrogate)',
-    };
   } else {
     return {
       type: 'empirical',
-      name: 'Motor Empírico OptimAirWing (Fallback/Fast)',
+      name: 'Modelo Empírico de Línea Sustentadora (Lifting-Line)',
     };
   }
 }

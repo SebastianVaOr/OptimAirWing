@@ -54,7 +54,7 @@ export const CookieBanner: React.FC = () => {
                 <span className="font-bold text-[#e8f1fb] block text-sm mb-0.5">
                   Uso de Cookies y Tratamiento de Datos de Simulación
                 </span>
-                Utilizamos cookies técnicas necesarias para autenticación y cookies analíticas para optimizar el rendimiento de la caché del motor de predicción NeuralFoil. Cumplimos estrictamente con RGPD e ISO/IEC 27001 para la protección de sus diseños aeronáuticos.
+                Utilizamos cookies técnicas necesarias para autenticación y cookies analíticas para optimizar el rendimiento de la caché del motor de predicción. Cumplimos estrictamente con RGPD e ISO/IEC 27001 para la protección de sus diseños aeronáuticos.
               </div>
             </div>
 
@@ -92,7 +92,7 @@ export const CookieBanner: React.FC = () => {
 
             <div className="p-6 flex flex-col gap-4 overflow-y-auto max-h-[70vh] text-xs">
               <p className="text-[#8ea3bd] leading-relaxed">
-                OptimAirWing procesa la geometría alar y las coordenadas aerodinámicas localmente en su navegador y mediante llamadas cifradas de baja latencia a nuestro servidor de inferencia IA.
+                OptimAirWing procesa la geometría alar y las coordenadas aerodinámicas localmente en su navegador y mediante llamadas cifradas de baja latencia a nuestro servidor de predicción.
               </p>
 
               {/* Necessary */}
@@ -119,7 +119,7 @@ export const CookieBanner: React.FC = () => {
                     <span>Telemetría y Rendimiento de Inferencia</span>
                   </div>
                   <p className="text-[#5b6f8c] mt-1 text-[11px]">
-                    Nos permite evaluar los tiempos de respuesta del surrogate NeuralFoil y medir la convergencia del algoritmo genético.
+                    Nos permite evaluar los tiempos de respuesta del motor de predicción y medir la convergencia del algoritmo genético.
                   </p>
                 </div>
                 <input

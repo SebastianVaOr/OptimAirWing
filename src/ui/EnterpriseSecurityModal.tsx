@@ -143,7 +143,7 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
                   <div className="mt-2 text-2xl font-mono font-extrabold text-amber-300">
                     {appState.tokenBalance.toLocaleString()} <span className="text-xs text-[#5b6f8c]">TOKENS</span>
                   </div>
-                  <p className="mt-1 text-[11px] text-[#5b6f8c]">Disponibles para ejecuciones HPC NeuralFoil y CFD en la nube.</p>
+                  <p className="mt-1 text-[11px] text-[#5b6f8c]">Disponibles para ejecuciones de predicción en la nube.</p>
                 </div>
 
                 <div className="bg-[#0e1624] p-4 rounded-xl border border-[#16202f] flex flex-col justify-between">
@@ -298,7 +298,7 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
                     <label className="text-[11px] text-[#8ea3bd]">Nombre de la Llave API</label>
                     <input
                       type="text"
-                      placeholder="Ej: Servidor CFD Secundario / Cluster AWS"
+                      placeholder="Ej: Servidor de Predicción Secundario / Cluster AWS"
                       value={newKeyName}
                       onChange={e => setNewKeyName(e.target.value)}
                       className="bg-[#05070c] border border-[#16202f] rounded px-3 py-2 text-xs text-cyan-300 focus:border-cyan-400 focus:outline-none"
@@ -313,7 +313,7 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
                       className="bg-[#05070c] border border-[#16202f] rounded px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none cursor-pointer"
                     >
                       <option value="read_only">Sólo Lectura (Read Only)</option>
-                      <option value="execute_sim">Ejecutar Simulaciones NeuralFoil</option>
+                      <option value="execute_sim">Ejecutar Predicciones Aerodinámicas</option>
                       <option value="full_enterprise">Full Enterprise Control</option>
                     </select>
                   </div>

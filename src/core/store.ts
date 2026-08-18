@@ -120,7 +120,7 @@ class Store {
         {
           id: 'inv_1001',
           date: '2026-07-15',
-          description: 'Recarga Inicial - 2,500 Créditos NeuralFoil',
+          description: 'Recarga Inicial - 2,500 Créditos',
           amountEur: 29.00,
           tokensAdded: 2500,
           status: 'paid'
