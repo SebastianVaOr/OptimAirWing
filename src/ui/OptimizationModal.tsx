@@ -34,7 +34,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [currentGen, setCurrentGen] = useState(0);
   const [maxGen, setMaxGen] = useState(80);
-  const [bestLD, setBestLD] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
   const [liveScore, setLiveScore] = useState<number>(0);
   const [liveLD, setLiveLD] = useState<number>(0);
   const [liveWeight, setLiveWeight] = useState<number>(0);
@@ -42,6 +42,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   const [bestCandidate, setBestCandidate] = useState<LegacyWingPayload | null>(null);
   const [viability, setViability] = useState<ViabilityAnalysis | undefined>(undefined);
   const [isFinished, setIsFinished] = useState(false);
+  const [converged, setConverged] = useState(true);
+  const [discardedRatio, setDiscardedRatio] = useState(0);
 
   // Formulario de Requerimientos Técnico-Económicos
   const [sector, setSector] = useState<TargetSector>('uav');
@@ -170,17 +172,9 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   const creditsRemaining = Math.max(0, org.monthly_optimizations_limit - org.monthly_optimizations_used);
 
   const getRequiredCredits = () => {
-    let base = 1;
-    switch (optLevel) {
-      case 'full_custom': base = 7; break;
-      case 'structural': base = 5; break;
-      case 'neuralfoil': base = 2; break;
-      case 'basic': default: base = 1; break;
-    }
-    if (optMode === 'balance' || optMode === 'weight') {
-      base += 2;
-    }
-    return base;
+    // FIX (8a): Coste único plano por corrida (1 crédito), independiente del nivel de optimización.
+    // El nivel es una etiqueta de fidelidad/detalle del análisis, no un motor diferente.
+    return 1;
   };
 
   const requiredCredits = getRequiredCredits();
@@ -263,7 +257,9 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
     setIsRunning(true);
     setIsFinished(false);
     setCurrentGen(0);
-    setBestLD(0);
+    setBestScore(0);
+    setConverged(true);
+    setDiscardedRatio(0);
     setBestCandidate(null);
     setViability(undefined);
 
@@ -332,7 +328,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
       if (bestAero?.LD) setLiveLD(bestAero.LD);
       if (bestWeight) setLiveWeight(bestWeight);
       if (bestCost) setLiveCost(bestCost);
-      setBestLD(bestAero?.LD || bestFit);
+      setBestScore(bestFit);
       setBestCandidate(bestParams);
       if (disc !== undefined) setDiscardedCount(disc);
 
@@ -347,7 +343,9 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
     try {
       const result = await opt.run(currentParams, reqs);
       setBestCandidate(result.bestParams);
-      setBestLD(result.bestFitness);
+      setBestScore(result.bestFitness);
+      setConverged(result.converged);
+      setDiscardedRatio(result.discardedRatio);
       setViability(result.viability);
       setIsFinished(true);
     } catch (err) {
@@ -366,6 +364,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   };
 
   const handleApply = () => {
+    if (!converged) return; // No aplicar un resultado arbitrario de una corrida no convergida
     if (bestCandidate) {
       if (viability?.stabilityStatus === 'danger') {
         const confirmMsg = `ADVERTENCIA CRÍTICA DE SEGURIDAD ESTRUCTURAL:\n\n${viability.stabilityMessage}\n\n¿Está seguro de aplicar esta configuración a la mesa de trabajo?`;
@@ -446,7 +445,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 <Cpu className="w-3.5 h-3.5" /> Nivel de Optimización & Consumo
               </span>
               <span className="text-xs text-amber-300 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
-                Esta optimización consumirá {requiredCredits} crédito(s) (de {creditsRemaining} disponibles)
+                Esta optimización consumirá 1 crédito (de {creditsRemaining} disponibles)
               </span>
             </div>
 
@@ -466,7 +465,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   }`}
                 >
                   <span className="font-bold">Máxima Eficiencia</span>
-                  <span className="text-[10px] text-[#5b6f8c]">Prioriza L/D (+0 cred)</span>
+                  <span className="text-[10px] text-[#5b6f8c]">Prioriza L/D</span>
                 </button>
 
                 <button
@@ -478,9 +477,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                       : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                   }`}
                 >
-                  <span className="font-bold flex items-center gap-1">
-                    Mínimo Peso <span className="text-[9px] bg-cyan-500/30 text-cyan-200 px-1 rounded">+2 cred</span>
-                  </span>
+                  <span className="font-bold">Mínimo Peso</span>
                   <span className="text-[10px] text-[#5b6f8c]">Prioriza reducir kg</span>
                 </button>
 
@@ -493,9 +490,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                       : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
                   }`}
                 >
-                  <span className="font-bold flex items-center gap-1">
-                    Balance L/D vs Peso <span className="text-[9px] bg-cyan-500/30 text-cyan-200 px-1 rounded">+2 cred</span>
-                  </span>
+                  <span className="font-bold">Balance L/D vs Peso</span>
                   <span className="text-[10px] text-[#5b6f8c]">Compromiso óptimo</span>
                 </button>
               </div>
@@ -513,10 +508,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               >
                 <div>
                   <div className="font-bold text-[#e8f1fb]">Básica</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Aerodinámica empírica sola</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Estimación de referencia rápida</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 w-fit">
-                  {1 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
+                  1 Crédito
                 </span>
               </button>
 
@@ -530,11 +525,11 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8f1fb]">NeuralFoil IA</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ Inferencia red neuronal</div>
+                  <div className="font-bold text-[#e8f1fb]">Estándar</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Fidelidad estándar del análisis</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 w-fit">
-                  {2 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
+                  1 Crédito
                 </span>
               </button>
 
@@ -548,11 +543,11 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8f1fb]">Estructural</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ FS, deflexión y V_d</div>
+                  <div className="font-bold text-[#e8f1fb]">Avanzada</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Detalle avanzado (estructura y FS)</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 w-fit">
-                  {5 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
+                  1 Crédito
                 </span>
               </button>
 
@@ -566,14 +561,17 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 }`}
               >
                 <div>
-                  <div className="font-bold text-[#e8f1fb]">Costes Reales</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">+ Material & Mano de obra</div>
+                  <div className="font-bold text-[#e8f1fb]">Completa</div>
+                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Detalle completo (costes y MC)</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 w-fit">
-                  {7 + (optMode === 'balance' || optMode === 'weight' ? 2 : 0)} Créditos
+                  1 Crédito
                 </span>
               </button>
             </div>
+            <p className="text-[10px] text-[#5b6f8c] leading-relaxed">
+              Todos los niveles utilizan el mismo motor de optimización; el nivel es una etiqueta de fidelidad/detalle del análisis, no un motor diferente. Cada corrida consume 1 crédito.
+            </p>
           </div>
 
           <OptimizationForm
@@ -625,7 +623,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 {isRunning ? `Generación ${currentGen} de ${maxGen}` : isFinished ? 'Optimización Técnico-Económica Finalizada' : 'Listo para iniciar'}
               </span>
               <span className="text-cyan-400 font-bold">
-                {liveScore > 0 ? `Score: ${liveScore}/100 Pts` : viability ? `Score: ${viability.riskAdjustedScore}/100 Pts` : ''}
+                {isRunning && liveScore > 0 ? `Fitness (óptimo): ${liveScore}/100` : viability ? `Puntuación ajustada a riesgo: ${viability.riskAdjustedScore}/100` : ''}
               </span>
               {viability?.monteCarloAnalysis && (
                 <span className="text-[10px] text-[#5b6f8c] font-mono" title="Intervalo de confianza P50 ± P95 (Monte Carlo)">
@@ -662,15 +660,17 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-semibold text-[#8ea3bd]">Puntuación de Viabilidad (0-100):</span>
+                  <span className="text-[10px] uppercase font-semibold text-[#8ea3bd]">
+                    {isRunning ? 'Fitness (óptimo):' : 'Puntuación ajustada a riesgo:'}
+                  </span>
                   <span className={`px-2.5 py-0.5 rounded text-xs font-black border ${
-                    (viability?.riskAdjustedScore ?? liveScore) >= 80
+                    (isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore) >= 80
                       ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                      : (viability?.riskAdjustedScore ?? liveScore) >= 60
+                      : (isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore) >= 60
                       ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
                       : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                   }`}>
-                    {viability?.riskAdjustedScore ?? liveScore} / 100 Pts
+                    {isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore} / 100 Pts
                   </span>
                 </div>
               </div>
@@ -738,7 +738,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
                   <div>
                     <span className="text-[10px] text-[#5b6f8c] block">Eficiencia Aerodinámica (L/D)</span>
-                    <strong className="text-cyan-300 text-xs">{liveLD > 0 ? liveLD.toFixed(2) : bestLD > 0 ? bestLD.toFixed(2) : '-'}</strong>
+                    <strong className="text-cyan-300 text-xs">{liveLD > 0 ? liveLD.toFixed(2) : '-'}</strong>
                   </div>
                 </div>
 
@@ -900,11 +900,32 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
             </div>
           )}
 
+          {!converged && bestCandidate && !isRunning && (
+            <div className="p-3 bg-amber-500/15 border border-amber-500/40 rounded-lg text-xs text-amber-200 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                <span className="font-bold uppercase tracking-wide text-amber-300">
+                  La optimización no convergió
+                </span>
+                <span>
+                  El {Math.round(discardedRatio * 100)}% de los diseños evaluados fue descartado por las restricciones. El resultado mostrado es una aproximación; revise las restricciones o active «Exploración Libre» antes de aplicar.
+                </span>
+              </div>
+            </div>
+          )}
+
           {bestCandidate && !isRunning && (
             <div className="flex justify-end gap-2">
               <button onClick={handleApply}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition cursor-pointer text-xs font-bold shadow-md shadow-emerald-500/10"
-                title="Aceptar diseño y aplicar a la mesa de trabajo">
+                disabled={!converged}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition cursor-pointer text-xs font-bold shadow-md ${
+                  converged
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30 shadow-emerald-500/10'
+                    : 'bg-[#16202f] text-[#5b6f8c] border-[#16202f] cursor-not-allowed'
+                }`}
+                title={converged
+                  ? 'Aceptar diseño y aplicar a la mesa de trabajo'
+                  : 'Optimización no convergida: revise las restricciones o active Exploración Libre'}>
                 <span>Aceptar Diseño</span>
               </button>
             </div>

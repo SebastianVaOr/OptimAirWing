@@ -6,7 +6,8 @@
 import { calcularEmpirico, LegacyWingInput } from './empirical';
 import { DesignRequirements, TargetSector, ViabilityAnalysis, LegacyWingPayload } from '../../core/types';
 import { checkSweepStability } from './stability';
-import { checkSectorViability, getSectorLimits } from './sectorGuardrails';
+import { checkSectorViability, getSectorLimits, getSectorPreset } from './sectorGuardrails';
+import { generarNACA } from './naca';
 import { analyzeBucklingStability } from './buckling';
 import { computeLongitudinalStability } from './flightDynamics';
 import { MATERIALS_DB } from './materials';
@@ -46,6 +47,8 @@ export interface OptResult {
   historyBest: number[];
   historyAvg: number[];
   viability?: ViabilityAnalysis;
+  converged: boolean;
+  discardedRatio: number;
 }
 
 const HIGH_LOAD_F1_NACAS = ['6412', '4415', '4412', '6415', '2415'];
@@ -88,12 +91,14 @@ export class GeneticOptimizer {
   paramsToInd(params: LegacyWingInput, sector?: string): number[] {
     const isMotorsport = sector?.startsWith('f1_') || sector === 'gt_spoiler';
     if (isMotorsport) {
-      // Cromosoma F1 (3 genes): [α (8°-18°), NACA Index (0-4), Twist (-3° a 0°)]
+      // Cromosoma F1 (4 genes): [α (8°-18°), NACA Index (0-4), Twist (-3° a 0°), Sweep]
       const alpha = Math.min(18, Math.max(8, params.alpha_deg || 12));
       let nacaIdx = HIGH_LOAD_F1_NACAS.indexOf(params.nacaCode);
       if (nacaIdx < 0) nacaIdx = 0;
       const twist = Math.min(0, Math.max(-3, params.twist_deg || 0));
-      return [alpha, nacaIdx, twist];
+      const sLimits = getSectorLimits(sector as TargetSector);
+      const sweep = Math.min(sLimits.sweep.max, Math.max(sLimits.sweep.min, params.sweep_deg || 0));
+      return [alpha, nacaIdx, twist, sweep];
     }
 
     const naca = params.nacaCode || '2412';
@@ -121,17 +126,24 @@ export class GeneticOptimizer {
     const isMotorsport = sector?.startsWith('f1_') || sector === 'gt_spoiler';
 
     if (isMotorsport) {
-      // Cromosoma F1 (3 genes): [α, NACA Index, Twist] con geometría fija constante (span/chord)
+      // Cromosoma F1 (4 genes): [α, NACA Index, Twist, Sweep].
+      // b/Cr/Ct desde fixed_span_m si se aporta, si no desde el preset del sector (SECTOR_PRESETS).
       const alpha = Math.min(18, Math.max(8, ind[0] ?? 12));
       const nacaIdx = Math.min(4, Math.max(0, Math.round(ind[1] ?? 0)));
       const twist = Math.min(0, Math.max(-3, ind[2] ?? 0));
+      const limits = getSectorLimits(sector);
+      const preset = getSectorPreset(sector);
+      const fixedSpanM = (reqs?.fixed_span_m && reqs.fixed_span_m > 0)
+        ? reqs.fixed_span_m
+        : (fixedSpan && fixedSpan > 0 ? fixedSpan : undefined);
       const nacaCode = HIGH_LOAD_F1_NACAS[nacaIdx] || '6412';
+      const sweep = Math.min(limits.sweep.max, Math.max(limits.sweep.min, ind[3] ?? preset.sweep));
 
       return {
-        b: 1.05,        // Envergadura fija constante
-        Cr: 0.30,       // Cuerda raíz fija constante
-        Ct: 0.25,       // Cuerda punta fija constante
-        sweep_deg: 0,   // Flecha fija constante
+        b: Number((fixedSpanM ?? preset.b).toFixed(2)),
+        Cr: Number(preset.Cr.toFixed(2)),
+        Ct: Number(preset.Ct.toFixed(2)),
+        sweep_deg: Number(sweep.toFixed(2)),
         twist_deg: Number(twist.toFixed(2)),
         alpha_deg: Number(alpha.toFixed(2)),
         nacaCode,
@@ -216,17 +228,20 @@ export class GeneticOptimizer {
     const params = this.indToParams(ind, requirements?.sector, requirements?.fixed_span_m, requirements);
     const aero = calcularEmpirico(params);
 
-    // RESTICCIÓN DURA DE DRAG F1: CD < 0.12
+    // RESTRICCIÓN DURA DE DRAG F1: se evalúa sobre la resistencia parásita del perfil (CD0),
+    // no sobre el CD total (un ala multi-elemento F1 supera legítimamente CD 0.12).
     if (isMotorsport) {
-      if (aero.CD >= 0.12) {
+      if (aero.CD0 >= 0.05) {
         this.discardedCount++;
-        return 0.0; // Rechazo inmediato por exceso de drag
+        return 0.0; // CD0 > 0.05 es físicamente imposible para un perfil limpio
       }
 
       // OBJETIVO F1: Maximizar Downforce Total = (CL * Área)
       const downforceMetric = Math.abs(aero.CL) * aero.S; // (CL * S)
       const maxTargetDownforce = 0.85; // Downforce de referencia para alerón F1
-      const fitScore = Math.min(99.5, Math.max(15.0, (downforceMetric / maxTargetDownforce) * 100));
+      let fitScore = Math.min(99.5, Math.max(15.0, (downforceMetric / maxTargetDownforce) * 100));
+      // Penalización suave por CD total: discrimina entre diseños que sí superan el gate
+      fitScore *= Math.max(0.55, 1.0 - Math.max(0, aero.CD - 0.12) * 0.8);
       return Number(fitScore.toFixed(2));
     }
 
@@ -250,12 +265,13 @@ export class GeneticOptimizer {
     const costTotal = typeof costObj === 'number' ? costObj : costObj.totalCost;
 
     // 1. RESTRICCIONES HARD & LISTA NEGRA PROHIBIDA (Rechazo Inmediato)
-    // FIX (3): Estimación de CL_max del perfil NACA para descarte por entrada en pérdida (stall) en el camino no-F1
-    // Fórmula: CL_max_2D = 1.1 + 0.1*camber + 0.02*thickness con corrección de flecha 3D (Raymer Aircraft Design)
-    const m_camber = parseInt(params.nacaCode[0] || '2', 10);
-    const t_thick = parseInt(params.nacaCode.slice(2) || '12', 10);
-    const CL_max_2d = 1.1 + 0.1 * m_camber + 0.02 * t_thick;
-    const CL_max = CL_max_2d * Math.cos((params.sweep_deg * Math.PI) / 180);
+    // FIX (3): CL_max del perfil real desde generarNACA (m y t son fracciones, no dígitos).
+    // Fórmula consistente con empirical.ts: clMax2d = 1.25 + 0.2·(m/0.02) + 0.1·(t−0.12), con corrección de flecha 3D.
+    const nacaGeom = generarNACA(params.nacaCode);
+    const m_camber = nacaGeom.m; // e.g. 0.02 para NACA 2412
+    const t_thick = nacaGeom.t;  // e.g. 0.12 para NACA 2412
+    const clMax2d = 1.25 + 0.2 * (m_camber / 0.02) + 0.1 * (t_thick - 0.12);
+    const CL_max = clMax2d * Math.cos((params.sweep_deg * Math.PI) / 180);
 
     if (aero.CL >= CL_max) {
       this.discardedCount++;
@@ -347,11 +363,17 @@ export class GeneticOptimizer {
         const targetW = requirements?.estimated_weight_kg || 25;
         const weightRatio = targetW / Math.max(0.1, estWeight);
         const weightScore = Math.min(100, Math.max(20, weightRatio * 85));
-        baseFitness = (ldScore * 0.65) + (weightScore * 0.35);
+        if (mode === 'weight') {
+          // FIX (4): Branch 'weight' real — peso dominante (80% peso, 20% L/D)
+          baseFitness = (weightScore * 0.8) + (ldScore * 0.2);
+        } else {
+          // Balance: compromiso L/D vs peso
+          baseFitness = (ldScore * 0.65) + (weightScore * 0.35);
+        }
       }
     }
 
-    const finalScore = Math.min(99.5, Math.max(25.0, baseFitness * penaltyFactor));
+    const finalScore = Math.min(99.5, Math.max(5.0, baseFitness * penaltyFactor));
     return Number(finalScore.toFixed(2));
   }
 
@@ -418,6 +440,16 @@ export class GeneticOptimizer {
     return mutated;
   }
 
+  /**
+   * FIX (5): Operador de reparación — re-codifica el cromosoma tras decodificarlo para que
+   * el genotipo refleje los valores reales (clamps sectoriales y reglas geométricas cruzadas
+   * Cr ≤ 0.6·b, Ct ≤ 0.85·Cr). Evita que la población evolucione genes que decodifican igual.
+   */
+  repair(ind: number[], sector?: TargetSector, reqs?: DesignRequirements): number[] {
+    const params = this.indToParams(ind, sector, reqs?.fixed_span_m, reqs);
+    return this.paramsToInd(params, sector);
+  }
+
   gaussianRandom(): number {
     let u = 0;
     let v = 0;
@@ -437,11 +469,13 @@ export class GeneticOptimizer {
     const isMotorsport = sector?.startsWith('f1_') || sector === 'gt_spoiler';
 
     if (isMotorsport) {
-      // Cromosoma F1 (3 genes): [α (8°-18°), NACA Index (0-4), Twist (-3° a 0°)]
+      // Cromosoma F1 (4 genes): [α (8°-18°), NACA Index (0-4), Twist (-3° a 0°), Sweep por sector]
+      const limits = getSectorLimits(sector);
       this.ranges = [
         { min: 8.0, max: 18.0 },
         { min: 0.0, max: 4.0 },
-        { min: -3.0, max: 0.0 }
+        { min: -3.0, max: 0.0 },
+        { min: limits.sweep.min, max: limits.sweep.max }
       ];
     } else {
       const limits = getSectorLimits(sector);
@@ -477,6 +511,8 @@ export class GeneticOptimizer {
     while (population.length < this.popSize) {
       population.push(this.randomInd());
     }
+    // FIX (5): Reparar la población inicial para que el genotipo respete las restricciones cruzadas
+    population = population.map(ind => this.repair(ind, sector, requirements));
 
     let fitnessList = population.map(ind => this.fitness(ind, requirements));
 
@@ -496,6 +532,8 @@ export class GeneticOptimizer {
         const p2 = this.tournament(population, fitnessList, crowdDist);
         let child = this.crossover(p1, p2);
         child = this.mutate(child);
+        // FIX (5): Reparar la descendencia tras crossover/mutación
+        child = this.repair(child, sector, requirements);
         newPop.push(child);
       }
 
@@ -542,7 +580,14 @@ export class GeneticOptimizer {
     this.running = false;
     const finalBestIdx = fitnessList.indexOf(Math.max(...fitnessList));
     const finalBestInd = population[finalBestIdx];
+    const bestFitness = fitnessList[finalBestIdx];
     const bestParams = this.indToParams(finalBestInd, requirements?.sector, requirements?.fixed_span_m, requirements);
+
+    // FIX (6): Reporte de convergencia — si casi todo fue descartado o la mejor fitness es 0,
+    // el resultado se marca como no convergido (bestParams se devuelve pero flaggeado).
+    const totalEvaluated = Math.max(1, this.popSize * (this.generations + 1));
+    const discardedRatio = Math.min(1, this.discardedCount / totalEvaluated);
+    const converged = bestFitness > 0 && discardedRatio <= 0.9;
 
     let viability: ViabilityAnalysis | undefined = undefined;
     if (requirements) {
@@ -554,11 +599,13 @@ export class GeneticOptimizer {
 
     return {
       bestInd: finalBestInd,
-      bestFitness: fitnessList[finalBestIdx],
+      bestFitness,
       bestParams,
       historyBest: this.historyBest,
       historyAvg: this.historyAvg,
-      viability
+      viability,
+      converged,
+      discardedRatio
     };
   }
 
