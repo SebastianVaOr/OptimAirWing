@@ -3,6 +3,7 @@ import { X, Download, FileText, FileCode, Printer, Table, Bookmark, Check } from
 import { LegacyWingPayload, PredictionResult } from '../core/types';
 import { generateTechnicalReportHtml } from '../report/reportGenerator';
 import { generateSTEPFileContent, generateSolidWorksPythonScript } from '../domains/marketReadiness';
+import { calcularEmpirico } from '../domains/wing/empirical';
 
 interface ExportDownloadModalProps {
   isOpen: boolean;
@@ -97,13 +98,11 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
       ]
     ];
 
-    // Generate polars table sweep (-4 to 18 deg)
+    // Generate polars table sweep (-4 to 18 deg) con el motor empírico de línea sustentadora
     const polarLines: string[] = ['\n--- POLARES AERODINÁMICAS (SWEEP ALPHA) ---', 'Alpha,CL,CD,LD'];
     for (let a = -4; a <= 18; a += 1) {
-      const cl = 0.1 * (a + 2);
-      const cd = 0.01 + 0.0005 * Math.pow(a, 2);
-      const ld = cd > 0 ? cl / cd : 0;
-      polarLines.push(`${a},${cl.toFixed(4)},${cd.toFixed(4)},${ld.toFixed(2)}`);
+      const emp = calcularEmpirico({ ...params, alpha_deg: a });
+      polarLines.push(`${a},${emp.CL.toFixed(4)},${emp.CD.toFixed(4)},${emp.LD.toFixed(2)}`);
     }
 
     const csvContent = [
@@ -156,7 +155,7 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
   const handleDownloadJSON = () => {
     const snapshotData = {
       timestamp: new Date().toISOString(),
-      platform: 'OptimAirWing 3D CFD',
+      platform: 'OptimAirWing - Modelo empírico de línea sustentadora (lifting-line)',
       parameters: params,
       results: prediction
     };

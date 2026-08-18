@@ -38,7 +38,7 @@ export function generateTechnicalReportHtml(
         </div>
         <div style="text-align: right;">
           <span style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid rgba(34, 211, 238, 0.3);">
-            ${result.fidelity.toUpperCase()} MODEL
+            MODELO EMPÍRICO LÍNEA SUSTENTADORA (LIFTING-LINE)
           </span>
           <p style="margin: 4px 0 0 0; font-size: 11px; color: #5b6f8c;">Versión ${result.model_version}</p>
         </div>
@@ -68,8 +68,8 @@ export function generateTechnicalReportHtml(
               </div>`
             : viability.cfdValidation && (viability.cfdValidation.deltaCLPct > 15.0 || viability.cfdValidation.deltaCDPct > 15.0)
             ? `<div style="background: rgba(225, 29, 72, 0.2); border: 2px solid #e11d48; color: #fecdd3; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);">
-                🔴 DISEÑO NO CONFIABLE - DISCREPANCIA CFD > 15% (dCL: ${viability.cfdValidation.deltaCLPct}%, dCD: ${viability.cfdValidation.deltaCDPct}%). REQUIERE ITERACIÓN.<br/>
-                <span style="font-weight: 400; font-size: 12px; color: #fda4af;">Se ha aplicado una penalización automática del -50% al Score por divergencia del modelo empírico vs CFD de alta fidelidad.</span>
+                🔴 DISEÑO NO CONFIABLE - DISCREPANCIA CROSS-CHECK > 15% (dCL: ${viability.cfdValidation.deltaCLPct}%, dCD: ${viability.cfdValidation.deltaCDPct}%). REQUIERE ITERACIÓN.<br/>
+                <span style="font-weight: 400; font-size: 12px; color: #fda4af;">Se ha aplicado una penalización automática del -50% al Score por divergencia del modelo empírico vs la verificación de coherencia de línea sustentadora.</span>
               </div>`
             : ''
         }
@@ -132,7 +132,7 @@ export function generateTechnicalReportHtml(
             </div>
             <div>
               <strong>Motor de Predicción:</strong> 
-              <span style="color: #22d3ee; font-weight: 600;">${(!defaultReqs.optimization_level || defaultReqs.optimization_level === 'neuralfoil') ? 'NeuralFoil v2.1 (Alta fidelidad)' : defaultReqs.optimization_level === 'structural' ? 'Estructural (Aero + Pandeo)' : defaultReqs.optimization_level === 'full_custom' ? 'Full Custom Multi-Physics' : 'Empírico Básico (Fallback)'}</span>
+              <span style="color: #22d3ee; font-weight: 600;">${defaultReqs.optimization_level === 'structural' ? 'Estructural (Aero + Pandeo)' : defaultReqs.optimization_level === 'full_custom' ? 'Full Custom Multi-Physics' : 'Modelo empírico de línea sustentadora (lifting-line)'}</span>
             </div>
             <div>
               <strong>Restricciones Activas:</strong> 
@@ -277,19 +277,19 @@ export function generateTechnicalReportHtml(
           </span>
         </div>
         <p style="font-size: 11px; color: #5b6f8c; margin: 0 0 8px 0;">
-          Modo Seleccionado: <strong style="color: #e8f1fb; text-transform: uppercase;">${viability.optimizationMode || 'balance'}</strong> | FS Objetivo Solicitado: <strong style="color: #38bdf8;">${viability.fsTarget || 2.5}x</strong> | Motor Usado: <strong style="color: #38bdf8;">${viability.surrogateModelSource || 'NeuralFoil v2.1'}</strong>
+          Modo Seleccionado: <strong style="color: #e8f1fb; text-transform: uppercase;">${viability.optimizationMode || 'balance'}</strong> | FS Objetivo Solicitado: <strong style="color: #38bdf8;">${viability.fsTarget || 2.5}x</strong> | Motor Usado: <strong style="color: #38bdf8;">${viability.surrogateModelSource || 'Modelo empírico de línea sustentadora (lifting-line)'}</strong>
         </p>
         <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #e8f1fb; line-height: 1.6;">
           ${(viability.weightOptimizationRecommendations || ['Diseño ajustado al factor de seguridad objetivo sin peso superfluo.']).map(rec => `<li style="margin-bottom: 6px;">${rec}</li>`).join('')}
         </ul>
       </div>
 
-      <!-- SECCIÓN B.7: VALIDACIÓN CON CFD EXTERNO -->
+      <!-- SECCIÓN B.7: VERIFICACIÓN DE COHERENCIA DEL MODELO EMPÍRICO -->
       ${viability.cfdValidation ? `
         <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 10px;">
             <h3 style="margin: 0; font-size: 14px; color: #38bdf8; font-weight: 700;">
-              B.7 Validación con CFD Externo (SU2 / High-Fidelity)
+              B.7 Verificación de Coherencia del Modelo Empírico (Cross-check Lifting-Line)
             </h3>
             <span style="background: ${viability.cfdValidation.validated ? 'rgba(52, 211, 153, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color: ${viability.cfdValidation.validated ? '#34d399' : '#fcd34d'}; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
               ${viability.cfdValidation.statusLabel}
@@ -297,26 +297,26 @@ export function generateTechnicalReportHtml(
           </div>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 11px;">
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
-              <span style="color: #8ea3bd; display: block;">CL CFD vs Base:</span>
+              <span style="color: #8ea3bd; display: block;">CL Cross-check vs Base:</span>
               <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CL} vs ${viability.cfdValidation.baseline.CL} (Δ ${viability.cfdValidation.deltaCLPct}%)</strong>
             </div>
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
-              <span style="color: #8ea3bd; display: block;">CD CFD vs Base:</span>
+              <span style="color: #8ea3bd; display: block;">CD Cross-check vs Base:</span>
               <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CD} vs ${viability.cfdValidation.baseline.CD} (Δ ${viability.cfdValidation.deltaCDPct}%)</strong>
             </div>
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
-              <span style="color: #8ea3bd; display: block;">Solucionador:</span>
+              <span style="color: #8ea3bd; display: block;">Motor de Verificación:</span>
               <strong style="color: #38bdf8;">${viability.cfdValidation.solver}</strong>
             </div>
           </div>
           ${
             viability.cfdValidation.deltaCLPct > 30 || viability.cfdValidation.deltaCDPct > 30
               ? `<div style="background: rgba(244, 63, 94, 0.15); border: 1px solid #fb7185; color: #fda4af; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
-                  🔴 DIFERENCIA CRÍTICA: El diseño no debe fabricarse sin una validación CFD adicional. El panel no es fiable para esta configuración.
+                  🔴 DIFERENCIA CRÍTICA: El diseño no debe fabricarse sin una validación CFD adicional. El modelo empírico no es fiable para esta configuración.
                 </div>`
               : viability.cfdValidation.deltaCLPct > 20 || viability.cfdValidation.deltaCDPct > 20
               ? `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; color: #fcd34d; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
-                  ⚠️ ADVERTENCIA: El modelo de panel (NeuralFoil) muestra una diferencia significativa con el CFD. Esto puede deberse a efectos no lineales (separación, compresibilidad) o a que el perfil tiene alta comba. Se recomienda validar este diseño con simulaciones de alta fidelidad antes de fabricar.
+                  ⚠️ ADVERTENCIA: El modelo empírico de línea sustentadora muestra una diferencia significativa con la referencia de coherencia. Esto puede deberse a efectos no lineales (separación, compresibilidad) o a que el perfil tiene alta comba. Se recomienda validar este diseño con simulaciones de alta fidelidad (CFD real) antes de fabricar.
                 </div>`
               : ''
           }

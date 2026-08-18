@@ -14,15 +14,19 @@ export class PredictorRegistry {
   private predictors: Predictor[] = [];
 
   constructor() {
-    this.predictors.push(new NeuralFoilPredictor());
+    // El modelo empírico de línea sustentadora es el motor por defecto.
+    // NeuralFoil no está integrado: is_available() === false.
     this.predictors.push(new EmpiricalPredictor());
+    this.predictors.push(new NeuralFoilPredictor());
   }
 
   predictWithFallback(params: WingParams): PredictionResult {
     for (const predictor of this.predictors) {
       try {
         if (predictor.is_available()) {
-          return predictor.predict(params);
+          const result = predictor.predict(params);
+          // Etiquetado honesto: el único motor disponible es el empírico lifting-line
+          return { ...result, fidelity: 'empirical', model_version: '1.0-lifting-line' };
         }
       } catch (err) {
         console.warn(`Predictor '${predictor.name}' falló, degradando a siguiente predictor:`, err);
@@ -31,7 +35,7 @@ export class PredictorRegistry {
 
     // Fallback absoluto
     const fallback = new EmpiricalPredictor();
-    return fallback.predict(params);
+    return { ...fallback.predict(params), fidelity: 'empirical', model_version: '1.0-lifting-line' };
   }
 }
 

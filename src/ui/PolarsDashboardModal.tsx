@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, TrendingUp, ShieldAlert, Zap, Compass, BarChart3 } from 'lucide-react';
 import { LegacyWingPayload, PredictionResult } from '../core/types';
+import { calcularEmpirico } from '../domains/wing/empirical';
 
 interface PolarsDashboardModalProps {
   isOpen: boolean;
@@ -23,23 +24,10 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
   const alphaRange = Array.from({ length: 23 }, (_, i) => -4 + i);
   const currentAlpha = params.alpha_deg || 4;
 
+  // Barrido con el mismo motor empírico de línea sustentadora usado en el resto de la app
   const sweepData = alphaRange.map(a => {
-    // Semi-empirical polar approximations
-    const isStall = a > 14;
-    let cl = 0.11 * (a + 2); // Linear slope ~2pi per rad
-    if (a > 12) {
-      cl = 1.54 - 0.05 * Math.pow(a - 12, 1.5);
-    }
-    cl = Math.max(-0.4, Math.min(1.6, cl));
-
-    const cd0 = 0.015;
-    const ar = (params.b * params.b) / (0.5 * (params.Cr + params.Ct) * params.b);
-    const k = 1 / (Math.PI * 0.85 * Math.max(1, ar));
-    const cd = cd0 + k * cl * cl + (isStall ? 0.08 : 0);
-
-    const ld = cl / Math.max(0.001, cd);
-
-    return { alpha: a, CL: Number(cl.toFixed(3)), CD: Number(cd.toFixed(4)), LD: Number(ld.toFixed(2)) };
+    const emp = calcularEmpirico({ ...params, alpha_deg: a });
+    return { alpha: a, CL: emp.CL, CD: emp.CD, LD: emp.LD };
   });
 
   const currentCL = prediction?.CL || 0.65;
@@ -214,7 +202,7 @@ export const PolarsDashboardModal: React.FC<PolarsDashboardModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between text-xs text-[#5b6f8c]">
-          <span>* Polares calculadas con modelos surrogate CFD de alta fidelidad NeuralFoil/XFOIL.</span>
+          <span>* Polares calculadas con el modelo empírico de línea sustentadora (lifting-line).</span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-[#0e1624] text-white font-bold hover:bg-[#16202f] transition cursor-pointer"

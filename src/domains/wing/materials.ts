@@ -80,7 +80,7 @@ export const MATERIALS_DB: Record<StructuralMaterial, MaterialProperties> = {
     cost_kg: 5,
     yield_strength: 40,
     elastic_modulus: 10,
-    shear_modulus: 4,
+    shear_modulus: 0.85,
     fatigue_life: 1e6
   },
   titanium: {
