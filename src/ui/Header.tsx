@@ -1,10 +1,12 @@
 import React from 'react';
 import {
-  Plane, BarChart3, Zap, FileText, Bookmark, Settings, Award,
-  GitCompare, Sliders, Sun, Moon, Globe, Download,
+  Plane, BarChart3, Zap, FileText, Bookmark, Settings,
+  GitCompare, Sun, Moon, Globe, Download,
 } from 'lucide-react';
 import { OrganizationInfo } from '../core/types';
 import { InfoTab } from './InfoSectionModal';
+import { Chip } from './primitives/Chip';
+import { Badge } from './primitives/Badge';
 
 interface HeaderProps {
   org: OrganizationInfo;
@@ -34,86 +36,69 @@ export const Header: React.FC<HeaderProps> = ({
   onGoToLanding, theme = 'dark', onToggleTheme, language = 'es', onToggleLanguage,
   onOpenComparator, onOpenPolars, onOpenExport,
 }) => {
-  const planDot = org.plan === 'enterprise' ? 'bg-[#67e8f9]' : org.plan === 'professional' ? 'bg-[#22d3ee]' : 'bg-[#5b6f8c]';
+  const planVariant = org.plan === 'enterprise' ? 'accent' : org.plan === 'professional' ? 'accent' : 'default';
 
   return (
-    <header className="sticky top-0 z-40 bg-[#05070c]/90 backdrop-blur-lg border-b border-[#16202f] px-3 sm:px-4 py-2 flex items-center justify-between gap-2 select-none">
-      {/* Logo */}
+    <header className="sticky top-0 z-40 bg-ink/90 backdrop-blur-lg border-b border-line px-3 sm:px-4 py-2 flex items-center justify-between gap-2 select-none">
       <div className="flex items-center gap-2 shrink-0">
-        <div className="w-7 h-7 rounded-md bg-[#22d3ee]/10 border border-[#22d3ee]/30 flex items-center justify-center hud-bracket">
-          <Plane className="w-4 h-4 text-[#22d3ee]" />
+        <div className="w-7 h-7 rounded-md bg-accent/10 border border-accent/30 flex items-center justify-center hud-bracket">
+          <Plane className="w-4 h-4 text-accent" aria-hidden="true" />
         </div>
-        <span className="font-display font-bold text-sm text-[#e8f1fb] tracking-tight hidden sm:inline">OptimAirWing</span>
+        <span className="font-display font-bold text-sm text-hi tracking-tight hidden sm:inline">OptimAirWing</span>
         {fidelity && (
-          <span className="hidden lg:inline-flex hud-label text-[9px] px-1.5 py-0.5 rounded bg-[#0e1624] border border-[#16202f] text-[#67e8f9]">
+          <Badge variant="accent" className="hidden lg:inline-flex text-[9px]">
             {fidelity}
-          </span>
+          </Badge>
         )}
       </div>
 
-      {/* Center actions */}
       <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
-        <button onClick={onOpenOptimize} className="chip" title="Optimizar (O)">
-          <Zap className="w-3.5 h-3.5 text-[#22d3ee]" />
+        <Chip onClick={onOpenOptimize} icon={Zap} aria-label="Optimizar">
           <span className="hidden sm:inline">Optimizar</span>
-        </button>
-        <button onClick={onOpenReport} className="chip" title="Reporte PDF (R)">
-          <FileText className="w-3.5 h-3.5" />
+        </Chip>
+        <Chip onClick={onOpenReport} icon={FileText} aria-label="Reporte PDF">
           <span className="hidden sm:inline">Reporte</span>
-        </button>
-        <button onClick={onOpenSnapshots} className="chip" title="Instantáneas (G)">
-          <Bookmark className="w-3.5 h-3.5" />
+        </Chip>
+        <Chip onClick={onOpenSnapshots} icon={Bookmark} aria-label="Guardar instantánea">
           <span className="hidden sm:inline">Guardar</span>
-        </button>
-        <button onClick={onOpenComparator} className="chip" title="Comparar">
-          <GitCompare className="w-3.5 h-3.5" />
+        </Chip>
+        <Chip onClick={onOpenComparator} icon={GitCompare} aria-label="Comparar diseños">
           <span className="hidden sm:inline">Comparar</span>
-        </button>
-        <button onClick={onOpenPolars} className="chip" title="Curvas polares">
-          <BarChart3 className="w-3.5 h-3.5" />
+        </Chip>
+        <Chip onClick={onOpenPolars} icon={BarChart3} aria-label="Curvas polares">
           <span className="hidden sm:inline">Polares</span>
-        </button>
-        <button onClick={onOpenExport} className="chip" title="Exportar (E)">
-          <Download className="w-3.5 h-3.5" />
+        </Chip>
+        <Chip onClick={onOpenExport} icon={Download} aria-label="Exportar">
           <span className="hidden sm:inline">Exportar</span>
-        </button>
+        </Chip>
       </div>
 
-      {/* Right side */}
       <div className="flex items-center gap-2 shrink-0">
-        {/* Plan badge */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0a0f18] border border-[#16202f]">
-          <div className={`w-1.5 h-1.5 rounded-full ${planDot}`} />
-          <span className="text-[11px] font-semibold text-[#8ea3bd] uppercase tracking-wider">{org.plan}</span>
-          <span className="text-[11px] text-[#5b6f8c] font-mono">{org.monthly_predictions_used}/{org.monthly_predictions_limit}</span>
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-panel border border-line">
+          <Badge variant={planVariant}>{org.plan}</Badge>
+          <span className="text-[11px] text-dim font-mono">{org.monthly_predictions_used}/{org.monthly_predictions_limit}</span>
         </div>
 
-        {/* Theme */}
         {onToggleTheme && (
-          <button onClick={onToggleTheme} className="chip" title="Cambiar tema">
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-          </button>
+          <Chip
+            onClick={onToggleTheme}
+            icon={theme === 'dark' ? Sun : Moon}
+            aria-label="Cambiar tema"
+          />
         )}
 
-        {/* Language */}
         {onToggleLanguage && (
-          <button onClick={onToggleLanguage} className="chip" title="Idioma">
-            <Globe className="w-3.5 h-3.5" />
+          <Chip onClick={onToggleLanguage} icon={Globe} aria-label="Cambiar idioma">
             <span className="uppercase text-[11px] font-bold">{language}</span>
-          </button>
+          </Chip>
         )}
 
-        {/* Admin */}
-        <button onClick={onOpenAdmin} className="chip" title="Admin">
-          <Settings className="w-3.5 h-3.5" />
-        </button>
+        <Chip onClick={onOpenAdmin} icon={Settings} aria-label="Panel de administración" />
 
-        {/* Landing */}
         {onGoToLanding && (
-          <button onClick={onGoToLanding} className="chip" title="Inicio">
-            <Plane className="w-3.5 h-3.5" />
+          <Chip onClick={onGoToLanding} icon={Plane} aria-label="Ir al inicio">
             <span className="hidden sm:inline text-[11px]">Inicio</span>
-          </button>
+          </Chip>
         )}
       </div>
     </header>
