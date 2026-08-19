@@ -1,7 +1,9 @@
 import React from 'react';
-import { X, Download, FileText, Printer } from 'lucide-react';
+import { Printer, FileText } from 'lucide-react';
 import { LegacyWingPayload, PredictionResult } from '../core/types';
 import { generateTechnicalReportHtml } from '../report/reportGenerator';
+import { Modal } from './primitives/Modal';
+import { Button } from './primitives/Button';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -18,7 +20,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   prediction,
   optHistory
 }) => {
-  if (!isOpen || !prediction) return null;
+  if (!prediction) return null;
 
   const reportHtml = generateTechnicalReportHtml(params, prediction, optHistory);
 
@@ -44,31 +46,25 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#16202f] bg-[#0e1624]">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold">
-            <FileText className="w-5 h-5" />
-            <span>Informe Técnico de Ingeniería Alar</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0e1624] text-cyan-300 border border-[#16202f] hover:bg-cyan-500/20 text-xs font-semibold cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir / Exportar PDF</span>
-            </button>
-            <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 overflow-y-auto flex-1">
-          <div dangerouslySetInnerHTML={{ __html: reportHtml }} />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Informe Técnico de Ingeniería Alar"
+      size="lg"
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <FileText className="w-4 h-4 text-accent" aria-hidden="true" />
+        <span className="text-accent font-bold text-xs uppercase tracking-wider">Informe de Ingeniería</span>
+        <div className="ml-auto">
+          <Button variant="secondary" size="sm" icon={Printer} onClick={handlePrint}>
+            Imprimir / Exportar PDF
+          </Button>
         </div>
       </div>
-    </div>
+
+      <div className="overflow-y-auto flex-1 max-h-[60vh]">
+        <div dangerouslySetInnerHTML={{ __html: reportHtml }} />
+      </div>
+    </Modal>
   );
 };

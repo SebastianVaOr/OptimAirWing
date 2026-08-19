@@ -1,4 +1,5 @@
 import React from 'react';
+import { Lock, Unlock } from 'lucide-react';
 
 interface LockedParamsProps {
   lockB: boolean; setLockB: (v: boolean) => void;
@@ -19,31 +20,41 @@ interface LockedParamsProps {
 
 const LockBtn = React.memo(function LockBtn({ locked, toggle }: { locked: boolean; toggle: () => void }) {
   return (
-    <button type="button" onClick={toggle} aria-label={locked ? 'Desfijar parámetro' : 'Fijar parámetro'} aria-pressed={locked}
-      className={`px-1.5 py-0.5 text-[10px] rounded font-bold transition ${locked ? 'bg-amber-500 text-black' : 'bg-[#16202f] text-[#8ea3bd] hover:text-white'}`}>
-      {locked ? '🔒 Fijado' : '🔓 Libre'}
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={locked ? 'Desfijar parámetro' : 'Fijar parámetro'}
+      aria-pressed={locked}
+      className={`px-1.5 py-0.5 text-[10px] rounded font-bold transition inline-flex items-center gap-1 ${
+        locked ? 'bg-warn text-ink' : 'bg-line text-lo hover:text-hi'
+      }`}
+    >
+      {locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+      {locked ? 'Fijado' : 'Libre'}
     </button>
   );
 });
 
 const paramStyle = (locked: boolean) =>
-  `p-2 rounded border flex flex-col gap-1 transition ${locked ? 'bg-amber-500/10 border-amber-500/50' : 'bg-[#0a0f18] border-[#16202f]'}`;
+  `p-2 rounded border flex flex-col gap-1 transition ${locked ? 'bg-warn/10 border-warn/50' : 'bg-panel border-line'}`;
 
 const inputStyle = (locked: boolean) =>
-  `bg-[#05070c] border border-[#16202f] rounded px-2 py-1 text-[#e8f1fb] focus:outline-none ${!locked && 'opacity-50'}`;
+  `bg-ink border border-line rounded px-2 py-1 text-hi focus:outline-none ${!locked && 'opacity-50'}`;
 
 export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
-  <div className="bg-[#05070c] border border-[#16202f] rounded-lg p-3.5 mt-2 flex flex-col gap-2.5">
+  <div className="bg-ink border border-line rounded-lg p-3.5 mt-2 flex flex-col gap-2.5">
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
-        <span className="text-amber-400 font-bold text-xs">🔒 Candados de Parámetros Geométricos</span>
-        <span className="text-[10px] text-[#5b6f8c]">Fija parámetros mientras otros varían</span>
+        <span className="text-warn font-bold text-xs flex items-center gap-1.5">
+          <Lock className="w-3.5 h-3.5" /> Candados de Parámetros Geométricos
+        </span>
+        <span className="text-[10px] text-dim">Fija parámetros mientras otros varían</span>
       </div>
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 text-xs">
       <div className={paramStyle(p.lockB)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Envergadura b (m)</span>
+          <span className="font-semibold text-hi">Envergadura b (m)</span>
           <LockBtn locked={p.lockB} toggle={() => p.setLockB(!p.lockB)} />
         </div>
         <input type="number" step="0.05" disabled={!p.lockB} value={p.valB}
@@ -51,7 +62,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={paramStyle(p.lockCr)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Cuerda Raíz Cr (m)</span>
+          <span className="font-semibold text-hi">Cuerda Raíz Cr (m)</span>
           <LockBtn locked={p.lockCr} toggle={() => p.setLockCr(!p.lockCr)} />
         </div>
         <input type="number" step="0.02" disabled={!p.lockCr} value={p.valCr}
@@ -59,7 +70,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={paramStyle(p.lockCt)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Cuerda Punta Ct (m)</span>
+          <span className="font-semibold text-hi">Cuerda Punta Ct (m)</span>
           <LockBtn locked={p.lockCt} toggle={() => p.setLockCt(!p.lockCt)} />
         </div>
         <input type="number" step="0.02" disabled={!p.lockCt} value={p.valCt}
@@ -67,7 +78,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={paramStyle(p.lockSweep)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Flecha Λ (º)</span>
+          <span className="font-semibold text-hi">Flecha Λ (º)</span>
           <LockBtn locked={p.lockSweep} toggle={() => p.setLockSweep(!p.lockSweep)} />
         </div>
         <input type="number" step="1" disabled={!p.lockSweep} value={p.valSweep}
@@ -75,7 +86,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={paramStyle(p.lockTwist)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Torsión θ (º)</span>
+          <span className="font-semibold text-hi">Torsión θ (º)</span>
           <LockBtn locked={p.lockTwist} toggle={() => p.setLockTwist(!p.lockTwist)} />
         </div>
         <input type="number" step="0.5" disabled={!p.lockTwist} value={p.valTwist}
@@ -83,7 +94,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={paramStyle(p.lockAlpha)}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Áng. Ataque α (º)</span>
+          <span className="font-semibold text-hi">Áng. Ataque α (º)</span>
           <LockBtn locked={p.lockAlpha} toggle={() => p.setLockAlpha(!p.lockAlpha)} />
         </div>
         <input type="number" step="0.5" disabled={!p.lockAlpha} value={p.valAlpha}
@@ -91,7 +102,7 @@ export const OptimizationLockedParams = React.memo<LockedParamsProps>((p) => (
       </div>
       <div className={`${paramStyle(p.lockNaca)} col-span-2`}>
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[#e8f1fb]">Perfil NACA</span>
+          <span className="font-semibold text-hi">Perfil NACA</span>
           <LockBtn locked={p.lockNaca} toggle={() => p.setLockNaca(!p.lockNaca)} />
         </div>
         <input type="text" maxLength={4} disabled={!p.lockNaca} value={p.valNaca}

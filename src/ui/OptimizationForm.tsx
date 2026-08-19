@@ -56,22 +56,22 @@ export const OptimizationForm: React.FC<Props> = (p) => {
   };
 
   return (
-    <div className="bg-[#0e1624] border border-[#16202f] rounded-lg p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between border-b border-[#16202f] pb-2">
-        <span className="text-xs font-bold text-cyan-400 flex items-center gap-1.5 uppercase tracking-wider">
+    <div className="bg-panel2 border border-line rounded-lg p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between border-b border-line pb-2">
+        <span className="text-xs font-bold text-accent flex items-center gap-1.5 uppercase tracking-wider">
           <Sliders className="w-3.5 h-3.5" /> Requerimientos de Misión & Presupuesto
         </span>
-        <span className="text-[11px] text-[#5b6f8c]">Parámetros de entrada para el Algoritmo Genético</span>
+        <span className="text-[11px] text-dim">Parámetros de entrada para el Algoritmo Genético</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center">
-            <label className="text-[#8ea3bd] font-medium">Sector / Aplicación</label>
-            {liveDiag.status === 'rojo' && <span className="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-1.5 py-0.5 rounded border border-rose-500/30">Incompatible</span>}
+            <label className="text-lo font-medium">Sector / Aplicación</label>
+            {liveDiag.status === 'rojo' && <span className="text-[10px] bg-bad/20 text-bad font-bold px-1.5 py-0.5 rounded border border-bad/30">Incompatible</span>}
           </div>
           <select value={p.sector} onChange={e => handleSectorChange(e.target.value as TargetSector)}
-            className="bg-[#05070c] border border-[#16202f] text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 focus:outline-none font-medium">
+            className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none font-medium">
             <optgroup label="🏎️ Motorsport">
               <option value="f1_rear_wing">F1 Alerón Trasero DRS</option>
               <option value="f1_front_wing">F1 Alerón Delantero</option>
@@ -94,16 +94,16 @@ export const OptimizationForm: React.FC<Props> = (p) => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[#8ea3bd] font-medium">Peso Objetivo (kg)</label>
+          <label className="text-lo font-medium">Peso Objetivo (kg)</label>
           <input type="number" min="0.5" max="5000" value={p.estimatedWeightKg}
             onChange={e => p.setEstimatedWeightKg(parseFloat(e.target.value) || 1)}
-            className="bg-[#05070c] border border-[#16202f] text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 focus:outline-none" />
+            className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none" />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[#8ea3bd] font-medium">Material</label>
+          <label className="text-lo font-medium">Material</label>
           <select value={p.material} onChange={e => { const v = e.target.value as StructuralMaterial; p.setMaterial(v); p.setCostPerKgMaterial(MATERIALS_DB[v]?.cost_kg || 120); }}
-            className="bg-[#05070c] border border-[#16202f] text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 focus:outline-none">
+            className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none">
             {Object.entries(MATERIALS_DB).map(([k, m]) => (
               <option key={k} value={k}>{m.name} ({m.cost_kg} €/kg)</option>
             ))}
@@ -111,23 +111,23 @@ export const OptimizationForm: React.FC<Props> = (p) => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[#8ea3bd] font-medium">Velocidad (m/s)</label>
+          <label className="text-lo font-medium">Velocidad (m/s)</label>
           <input type="number" min="5" max="200" value={p.cruiseVelocityMs}
             onChange={e => p.setCruiseVelocityMs(parseFloat(e.target.value) || 50)}
-            className="bg-[#05070c] border border-[#16202f] text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 focus:outline-none" />
+            className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none" />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[#8ea3bd] font-medium">Presupuesto Máx (€)</label>
+          <label className="text-lo font-medium">Presupuesto Máx (€)</label>
           <input type="number" min="100" max="500000" value={p.maxBudgetEur}
             onChange={e => p.setMaxBudgetEur(parseFloat(e.target.value) || 1000)}
-            className="bg-[#05070c] border border-[#16202f] text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 focus:outline-none" />
+            className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none" />
         </div>
 
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center">
-            <label className="text-[#8ea3bd] font-medium">FS (1.5-4.0)</label>
-            <span className={`px-2 py-0.5 rounded text-xs font-black ${p.safetyFactor < 2 ? 'bg-rose-500/20 text-rose-300' : p.safetyFactor > 3.2 ? 'bg-amber-500/20 text-amber-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
+            <label className="text-lo font-medium">FS (1.5-4.0)</label>
+            <span className={`px-2 py-0.5 rounded text-xs font-black ${p.safetyFactor < 2 ? 'bg-bad/20 text-bad' : p.safetyFactor > 3.2 ? 'bg-warn/20 text-warn' : 'bg-accent/20 text-accent2'}`}>
               {p.safetyFactor.toFixed(1)}x
             </span>
           </div>
@@ -137,12 +137,12 @@ export const OptimizationForm: React.FC<Props> = (p) => {
         </div>
 
         {/* Hard Constraints Section */}
-        <div className="col-span-1 sm:col-span-2 lg:col-span-3 bg-[#05070c] border border-cyan-500/30 rounded-lg p-3.5 flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-[#16202f] pb-2">
-            <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5 uppercase tracking-wider">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-3 bg-ink border border-accent/30 rounded-lg p-3.5 flex flex-col gap-3">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <span className="text-xs font-bold text-accent2 flex items-center gap-1.5 uppercase tracking-wider">
               <ShieldAlert className="w-4 h-4" /> Restricciones Hard
             </span>
-            <label className="flex items-center gap-1.5 cursor-pointer bg-emerald-500/15 border border-emerald-500/40 px-2.5 py-1 rounded text-xs text-emerald-300 font-bold">
+            <label className="flex items-center gap-1.5 cursor-pointer bg-ok/15 border border-ok/40 px-2.5 py-1 rounded text-xs text-ok font-bold">
               <input type="checkbox" checked={p.unconstrained} onChange={e => p.setUnconstrained(e.target.checked)}
                 className="accent-emerald-400 w-4 h-4 rounded cursor-pointer" />
               <span>Exploración Libre</span>
@@ -151,33 +151,33 @@ export const OptimizationForm: React.FC<Props> = (p) => {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[#8ea3bd] text-[11px]">Peso Máx (kg)</label>
+              <label className="text-lo text-[11px]">Peso Máx (kg)</label>
               <input type="number" disabled={p.unconstrained} value={p.maxWeightKg}
                 onChange={e => p.setMaxWeightKg(parseFloat(e.target.value) || 0)}
-                className={`bg-[#0e1624] border text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 ${p.unconstrained ? 'opacity-40' : 'border-[#16202f]'}`} />
+                className={`bg-panel2 border text-hi rounded px-2.5 py-1.5 focus:border-accent ${p.unconstrained ? 'opacity-40' : 'border-line'}`} />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[#8ea3bd] text-[11px]">Coste Máx (€)</label>
+              <label className="text-lo text-[11px]">Coste Máx (€)</label>
               <input type="number" disabled={p.unconstrained} value={p.maxCostEur}
                 onChange={e => p.setMaxCostEur(parseFloat(e.target.value) || 0)}
-                className={`bg-[#0e1624] border text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 ${p.unconstrained ? 'opacity-40' : 'border-[#16202f]'}`} />
+                className={`bg-panel2 border text-hi rounded px-2.5 py-1.5 focus:border-accent ${p.unconstrained ? 'opacity-40' : 'border-line'}`} />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[#8ea3bd] text-[11px]">L/D Mínimo</label>
+              <label className="text-lo text-[11px]">L/D Mínimo</label>
               <input type="number" disabled={p.unconstrained} value={p.minLd}
                 onChange={e => p.setMinLd(parseFloat(e.target.value) || 0)}
-                className={`bg-[#0e1624] border text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 ${p.unconstrained ? 'opacity-40' : 'border-[#16202f]'}`} />
+                className={`bg-panel2 border text-hi rounded px-2.5 py-1.5 focus:border-accent ${p.unconstrained ? 'opacity-40' : 'border-line'}`} />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[#8ea3bd] text-[11px]">Envergadura Fija (m)</label>
+              <label className="text-lo text-[11px]">Envergadura Fija (m)</label>
               <input type="number" disabled={p.unconstrained} value={p.fixedSpanM}
                 onChange={e => p.setFixedSpanM(parseFloat(e.target.value) || 0)}
-                className={`bg-[#0e1624] border text-[#e8f1fb] rounded px-2.5 py-1.5 focus:border-cyan-500 ${p.unconstrained ? 'opacity-40' : 'border-[#16202f]'}`} />
+                className={`bg-panel2 border text-hi rounded px-2.5 py-1.5 focus:border-accent ${p.unconstrained ? 'opacity-40' : 'border-line'}`} />
             </div>
           </div>
 
           {p.discardedCount > 300 && !p.unconstrained && (
-            <div className="bg-amber-500/15 border border-amber-500/40 text-amber-200 rounded p-2.5 text-xs flex items-center gap-2">
+            <div className="bg-warn/15 border border-warn/40 text-warn rounded p-2.5 text-xs flex items-center gap-2">
               <span>Restricciones demasiado estrictas ({p.discardedCount} diseños descartados). Active "Exploración Libre" o aumente los límites.</span>
             </div>
           )}
@@ -186,4 +186,3 @@ export const OptimizationForm: React.FC<Props> = (p) => {
     </div>
   );
 };
-

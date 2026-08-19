@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { X, Download, FileText, FileCode, Printer, Table, Bookmark, Check } from 'lucide-react';
+import { Download, FileText, FileCode, Printer, Table, Bookmark, Check } from 'lucide-react';
 import { LegacyWingPayload, PredictionResult } from '../core/types';
 import { generateTechnicalReportHtml } from '../report/reportGenerator';
 import { generateSTEPFileContent, generateSolidWorksPythonScript } from '../domains/marketReadiness';
 import { calcularEmpirico } from '../domains/wing/empirical';
+import { Modal } from './primitives/Modal';
 
 interface ExportDownloadModalProps {
   isOpen: boolean;
@@ -170,146 +171,131 @@ export const ExportDownloadModal: React.FC<ExportDownloadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in select-none">
-      <div className="relative w-full max-w-2xl bg-[#0a0f18] border border-[#16202f] rounded-xl shadow-2xl overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#16202f] bg-[#0e1624]">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-              <Download className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-[#e8f1fb]">
-                Centro de Descargas y Exportación de Ingeniería
-              </h2>
-              <p className="text-xs text-[#8ea3bd]">
-                Exporte modelos CAD 3D, informes PDF, scripts de automatización y conjuntos de datos CSV/JSON.
-              </p>
-            </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Centro de Descargas y Exportación de Ingeniería"
+      description="Exporte modelos CAD 3D, informes PDF, scripts de automatización y conjuntos de datos CSV/JSON."
+      size="lg"
+    >
+      {/* Notice Toast */}
+      {copiedNotice && (
+        <div className="bg-ok/20 border-b border-ok/40 text-ok px-5 py-2 text-xs flex items-center gap-2 font-mono -mx-5 -mt-5 mb-4 rounded-t-lg">
+          <Check className="w-4 h-4 text-ok" />
+          <span>{copiedNotice}</span>
+        </div>
+      )}
+
+      {/* Content Options */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Option 1: PDF Technical Report */}
+        <div className="bg-panel2 border border-line hover:border-accent/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="flex items-center gap-2 text-accent font-bold text-sm">
+            <FileText className="w-5 h-5 text-accent" />
+            <span>Informe Técnico PDF</span>
           </div>
-          <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
-            <X className="w-5 h-5" />
+          <p className="text-xs text-lo flex-1">
+            Genera un documento PDF imprimible con portada, ficha geométrica, gráficas aerodinámicas y firmas de ingeniería.
+          </p>
+          <button
+            onClick={handlePrintPDF}
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent2 font-semibold text-xs border border-accent/40 transition cursor-pointer"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Imprimir / Exportar PDF</span>
           </button>
         </div>
 
-        {/* Notice Toast */}
-        {copiedNotice && (
-          <div className="bg-emerald-500/20 border-b border-emerald-500/40 text-emerald-300 px-6 py-2 text-xs flex items-center gap-2 font-mono">
-            <Check className="w-4 h-4 text-emerald-400" />
-            <span>{copiedNotice}</span>
+        {/* Option 2: 3D CAD Step File */}
+        <div className="bg-panel2 border border-line hover:border-accent/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="flex items-center gap-2 text-ok font-bold text-sm">
+            <Download className="w-5 h-5 text-ok" />
+            <span>Modelo CAD 3D STEP (.stp)</span>
           </div>
-        )}
-
-        {/* Content Options */}
-        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Option 1: PDF Technical Report */}
-          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
-            <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-              <FileText className="w-5 h-5 text-cyan-400" />
-              <span>Informe Técnico PDF</span>
-            </div>
-            <p className="text-xs text-[#8ea3bd] flex-1">
-              Genera un documento PDF imprimible con portada, ficha geométrica, gráficas aerodinámicas y firmas de ingeniería.
-            </p>
-            <button
-              onClick={handlePrintPDF}
-              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-semibold text-xs border border-cyan-500/40 transition cursor-pointer"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Imprimir / Exportar PDF</span>
-            </button>
-          </div>
-
-          {/* Option 2: 3D CAD STEP File */}
-          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-              <Download className="w-5 h-5 text-emerald-400" />
-              <span>Modelo CAD 3D STEP (.stp)</span>
-            </div>
-            <p className="text-xs text-[#8ea3bd] flex-1">
-              Exporta la geometría 3D en formato neutro ISO 10303 STEP para importación directa en CATIA, SolidWorks, NX o Fusion360.
-            </p>
-            <button
-              onClick={handleDownloadSTEP}
-              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-xs border border-emerald-500/40 transition cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Descargar STEP (.stp)</span>
-            </button>
-          </div>
-
-          {/* Option 3: Python CAD Automation Script */}
-          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-              <FileCode className="w-5 h-5 text-amber-400" />
-              <span>Script Python CAD (.py)</span>
-            </div>
-            <p className="text-xs text-[#8ea3bd] flex-1">
-              Genera un script ejecutable de recubrimiento (Loft Surface API) para SolidWorks, Ansys SpaceClaim y Autodesk Fusion.
-            </p>
-            <button
-              onClick={handleDownloadPythonCAD}
-              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold text-xs border border-amber-500/40 transition cursor-pointer"
-            >
-              <FileCode className="w-4 h-4" />
-              <span>Descargar Script Python (.py)</span>
-            </button>
-          </div>
-
-          {/* Option 4: CSV Telemetry & Polars */}
-          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition">
-            <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
-              <Table className="w-5 h-5 text-blue-400" />
-              <span>Telemetría y Polares (CSV)</span>
-            </div>
-            <p className="text-xs text-[#8ea3bd] flex-1">
-              Exporta coeficientes aerodinámicos (CL, CD, L/D, Cm) y la barrida de polares por ángulos de ataque para Excel o MATLAB.
-            </p>
-            <button
-              onClick={handleDownloadCSV}
-              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-semibold text-xs border border-blue-500/40 transition cursor-pointer"
-            >
-              <Table className="w-4 h-4" />
-              <span>Descargar CSV</span>
-            </button>
-          </div>
-
-          {/* Option 5: DAT Airfoil Coordinates (Selig Format) */}
-          <div className="bg-[#0e1624] border border-[#16202f] hover:border-cyan-500/40 p-4 rounded-xl flex flex-col gap-3 transition sm:col-span-2">
-            <div className="flex items-center gap-2 text-purple-400 font-bold text-sm">
-              <FileCode className="w-5 h-5 text-purple-400" />
-              <span>Coordenadas de Perfil (.DAT Selig Format)</span>
-            </div>
-            <p className="text-xs text-[#8ea3bd] flex-1">
-              Coordenadas (x,y) normalizadas del perfil NACA {params.nacaCode} en formato Selig estándar para importación directa en XFLR5, AirfoilTools, Ansys Fluent y OpenFOAM.
-            </p>
-            <button
-              onClick={handleDownloadDAT}
-              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-semibold text-xs border border-purple-500/40 transition cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Descargar Coordenadas Perfil (.dat)</span>
-            </button>
-          </div>
+          <p className="text-xs text-lo flex-1">
+            Exporta la geometría 3D en formato neutro ISO 10303 STEP para importación directa en CATIA, SolidWorks, NX o Fusion360.
+          </p>
+          <button
+            onClick={handleDownloadSTEP}
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-ok/20 hover:bg-ok/30 text-ok font-semibold text-xs border border-ok/40 transition cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Descargar STEP (.stp)</span>
+          </button>
         </div>
 
-        {/* Footer with JSON export */}
-        <div className="px-6 py-4 bg-[#0e1624] border-t border-[#16202f] flex items-center justify-between">
+        {/* Option 3: Python CAD Automation Script */}
+        <div className="bg-panel2 border border-line hover:border-accent/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="flex items-center gap-2 text-warn font-bold text-sm">
+            <FileCode className="w-5 h-5 text-warn" />
+            <span>Script Python CAD (.py)</span>
+          </div>
+          <p className="text-xs text-lo flex-1">
+            Genera un script ejecutable de recubrimiento (Loft Surface API) para SolidWorks, Ansys SpaceClaim y Autodesk Fusion.
+          </p>
           <button
-            onClick={handleDownloadJSON}
-            className="flex items-center gap-2 text-xs font-mono text-[#8ea3bd] hover:text-white transition cursor-pointer"
+            onClick={handleDownloadPythonCAD}
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-warn/20 hover:bg-warn/30 text-warn font-semibold text-xs border border-warn/40 transition cursor-pointer"
           >
-            <Bookmark className="w-4 h-4 text-cyan-400" />
-            <span>Exportar Estado en JSON (.json)</span>
+            <FileCode className="w-4 h-4" />
+            <span>Descargar Script Python (.py)</span>
           </button>
+        </div>
+
+        {/* Option 4: CSV Telemetry & Polars */}
+        <div className="bg-panel2 border border-line hover:border-accent/40 p-4 rounded-xl flex flex-col gap-3 transition">
+          <div className="flex items-center gap-2 text-dhydro font-bold text-sm">
+            <Table className="w-5 h-5 text-dhydro" />
+            <span>Telemetría y Polares (CSV)</span>
+          </div>
+          <p className="text-xs text-lo flex-1">
+            Exporta coeficientes aerodinámicos (CL, CD, L/D, Cm) y la barrida de polares por ángulos de ataque para Excel o MATLAB.
+          </p>
           <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-[#0e1624] border border-[#16202f] text-xs font-semibold text-[#8ea3bd] hover:text-white transition cursor-pointer"
+            onClick={handleDownloadCSV}
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-dhydro/20 hover:bg-dhydro/30 text-dhydro font-semibold text-xs border border-dhydro/40 transition cursor-pointer"
           >
-            Cerrar
+            <Table className="w-4 h-4" />
+            <span>Descargar CSV</span>
+          </button>
+        </div>
+
+        {/* Option 5: DAT Airfoil Coordinates (Selig Format) */}
+        <div className="bg-panel2 border border-line hover:border-accent/40 p-4 rounded-xl flex flex-col gap-3 transition sm:col-span-2">
+          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: 'color-mix(in srgb, #a78bfa 85%, var(--color-hi))' }}>
+            <FileCode className="w-5 h-5" style={{ color: 'color-mix(in srgb, #a78bfa 85%, var(--color-hi))' }} />
+            <span>Coordenadas de Perfil (.DAT Selig Format)</span>
+          </div>
+          <p className="text-xs text-lo flex-1">
+            Coordenadas (x,y) normalizadas del perfil NACA {params.nacaCode} en formato Selig estándar para importación directa en XFLR5, AirfoilTools, Ansys Fluent y OpenFOAM.
+          </p>
+          <button
+            onClick={handleDownloadDAT}
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg text-xs font-semibold border transition cursor-pointer"
+            style={{ backgroundColor: 'rgba(167,139,250,0.15)', color: '#c4b5fd', borderColor: 'rgba(167,139,250,0.4)' }}
+          >
+            <Download className="w-4 h-4" />
+            <span>Descargar Coordenadas Perfil (.dat)</span>
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Footer with JSON export */}
+      <div className="mt-5 pt-4 border-t border-line flex items-center justify-between">
+        <button
+          onClick={handleDownloadJSON}
+          className="flex items-center gap-2 text-xs font-mono text-lo hover:text-hi transition cursor-pointer"
+        >
+          <Bookmark className="w-4 h-4 text-accent" />
+          <span>Exportar Estado en JSON (.json)</span>
+        </button>
+        <button
+          onClick={onClose}
+          className="px-4 py-1.5 rounded-lg bg-panel2 border border-line text-xs font-semibold text-lo hover:text-hi transition cursor-pointer"
+        >
+          Cerrar
+        </button>
+      </div>
+    </Modal>
   );
 };

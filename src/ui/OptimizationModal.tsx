@@ -378,23 +378,24 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   const progressPercent = Math.min(100, (currentGen / maxGen) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="opt-modal-title">
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" aria-hidden="true" />
+      <div className="relative w-full max-w-4xl bg-panel border border-line rounded-xl shadow-[var(--shadow-lg)] overflow-hidden flex flex-col my-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="flex flex-wrap items-center justify-between px-5 py-3.5 border-b border-[#16202f] bg-[#0e1624] shrink-0 gap-2">
-          <div className="flex items-center gap-2.5 text-cyan-400 font-bold">
-            <Zap className="w-5 h-5 fill-current text-cyan-400" />
-            <span className="text-sm sm:text-base">Optimizador Técnico-Económico OptimAirWing</span>
+        <div className="flex flex-wrap items-center justify-between px-5 py-3.5 border-b border-line bg-panel2 shrink-0 gap-2">
+          <div className="flex items-center gap-2.5 text-accent font-bold">
+            <Zap className="w-5 h-5 fill-current text-accent" />
+            <span id="opt-modal-title" className="text-sm sm:text-base">Optimizador Técnico-Económico OptimAirWing</span>
           </div>
           
           <div className="flex items-center gap-2 flex-wrap">
             {/* Badges de Créditos & Botón Comprar */}
             <div className={`px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1.5 border ${
               creditsRemaining === 0
-                ? 'bg-rose-500/10 border-rose-500/40 text-rose-300'
+                ? 'bg-bad/10 border-bad/40 text-bad'
                 : creditsRemaining < 3
-                ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
-                : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                ? 'bg-warn/10 border-warn/40 text-warn'
+                : 'bg-accent/10 border-accent/30 text-accent2'
             }`}>
               <Activity className="w-3.5 h-3.5" />
               <span>Créditos: {creditsRemaining} / {org.monthly_optimizations_limit}</span>
@@ -402,13 +403,9 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
             <button
               onClick={() => setShowBuyCredits(true)}
-              className="px-2.5 py-1 rounded text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition cursor-pointer flex items-center gap-1"
+              className="px-2.5 py-1 rounded text-xs font-bold bg-accent/20 text-accent2 border border-accent/40 hover:bg-accent/30 transition cursor-pointer flex items-center gap-1"
             >
               <span>+ Comprar Créditos</span>
-            </button>
-
-            <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
-              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -417,11 +414,11 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
         <div className="p-5 flex flex-col gap-4 overflow-y-auto">
           {/* Alerta de Créditos Agotados o Bajos */}
           {creditsRemaining <= 0 && (
-            <div className="p-3 bg-rose-500/15 border border-rose-500/40 rounded-lg text-xs text-rose-200 flex items-start justify-between gap-2.5">
+            <div className="p-3 bg-bad/15 border border-bad/40 rounded-lg text-xs text-bad flex items-start justify-between gap-2.5">
               <div className="flex items-start gap-2.5">
-                <Lock className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <Lock className="w-4 h-4 text-bad shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1">
-                  <span className="font-bold text-rose-300 uppercase tracking-wide">
+                  <span className="font-bold text-bad uppercase tracking-wide">
                     Sin créditos de optimización disponibles
                   </span>
                   <span>
@@ -431,7 +428,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               </div>
               <button
                 onClick={() => setShowBuyCredits(true)}
-                className="px-3 py-1.5 bg-rose-500 text-white font-bold rounded text-xs hover:bg-rose-600 transition shrink-0 cursor-pointer"
+                className="px-3 py-1.5 bg-bad text-hi font-bold rounded text-xs hover:brightness-110 transition shrink-0 cursor-pointer"
               >
                 Comprar Paquete
               </button>
@@ -439,137 +436,72 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           )}
 
           {/* Selección de Modo de Optimización & Nivel (Consumo de Créditos) */}
-          <div className="bg-[#0e1624] border border-[#16202f] rounded-lg p-3.5 flex flex-col gap-3">
+          <div className="bg-panel2 border border-line rounded-lg p-3.5 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu className="w-3.5 h-3.5" /> Nivel de Optimización & Consumo
               </span>
-              <span className="text-xs text-amber-300 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+              <span className="text-xs text-warn font-semibold bg-warn/10 px-2 py-0.5 rounded border border-warn/30">
                 Esta optimización consumirá 1 crédito (de {creditsRemaining} disponibles)
               </span>
             </div>
 
             {/* Modo de Optimización Multiobjetivo */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-[#8ea3bd] flex items-center gap-1">
-                <Scale className="w-3.5 h-3.5 text-cyan-400" /> Modo de Optimización Objetivo:
+              <label className="text-xs font-medium text-lo flex items-center gap-1">
+                <Scale className="w-3.5 h-3.5 text-accent" /> Modo de Optimización Objetivo:
               </label>
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setOptMode('efficiency')}
-                  className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
-                    optMode === 'efficiency'
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                  }`}
-                >
-                  <span className="font-bold">Máxima Eficiencia</span>
-                  <span className="text-[10px] text-[#5b6f8c]">Prioriza L/D</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setOptMode('weight')}
-                  className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
-                    optMode === 'weight'
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                  }`}
-                >
-                  <span className="font-bold">Mínimo Peso</span>
-                  <span className="text-[10px] text-[#5b6f8c]">Prioriza reducir kg</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setOptMode('balance')}
-                  className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
-                    optMode === 'balance'
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                      : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                  }`}
-                >
-                  <span className="font-bold">Balance L/D vs Peso</span>
-                  <span className="text-[10px] text-[#5b6f8c]">Compromiso óptimo</span>
-                </button>
+                {([
+                  { mode: 'efficiency', label: 'Máxima Eficiencia', desc: 'Prioriza L/D' },
+                  { mode: 'weight', label: 'Mínimo Peso', desc: 'Prioriza reducir kg' },
+                  { mode: 'balance', label: 'Balance L/D vs Peso', desc: 'Compromiso óptimo' },
+                ] as const).map(({ mode, label, desc }) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setOptMode(mode)}
+                    className={`p-2 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between ${
+                      optMode === mode
+                        ? 'bg-accent/20 border-accent text-accent2'
+                        : 'bg-ink border-line text-lo hover:border-line2'
+                    }`}
+                  >
+                    <span className="font-bold">{label}</span>
+                    <span className="text-[10px] text-dim">{desc}</span>
+                  </button>
+                ))}
               </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs pt-1">
-              <button
-                type="button"
-                onClick={() => setOptLevel('basic')}
-                className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
-                  optLevel === 'basic'
-                    ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                }`}
-              >
-                <div>
-                  <div className="font-bold text-[#e8f1fb]">Básica</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Estimación de referencia rápida</div>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 w-fit">
-                  1 Crédito
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOptLevel('neuralfoil')}
-                className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
-                  optLevel === 'neuralfoil'
-                    ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                }`}
-              >
-                <div>
-                  <div className="font-bold text-[#e8f1fb]">Estándar</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Fidelidad estándar del análisis</div>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 w-fit">
-                  1 Crédito
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOptLevel('structural')}
-                className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
-                  optLevel === 'structural'
-                    ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                }`}
-              >
-                <div>
-                  <div className="font-bold text-[#e8f1fb]">Avanzada</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Detalle avanzado (estructura y FS)</div>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 w-fit">
-                  1 Crédito
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOptLevel('full_custom')}
-                className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
-                  optLevel === 'full_custom'
-                    ? 'bg-cyan-500/15 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10'
-                    : 'bg-[#05070c] border-[#16202f] text-[#8ea3bd] hover:border-[#223048]'
-                }`}
-              >
-                <div>
-                  <div className="font-bold text-[#e8f1fb]">Completa</div>
-                  <div className="text-[10px] text-[#5b6f8c] mt-0.5">Detalle completo (costes y MC)</div>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 w-fit">
-                  1 Crédito
-                </span>
-              </button>
+              {([
+                { level: 'basic', label: 'Básica', desc: 'Estimación de referencia rápida', creditColor: 'accent' },
+                { level: 'neuralfoil', label: 'Estándar', desc: 'Fidelidad estándar del análisis', creditColor: 'dhydro' },
+                { level: 'structural', label: 'Avanzada', desc: 'Detalle avanzado (estructura y FS)', creditColor: 'accent-deep' },
+                { level: 'full_custom', label: 'Completa', desc: 'Detalle completo (costes y MC)', creditColor: 'warn' },
+              ] as const).map(({ level, label, desc, creditColor }) => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setOptLevel(level)}
+                  className={`p-2.5 rounded-lg border text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                    optLevel === level
+                      ? 'bg-accent/15 border-accent text-accent2 shadow-md shadow-accent/10'
+                      : 'bg-ink border-line text-lo hover:border-line2'
+                  }`}
+                >
+                  <div>
+                    <div className="font-bold text-hi">{label}</div>
+                    <div className="text-[10px] text-dim mt-0.5">{desc}</div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-accent/20 text-accent2 border border-accent/30 w-fit">
+                    1 Crédito
+                  </span>
+                </button>
+              ))}
             </div>
-            <p className="text-[10px] text-[#5b6f8c] leading-relaxed">
+            <p className="text-[10px] text-dim leading-relaxed">
               Todos los niveles utilizan el mismo motor de optimización; el nivel es una etiqueta de fidelidad/detalle del análisis, no un motor diferente. Cada corrida consume 1 crédito.
             </p>
           </div>
@@ -619,31 +551,31 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           {/* Progress Bar */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-[#8ea3bd]">
+              <span className="text-lo">
                 {isRunning ? `Generación ${currentGen} de ${maxGen}` : isFinished ? 'Optimización Técnico-Económica Finalizada' : 'Listo para iniciar'}
               </span>
-              <span className="text-cyan-400 font-bold">
+              <span className="text-accent font-bold">
                 {isRunning && liveScore > 0 ? `Fitness (óptimo): ${liveScore}/100` : viability ? `Puntuación ajustada a riesgo: ${viability.riskAdjustedScore}/100` : ''}
               </span>
               {viability?.monteCarloAnalysis && (
-                <span className="text-[10px] text-[#5b6f8c] font-mono" title="Intervalo de confianza P50 ± P95 (Monte Carlo)">
+                <span className="text-[10px] text-dim font-mono" title="Intervalo de confianza P50 ± P95 (Monte Carlo)">
                   &nbsp;| MC: L/D P50={viability.monteCarloAnalysis.LD.p50.toFixed(1)} P95={viability.monteCarloAnalysis.LD.p95.toFixed(1)}
                 </span>
               )}
             </div>
-            <div className="w-full bg-[#16202f] h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-line h-2 rounded-full overflow-hidden">
               <div
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-150"
+                className="bg-accent h-full transition-all duration-150"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
 
           {errorMsg && (
-            <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-300 text-xs font-semibold flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <div className="p-3 bg-bad/20 border border-bad/50 rounded-lg text-bad text-xs font-semibold flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-bad shrink-0" />
               <span>{errorMsg}</span>
-              <button onClick={() => setErrorMsg(null)} className="ml-auto text-rose-400 hover:text-rose-200 cursor-pointer">
+              <button onClick={() => setErrorMsg(null)} className="ml-auto text-bad hover:brightness-125 cursor-pointer">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -651,24 +583,24 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
           {/* COMPARADOR Y DATOS EN VIVO DEL ALA OPTIMIZADA */}
           {(isRunning || bestCandidate) && (
-            <div className="bg-[#0e1624] border border-cyan-500/40 rounded-lg p-3.5 flex flex-col gap-3 shadow-lg shadow-cyan-500/5">
-              <div className="flex flex-wrap items-center justify-between border-b border-[#16202f] pb-2 gap-2">
+            <div className="bg-panel2 border border-accent/40 rounded-lg p-3.5 flex flex-col gap-3 shadow-lg shadow-accent/5">
+              <div className="flex flex-wrap items-center justify-between border-b border-line pb-2 gap-2">
                 <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
-                  <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider">
+                  <Activity className="w-4 h-4 text-accent animate-pulse" />
+                  <span className="text-xs font-bold text-accent2 uppercase tracking-wider">
                     {isRunning ? 'Evolución en Vivo de Parámetros del Ala' : 'Comparativa: Ala Entrada vs Ala Optimizada'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-semibold text-[#8ea3bd]">
+                  <span className="text-[10px] uppercase font-semibold text-lo">
                     {isRunning ? 'Fitness (óptimo):' : 'Puntuación ajustada a riesgo:'}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded text-xs font-black border ${
                     (isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore) >= 80
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      ? 'bg-ok/20 text-ok border-ok/40'
                       : (isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore) >= 60
-                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                      : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      ? 'bg-accent/20 text-accent2 border-accent/40'
+                      : 'bg-warn/20 text-warn border-warn/40'
                   }`}>
                     {isRunning ? liveScore : viability?.riskAdjustedScore ?? bestScore} / 100 Pts
                   </span>
@@ -677,84 +609,46 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
               {/* Grid Comparativo Parámetros del Ala */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
-                {/* Envergadura b */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Envergadura (b)</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.b}m</span>
-                    <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.b : effectiveParams.b} m</span>
+                {[
+                  { label: 'Envergadura (b)', old: `${effectiveParams.b}m`, val: `${bestCandidate ? bestCandidate.b : effectiveParams.b} m`, tone: 'text-accent2' },
+                  { label: 'Cuerda Raíz (Cr)', old: `${effectiveParams.Cr}m`, val: `${bestCandidate ? bestCandidate.Cr : effectiveParams.Cr} m`, tone: 'text-accent2' },
+                  { label: 'Cuerda Punta (Ct)', old: `${effectiveParams.Ct}m`, val: `${bestCandidate ? bestCandidate.Ct : effectiveParams.Ct} m`, tone: 'text-accent2' },
+                  { label: 'Perfil NACA', old: effectiveParams.nacaCode, val: `→ ${bestCandidate ? bestCandidate.nacaCode : effectiveParams.nacaCode}`, tone: 'text-accent2' },
+                  { label: 'Flecha (Sweep)', old: `${effectiveParams.sweep_deg}°`, val: `→ ${bestCandidate ? bestCandidate.sweep_deg : effectiveParams.sweep_deg}°`, tone: 'text-warn' },
+                  { label: 'Torsión (Twist)', old: `${effectiveParams.twist_deg}°`, val: `→ ${bestCandidate ? bestCandidate.twist_deg : effectiveParams.twist_deg}°`, tone: 'text-ok' },
+                ].map(({ label, old, val, tone }, i) => (
+                  <div key={i} className="bg-ink p-2 rounded border border-line">
+                    <span className="text-dim block text-[10px]">{label}</span>
+                    <div className="flex items-baseline gap-1 mt-0.5">
+                      <span className="text-[11px] text-lo line-through">{old}</span>
+                      <span className={`font-extrabold ${tone} text-xs`}>{val}</span>
+                    </div>
                   </div>
-                </div>
-
-                {/* Cuerda Raíz Cr */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Cuerda Raíz (Cr)</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.Cr}m</span>
-                    <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.Cr : effectiveParams.Cr} m</span>
-                  </div>
-                </div>
-
-                {/* Cuerda Punta Ct */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Cuerda Punta (Ct)</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.Ct}m</span>
-                    <span className="font-extrabold text-cyan-300 text-xs">→ {bestCandidate ? bestCandidate.Ct : effectiveParams.Ct} m</span>
-                  </div>
-                </div>
-
-                {/* Perfil NACA */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Perfil NACA</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.nacaCode}</span>
-                    <span className="font-extrabold text-purple-300 text-xs">→ {bestCandidate ? bestCandidate.nacaCode : effectiveParams.nacaCode}</span>
-                  </div>
-                </div>
-
-                {/* Flecha Sweep */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Flecha (Sweep)</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.sweep_deg}°</span>
-                    <span className="font-extrabold text-amber-300 text-xs">→ {bestCandidate ? bestCandidate.sweep_deg : effectiveParams.sweep_deg}°</span>
-                  </div>
-                </div>
-
-                {/* Torsión Twist */}
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Torsión (Twist)</span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-[11px] text-[#8ea3bd] line-through">{effectiveParams.twist_deg}°</span>
-                    <span className="font-extrabold text-emerald-300 text-xs">→ {bestCandidate ? bestCandidate.twist_deg : effectiveParams.twist_deg}°</span>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* Resumen Físico Resultante */}
-              <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-[#16202f]/60">
-                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-line/60">
+                <div className="flex items-center gap-2 bg-ink p-2 rounded border border-line">
+                  <Zap className="w-4 h-4 text-accent shrink-0" />
                   <div>
-                    <span className="text-[10px] text-[#5b6f8c] block">Eficiencia Aerodinámica (L/D)</span>
-                    <strong className="text-cyan-300 text-xs">{liveLD > 0 ? liveLD.toFixed(2) : '-'}</strong>
+                    <span className="text-[10px] text-dim block">Eficiencia Aerodinámica (L/D)</span>
+                    <strong className="text-accent2 text-xs">{liveLD > 0 ? liveLD.toFixed(2) : '-'}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <Weight className="w-4 h-4 text-amber-400 shrink-0" />
+                <div className="flex items-center gap-2 bg-ink p-2 rounded border border-line">
+                  <Weight className="w-4 h-4 text-warn shrink-0" />
                   <div>
-                    <span className="text-[10px] text-[#5b6f8c] block">Peso Estructural Est.</span>
-                    <strong className="text-amber-300 text-xs">{liveWeight > 0 ? `${liveWeight.toFixed(1)} kg` : viability ? `${viability.estimatedWeightKg} kg` : '-'}</strong>
+                    <span className="text-[10px] text-dim block">Peso Estructural Est.</span>
+                    <strong className="text-warn text-xs">{liveWeight > 0 ? `${liveWeight.toFixed(1)} kg` : viability ? `${viability.estimatedWeightKg} kg` : '-'}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-[#05070c] p-2 rounded border border-[#16202f]">
-
+                <div className="flex items-center gap-2 bg-ink p-2 rounded border border-line">
                   <div>
-                    <span className="text-[10px] text-[#5b6f8c] block">Coste Fabricación Est.</span>
-                    <strong className="text-emerald-300 text-xs">{liveCost > 0 ? `${liveCost.toLocaleString()} €` : viability ? `${viability.estimatedCostEur.toLocaleString()} €` : '-'}</strong>
+                    <span className="text-[10px] text-dim block">Coste Fabricación Est.</span>
+                    <strong className="text-ok text-xs">{liveCost > 0 ? `${liveCost.toLocaleString()} €` : viability ? `${viability.estimatedCostEur.toLocaleString()} €` : '-'}</strong>
                   </div>
                 </div>
               </div>
@@ -763,21 +657,21 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
 
           {/* Result Viability Dashboard Card if Available */}
           {viability && (
-            <div className="bg-[#0e1624] border border-cyan-500/30 rounded-lg p-3.5 flex flex-col gap-3">
-              <div className="flex items-center justify-between border-b border-[#16202f] pb-2">
-                <span className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-emerald-400" /> Evaluación Técnico-Económica & Estabilidad
+            <div className="bg-panel2 border border-accent/30 rounded-lg p-3.5 flex flex-col gap-3">
+              <div className="flex items-center justify-between border-b border-line pb-2">
+                <span className="text-xs font-bold text-accent flex items-center gap-1.5">
+                  <Award className="w-4 h-4 text-ok" /> Evaluación Técnico-Económica & Estabilidad
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#05070c] border border-[#16202f] text-[#8ea3bd]">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-ink border border-line text-lo">
                     Base: {viability.viabilityScore}/100
                   </span>
                   <span className={`px-2 py-0.5 rounded text-xs font-bold border ${
                     viability.stabilityStatus === 'danger'
-                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                      ? 'bg-bad/20 text-bad border-bad/40'
                       : viability.stabilityStatus === 'warning'
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      ? 'bg-warn/20 text-warn border-warn/40'
+                      : 'bg-ok/20 text-ok border-ok/40'
                   }`}>
                     Ajustado Riesgo: {viability.riskAdjustedScore ?? viability.viabilityScore} / 100
                   </span>
@@ -785,8 +679,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               </div>
 
               {/* SEMÁFOROS DE SEGURIDAD ESTRUCTURAL CUANTITATIVA */}
-              <div className="bg-[#05070c] p-3 rounded-lg border border-[#16202f] flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-[#8ea3bd] uppercase tracking-wider">
+              <div className="bg-ink p-3 rounded-lg border border-line flex flex-col gap-2">
+                <span className="text-[11px] font-bold text-lo uppercase tracking-wider">
                   Márgenes de Seguridad y Estabilidad Estructural (Semáforos Cuantitativos)
                 </span>
 
@@ -794,10 +688,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   {/* FS Flexión */}
                   <div className={`p-2.5 rounded border flex flex-col gap-1 ${
                     (viability.flexuralSafetyFactor ?? 2) >= 2.0
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-ok/10 border-ok/30 text-ok'
                       : (viability.flexuralSafetyFactor ?? 2) >= 1.5
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      ? 'bg-warn/10 border-warn/30 text-warn'
+                      : 'bg-bad/10 border-bad/30 text-bad'
                   }`}>
                     <span className="text-[10px] opacity-80 uppercase font-semibold">FS Flexión</span>
                     <span className="font-extrabold text-sm">{viability.flexuralSafetyFactor ?? '-'}x</span>
@@ -807,10 +701,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   {/* Deflexión Punta */}
                   <div className={`p-2.5 rounded border flex flex-col gap-1 ${
                     (viability.tipDeflectionPercent ?? 0) < 3.0
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-ok/10 border-ok/30 text-ok'
                       : (viability.tipDeflectionPercent ?? 0) <= 5.0
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      ? 'bg-warn/10 border-warn/30 text-warn'
+                      : 'bg-bad/10 border-bad/30 text-bad'
                   }`}>
                     <span className="text-[10px] opacity-80 uppercase font-semibold">Deflexión Punta</span>
                     <span className="font-extrabold text-sm">{viability.tipDeflectionMm ?? '-'} mm</span>
@@ -820,10 +714,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   {/* Velocidad Divergencia */}
                   <div className={`p-2.5 rounded border flex flex-col gap-1 ${
                     (viability.divergenceMargin ?? 2) >= 2.0
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-ok/10 border-ok/30 text-ok'
                       : (viability.divergenceMargin ?? 2) >= 1.5
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      ? 'bg-warn/10 border-warn/30 text-warn'
+                      : 'bg-bad/10 border-bad/30 text-bad'
                   }`}>
                     <span className="text-[10px] opacity-80 uppercase font-semibold">V_divergencia (V_d)</span>
                     <span className="font-extrabold text-sm">{viability.divergenceSpeedMs ?? '-'} m/s</span>
@@ -833,10 +727,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   {/* Riesgo Flutter */}
                   <div className={`p-2.5 rounded border flex flex-col gap-1 ${
                     viability.flutterRisk === 'bajo'
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-ok/10 border-ok/30 text-ok'
                       : viability.flutterRisk === 'medio'
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      ? 'bg-warn/10 border-warn/30 text-warn'
+                      : 'bg-bad/10 border-bad/30 text-bad'
                   }`}>
                     <span className="text-[10px] opacity-80 uppercase font-semibold">Riesgo Flutter</span>
                     <span className="font-extrabold text-sm uppercase">{viability.flutterRisk ?? 'Bajo'}</span>
@@ -849,8 +743,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               {viability.stabilityStatus && viability.stabilityStatus !== 'safe' && (
                 <div className={`p-2.5 rounded border text-xs flex items-start gap-2 ${
                   viability.stabilityStatus === 'danger'
-                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
-                    : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    ? 'bg-bad/10 border-bad/30 text-bad'
+                    : 'bg-warn/10 border-warn/30 text-warn'
                 }`}>
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-1">
@@ -866,30 +760,30 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
               )}
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Momento Flector Raíz</span>
-                  <span className="font-bold text-[#e8f1fb]">{viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</span>
-                  <span className="text-[10px] text-[#8ea3bd] block">Factor de Carga: {safetyFactor * 2.5}g</span>
+                <div className="bg-ink p-2 rounded border border-line">
+                  <span className="text-dim block text-[10px]">Momento Flector Raíz</span>
+                  <span className="font-bold text-hi">{viability.bendingMomentNm?.toLocaleString() ?? '-'} Nm</span>
+                  <span className="text-[10px] text-lo block">Factor de Carga: {safetyFactor * 2.5}g</span>
                 </div>
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Carga Alar & V_stall</span>
-                  <span className="font-bold text-cyan-300">{viability.wingLoadingKgM2 ?? '-'} kg/m²</span>
-                  <span className="text-[10px] text-[#8ea3bd] block">V_pérdida: {viability.stallSpeedMs ?? '-'} m/s</span>
+                <div className="bg-ink p-2 rounded border border-line">
+                  <span className="text-dim block text-[10px]">Carga Alar & V_stall</span>
+                  <span className="font-bold text-accent2">{viability.wingLoadingKgM2 ?? '-'} kg/m²</span>
+                  <span className="text-[10px] text-lo block">V_pérdida: {viability.stallSpeedMs ?? '-'} m/s</span>
                 </div>
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Coste Fab. Est.</span>
-                  <span className="font-bold text-amber-300">{viability.estimatedCostEur.toLocaleString()} €</span>
-                  <span className="text-[10px] text-[#8ea3bd] block">(Máx: {maxBudgetEur.toLocaleString()} €)</span>
+                <div className="bg-ink p-2 rounded border border-line">
+                  <span className="text-dim block text-[10px]">Coste Fab. Est.</span>
+                  <span className="font-bold text-warn">{viability.estimatedCostEur.toLocaleString()} €</span>
+                  <span className="text-[10px] text-lo block">(Máx: {maxBudgetEur.toLocaleString()} €)</span>
                 </div>
-                <div className="bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <span className="text-[#5b6f8c] block text-[10px]">Retorno Est.</span>
-                  <span className="font-bold text-emerald-300">~{viability.paybackMonths} Meses</span>
+                <div className="bg-ink p-2 rounded border border-line">
+                  <span className="text-dim block text-[10px]">Retorno Est.</span>
+                  <span className="font-bold text-ok">~{viability.paybackMonths} Meses</span>
                 </div>
               </div>
 
               {viability.sensitivityRecommendations.length > 0 && (
-                <div className="text-[11px] text-[#8ea3bd] bg-[#05070c] p-2 rounded border border-[#16202f]">
-                  <strong className="text-cyan-400 block mb-0.5">Recomendaciones de Sensibilidad & Refuerzos:</strong>
+                <div className="text-[11px] text-lo bg-ink p-2 rounded border border-line">
+                  <strong className="text-accent block mb-0.5">Recomendaciones de Sensibilidad & Refuerzos:</strong>
                   <ul className="list-disc list-inside space-y-0.5">
                     {viability.sensitivityRecommendations.map((rec, i) => (
                       <li key={i}>{rec}</li>
@@ -901,10 +795,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           )}
 
           {!converged && bestCandidate && !isRunning && (
-            <div className="p-3 bg-amber-500/15 border border-amber-500/40 rounded-lg text-xs text-amber-200 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-warn/15 border border-warn/40 rounded-lg text-xs text-warn flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-warn shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1">
-                <span className="font-bold uppercase tracking-wide text-amber-300">
+                <span className="font-bold uppercase tracking-wide text-warn">
                   La optimización no convergió
                 </span>
                 <span>
@@ -920,8 +814,8 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 disabled={!converged}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition cursor-pointer text-xs font-bold shadow-md ${
                   converged
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30 shadow-emerald-500/10'
-                    : 'bg-[#16202f] text-[#5b6f8c] border-[#16202f] cursor-not-allowed'
+                    ? 'bg-ok/20 text-ok border-ok/40 hover:bg-ok/30 shadow-ok/10'
+                    : 'bg-line text-dim border-line cursor-not-allowed'
                 }`}
                 title={converged
                   ? 'Aceptar diseño y aplicar a la mesa de trabajo'
@@ -932,7 +826,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
           )}
 
           {/* Chart Canvas Container */}
-          <div className="w-full h-52 bg-[#05070c] rounded-lg border border-[#16202f] p-3">
+          <div className="w-full h-52 bg-ink rounded-lg border border-line p-3">
             <canvas ref={chartCanvasRef} />
           </div>
         </div>
@@ -944,16 +838,16 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
       {/* Modal Popup para Confirmación de Guardarraíles Incompatibles */}
       {showGuardrailWarningConfirm && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0a0f18] border border-rose-500/50 rounded-xl w-full max-w-md p-5 flex flex-col gap-4 shadow-2xl">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-base">
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+          <div className="bg-panel border border-bad/50 rounded-xl w-full max-w-md p-5 flex flex-col gap-4 shadow-2xl">
+            <div className="flex items-center gap-2 text-bad font-bold text-base">
+              <AlertTriangle className="w-5 h-5 text-bad shrink-0" />
               <span>Advertencia de Inviabilidad Sectorial</span>
             </div>
-            <div className="text-xs text-[#8ea3bd] space-y-2">
+            <div className="text-xs text-lo space-y-2">
               <p>
-                La geometría actual (b: {effectiveParams.b} m, Cr: {effectiveParams.Cr} m) sobrepasa los límites característicos para el sector <strong className="text-white uppercase">{sector}</strong>.
+                La geometría actual (b: {effectiveParams.b} m, Cr: {effectiveParams.Cr} m) sobrepasa los límites característicos para el sector <strong className="text-hi uppercase">{sector}</strong>.
               </p>
-              <div className="bg-rose-500/10 border border-rose-500/30 p-2.5 rounded text-rose-300 text-[11px]">
+              <div className="bg-bad/10 border border-bad/30 p-2.5 rounded text-bad text-[11px]">
                 <ul className="list-disc list-inside space-y-1">
                   {liveDiag.issues.map((iss, idx) => (
                     <li key={idx}>{iss}</li>
@@ -964,10 +858,10 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                 Si continúa, el Algoritmo Genético acotará automáticamente la geometría a los límites del sector y aplicará penalizaciones.
               </p>
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#16202f]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line">
               <button
                 onClick={() => setShowGuardrailWarningConfirm(false)}
-                className="px-3 py-1.5 rounded bg-[#0e1624] text-[#8ea3bd] hover:text-white text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded bg-panel2 text-lo hover:text-hi text-xs font-semibold cursor-pointer"
               >
                 Ajustar Parámetros
               </button>
@@ -976,7 +870,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
                   setShowGuardrailWarningConfirm(false);
                   startOptimization(true);
                 }}
-                className="px-3 py-1.5 rounded bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold cursor-pointer"
+                className="px-3 py-1.5 rounded bg-bad hover:brightness-110 text-hi text-xs font-bold cursor-pointer"
               >
                 Continuar de todos modos
               </button>

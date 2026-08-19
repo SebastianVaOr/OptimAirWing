@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, GitCompare, ArrowRight, TrendingUp, TrendingDown, CheckCircle2, Copy } from 'lucide-react';
+import { GitCompare, ArrowRight, TrendingUp, TrendingDown, CheckCircle2, Copy } from 'lucide-react';
 import { LegacyWingPayload, PredictionResult } from '../core/types';
 import { generateNaca4Points } from '../domains/wing/naca';
+import { Modal } from './primitives/Modal';
+import { Button } from './primitives/Button';
 
 interface DesignComparatorModalProps {
   isOpen: boolean;
@@ -19,8 +21,6 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
   onApplyParams,
 }) => {
   const [designA, setDesignA] = useState<{ params: LegacyWingPayload; prediction: PredictionResult | null } | null>(null);
-
-  if (!isOpen) return null;
 
   const handleSetDesignA = () => {
     setDesignA({
@@ -41,253 +41,188 @@ export const DesignComparatorModal: React.FC<DesignComparatorModalProps> = ({
   const pointsB = generateNaca4Points(currentParams.nacaCode, 60);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto select-none">
-      <div className="bg-[#0a0f18] border border-[#16202f] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="p-4 border-b border-[#16202f] flex items-center justify-between bg-[#0e1624]">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <GitCompare className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Comparador Multi-Diseño A/B Benchmarking
-              </h2>
-              <p className="text-xs text-[#8ea3bd]">
-                Compare métricas, finura aerodinámica (L/D), pesos y perfil superpuesto en tiempo real.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#0e1624] text-[#8ea3bd] hover:text-white transition cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Comparador Multi-Diseño A/B Benchmarking"
+      description="Compare métricas, finura aerodinámica (L/D), pesos y perfil superpuesto en tiempo real."
+      size="xl"
+    >
+      {/* Top Control Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-panel2 border border-line mb-6">
+        <div>
+          <span className="text-xs font-bold text-accent uppercase tracking-wider">Estado de Referencia</span>
+          <p className="text-sm text-hi">
+            {designA ? (
+              <span className="text-ok font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4" /> Diseño A Fijado (NACA {designA.params.nacaCode}, b={designA.params.b}m)
+              </span>
+            ) : (
+              'Aún no has fijado un Diseño A de referencia. Haz clic para fijar los parámetros actuales como baseline.'
+            )}
+          </p>
         </div>
+        <Button variant="secondary" size="sm" icon={Copy} onClick={handleSetDesignA} className="shrink-0">
+          {designA ? 'Actualizar Baseline (Diseño A)' : 'Fijar Actual como Diseño A'}
+        </Button>
+      </div>
 
-        {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          {/* Top Control Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
-            <div>
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Estado de Referencia</span>
-              <p className="text-sm text-[#e8f1fb]">
-                {designA ? (
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" /> Diseño A Fijado (NACA {designA.params.nacaCode}, b={designA.params.b}m)
-                  </span>
-                ) : (
-                  'Aún no has fijado un Diseño A de referencia. Haz clic para fijar los parámetros actuales como baseline.'
-                )}
-              </p>
-            </div>
-            <button
-              onClick={handleSetDesignA}
-              className="px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-bold text-xs hover:bg-cyan-500/30 transition flex items-center gap-2 cursor-pointer shrink-0"
-            >
-              <Copy className="w-4 h-4" />
-              <span>{designA ? 'Actualizar Baseline (Diseño A)' : 'Fijar Actual como Diseño A'}</span>
-            </button>
+      {/* Side by Side Comparison Grid */}
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
+        {/* Design A Card */}
+        <div className={`p-4 rounded-xl border transition ${designA ? 'bg-panel2 border-accent/30' : 'bg-ink border-line opacity-60'}`}>
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs font-bold px-2.5 py-1 rounded bg-accent/20 text-accent2 border border-accent/30">
+              DISEÑO A (Baseline)
+            </span>
+            {designA && (
+              <span className="text-xs text-lo font-mono">NACA {designA.params.nacaCode}</span>
+            )}
           </div>
 
-          {/* Side by Side Comparison Grid */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Design A Card */}
-            <div className={`p-4 rounded-xl border transition ${designA ? 'bg-[#0e1624] border-cyan-500/30' : 'bg-[#0a0f18] border-[#16202f] opacity-60'}`}>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                  DISEÑO A (Baseline)
-                </span>
-                {designA && (
-                  <span className="text-xs text-[#8ea3bd] font-mono">NACA {designA.params.nacaCode}</span>
-                )}
-              </div>
-
-              {designA ? (
-                <div className="space-y-3 font-mono text-xs">
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Envergadura (b):</span>
-                    <span className="text-white font-bold">{designA.params.b.toFixed(2)} m</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Cuerda Raíz (Cr):</span>
-                    <span className="text-white font-bold">{designA.params.Cr.toFixed(2)} m</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Ángulo Ataque (α):</span>
-                    <span className="text-white font-bold">{designA.params.alpha_deg}°</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Coef. Sustentación (C_L):</span>
-                    <span className="text-cyan-300 font-bold">{designA.prediction?.CL?.toFixed(3) || '-'}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Coef. Resistencia (C_D):</span>
-                    <span className="text-rose-300 font-bold">{designA.prediction?.CD?.toFixed(4) || '-'}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                    <span className="text-[#8ea3bd]">Finura Aerodinámica (L/D):</span>
-                    <span className="text-emerald-400 font-bold">{designA.prediction?.LD?.toFixed(2) || '-'}</span>
-                  </div>
-                  {designA.prediction?.weight_kg && (
-                    <div className="flex justify-between py-1">
-                      <span className="text-[#8ea3bd]">Peso Estimado:</span>
-                      <span className="text-amber-300 font-bold">{designA.prediction.weight_kg.toFixed(1)} kg</span>
-                    </div>
-                  )}
+          {designA ? (
+            <div className="space-y-3 font-mono text-xs">
+              {[
+                { label: 'Envergadura (b):', value: `${designA.params.b.toFixed(2)} m` },
+                { label: 'Cuerda Raíz (Cr):', value: `${designA.params.Cr.toFixed(2)} m` },
+                { label: 'Ángulo Ataque (α):', value: `${designA.params.alpha_deg}°` },
+                { label: 'Coef. Sustentación (C_L):', value: designA.prediction?.CL?.toFixed(3) || '-', tone: 'text-accent' },
+                { label: 'Coef. Resistencia (C_D):', value: designA.prediction?.CD?.toFixed(4) || '-', tone: 'text-bad' },
+                { label: 'Finura Aerodinámica (L/D):', value: designA.prediction?.LD?.toFixed(2) || '-', tone: 'text-ok' },
+              ].map((row, i) => (
+                <div key={i} className="flex justify-between py-1 border-b border-line/60">
+                  <span className="text-lo">{row.label}</span>
+                  <span className={`font-bold ${row.tone || 'text-hi'}`}>{row.value}</span>
                 </div>
-              ) : (
-                <div className="h-48 flex items-center justify-center text-center p-6 text-xs text-[#5b6f8c]">
-                  Haz clic en "Fijar Actual como Diseño A" para guardar una captura de comparación.
+              ))}
+              {designA.prediction?.weight_kg && (
+                <div className="flex justify-between py-1">
+                  <span className="text-lo">Peso Estimado:</span>
+                  <span className="text-warn font-bold">{designA.prediction.weight_kg.toFixed(1)} kg</span>
                 </div>
               )}
             </div>
-
-            {/* Design B Card */}
-            <div className="p-4 rounded-xl bg-[#0e1624] border border-amber-500/30">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  DISEÑO B (Actual)
-                </span>
-                <span className="text-xs text-[#8ea3bd] font-mono">NACA {currentParams.nacaCode}</span>
-              </div>
-
-              <div className="space-y-3 font-mono text-xs">
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Envergadura (b):</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-bold">{currentParams.b.toFixed(2)} m</span>
-                    {designA && (
-                      <span className={`text-[10px] ${getDelta(currentParams.b, designA.params.b).isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {getDelta(currentParams.b, designA.params.b).pct}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Cuerda Raíz (Cr):</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-bold">{currentParams.Cr.toFixed(2)} m</span>
-                    {designA && (
-                      <span className={`text-[10px] ${getDelta(currentParams.Cr, designA.params.Cr).isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {getDelta(currentParams.Cr, designA.params.Cr).pct}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Ángulo Ataque (α):</span>
-                  <span className="text-white font-bold">{currentParams.alpha_deg}°</span>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Coef. Sustentación (C_L):</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-cyan-300 font-bold">{currentPrediction?.CL?.toFixed(3) || '-'}</span>
-                    {designA && currentPrediction?.CL && designA.prediction?.CL && (
-                      <span className={`text-[10px] font-bold ${getDelta(currentPrediction.CL, designA.prediction.CL).isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {getDelta(currentPrediction.CL, designA.prediction.CL).pct}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Coef. Resistencia (C_D):</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-rose-300 font-bold">{currentPrediction?.CD?.toFixed(4) || '-'}</span>
-                    {designA && currentPrediction?.CD && designA.prediction?.CD && (
-                      <span className={`text-[10px] font-bold ${getDelta(currentPrediction.CD, designA.prediction.CD).isPositive ? 'text-rose-400' : 'text-emerald-400'}`}>
-                        {getDelta(currentPrediction.CD, designA.prediction.CD).pct}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between py-1 border-b border-[#16202f]/60">
-                  <span className="text-[#8ea3bd]">Finura Aerodinámica (L/D):</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400 font-bold">{currentPrediction?.LD?.toFixed(2) || '-'}</span>
-                    {designA && currentPrediction?.LD && designA.prediction?.LD && (
-                      <span className={`text-[10px] font-bold ${getDelta(currentPrediction.LD, designA.prediction.LD).isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {getDelta(currentPrediction.LD, designA.prediction.LD).pct}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {currentPrediction?.weight_kg && (
-                  <div className="flex justify-between py-1">
-                    <span className="text-[#8ea3bd]">Peso Estimado:</span>
-                    <span className="text-amber-300 font-bold">{currentPrediction.weight_kg.toFixed(1)} kg</span>
-                  </div>
-                )}
-              </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-center p-6 text-xs text-dim">
+              Haz clic en "Fijar Actual como Diseño A" para guardar una captura de comparación.
             </div>
-          </div>
-
-          {/* Superposed Airfoil SVG Canvas */}
-          <div className="p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
-            <h3 className="text-xs font-bold text-[#e8f1fb] mb-3 flex items-center justify-between">
-              <span>Superposición de Perfiles Aero 2D (NACA A vs NACA B)</span>
-              <div className="flex items-center gap-4 text-[11px] font-mono">
-                <span className="text-cyan-400 font-bold">― Diseño A (NACA {designA?.params.nacaCode || 'N/A'})</span>
-                <span className="text-amber-400 font-bold">― Diseño B (NACA {currentParams.nacaCode})</span>
-              </div>
-            </h3>
-
-            <div className="w-full h-44 bg-[#05070c] rounded-lg border border-[#16202f] p-2 flex items-center justify-center">
-              <svg viewBox="-0.1 -0.3 1.2 0.6" className="w-full h-full overflow-visible">
-                {/* Center Line Grid */}
-                <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
-                <line x1="0.25" y1="-0.25" x2="0.25" y2="0.25" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
-
-                {/* Profile A Path */}
-                {pointsA && pointsA.upper && (
-                  <path
-                    d={`M ${pointsA.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${pointsA.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
-                    fill="none"
-                    stroke="#22d3ee"
-                    strokeWidth="0.01"
-                    strokeDasharray="0.015 0.005"
-                  />
-                )}
-
-                {/* Profile B Path */}
-                {pointsB && pointsB.upper && (
-                  <path
-                    d={`M ${pointsB.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${pointsB.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
-                    fill="rgba(245, 158, 11, 0.15)"
-                    stroke="#fbbf24"
-                    strokeWidth="0.012"
-                  />
-                )}
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between">
-          <span className="text-xs text-[#5b6f8c]">
-            * Los deltas indican variación porcentual respecto al baseline del Diseño A.
-          </span>
-          {designA && (
-            <button
-              onClick={() => {
-                onApplyParams(designA.params);
-                onClose();
-              }}
-              className="px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-bold text-xs hover:bg-cyan-500/30 transition cursor-pointer"
-            >
-              Cargar Parámetros de Diseño A
-            </button>
           )}
         </div>
+
+        {/* Design B Card */}
+        <div className="p-4 rounded-xl bg-panel2 border border-warn/30">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs font-bold px-2.5 py-1 rounded bg-warn/20 text-warn border border-warn/30">
+              DISEÑO B (Actual)
+            </span>
+            <span className="text-xs text-lo font-mono">NACA {currentParams.nacaCode}</span>
+          </div>
+
+          <div className="space-y-3 font-mono text-xs">
+            {[
+              { label: 'Envergadura (b):', val: currentParams.b, unit: ' m', deltaVal: designA?.params.b },
+              { label: 'Cuerda Raíz (Cr):', val: currentParams.Cr, unit: ' m', deltaVal: designA?.params.Cr },
+              { label: 'Ángulo Ataque (α):', val: currentParams.alpha_deg, unit: '°' },
+            ].map((row, i) => (
+              <div key={i} className="flex justify-between py-1 border-b border-line/60">
+                <span className="text-lo">{row.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-hi font-bold">{typeof row.val === 'number' ? row.val.toFixed(2) : row.val}{row.unit}</span>
+                  {row.deltaVal !== undefined && designA && (
+                    <span className={`text-[10px] ${getDelta(typeof row.val === 'number' ? row.val : 0, row.deltaVal).isPositive ? 'text-ok' : 'text-bad'}`}>
+                      {getDelta(typeof row.val === 'number' ? row.val : 0, row.deltaVal).pct}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {[
+              { label: 'Coef. Sustentación (C_L):', val: currentPrediction?.CL, deltaVal: designA?.prediction?.CL, tone: 'text-accent', swapColors: false },
+              { label: 'Coef. Resistencia (C_D):', val: currentPrediction?.CD, deltaVal: designA?.prediction?.CD, tone: 'text-bad', swapColors: true },
+              { label: 'Finura Aerodinámica (L/D):', val: currentPrediction?.LD, deltaVal: designA?.prediction?.LD, tone: 'text-ok', swapColors: false },
+            ].map((row, i) => (
+              <div key={i} className="flex justify-between py-1 border-b border-line/60">
+                <span className="text-lo">{row.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`${row.tone} font-bold`}>{row.val?.toFixed(row.val < 1 ? 4 : 3) || '-'}</span>
+                  {row.val !== undefined && row.deltaVal !== undefined && designA && (
+                    <span className={`text-[10px] font-bold ${getDelta(row.val, row.deltaVal).isPositive ? (row.swapColors ? 'text-bad' : 'text-ok') : (row.swapColors ? 'text-ok' : 'text-bad')}`}>
+                      {getDelta(row.val, row.deltaVal).pct}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {currentPrediction?.weight_kg && (
+              <div className="flex justify-between py-1">
+                <span className="text-lo">Peso Estimado:</span>
+                <span className="text-warn font-bold">{currentPrediction.weight_kg.toFixed(1)} kg</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Superposed Airfoil SVG Canvas */}
+      <div className="p-4 rounded-xl bg-panel2 border border-line">
+        <h3 className="text-xs font-bold text-hi mb-3 flex items-center justify-between">
+          <span>Superposición de Perfiles Aero 2D (NACA A vs NACA B)</span>
+          <div className="flex items-center gap-4 text-[11px] font-mono">
+            <span className="text-accent font-bold">― Diseño A (NACA {designA?.params.nacaCode || 'N/A'})</span>
+            <span className="text-warn font-bold">― Diseño B (NACA {currentParams.nacaCode})</span>
+          </div>
+        </h3>
+
+        <div className="w-full h-44 bg-ink rounded-lg border border-line p-2 flex items-center justify-center">
+          <svg viewBox="-0.1 -0.3 1.2 0.6" className="w-full h-full overflow-visible">
+            {/* Center Line Grid */}
+            <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="var(--color-line)" strokeDasharray="0.02" strokeWidth="0.005" />
+            <line x1="0.25" y1="-0.25" x2="0.25" y2="0.25" stroke="var(--color-line)" strokeDasharray="0.02" strokeWidth="0.005" />
+
+            {/* Profile A Path */}
+            {pointsA && pointsA.upper && (
+              <path
+                d={`M ${pointsA.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${pointsA.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
+                fill="none"
+                stroke="var(--color-accent)"
+                strokeWidth="0.01"
+                strokeDasharray="0.015 0.005"
+              />
+            )}
+
+            {/* Profile B Path */}
+            {pointsB && pointsB.upper && (
+              <path
+                d={`M ${pointsB.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${pointsB.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
+                fill="rgba(251, 191, 36, 0.15)"
+                stroke="var(--color-warn)"
+                strokeWidth="0.012"
+              />
+            )}
+          </svg>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="mt-6 pt-4 border-t border-line flex items-center justify-between">
+        <span className="text-xs text-dim">
+          * Los deltas indican variación porcentual respecto al baseline del Diseño A.
+        </span>
+        {designA && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              onApplyParams(designA.params);
+              onClose();
+            }}
+          >
+            Cargar Parámetros de Diseño A
+          </Button>
+        )}
+      </div>
+    </Modal>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sliders, Check, Zap, Info, Compass } from 'lucide-react';
+import { Check, Sliders } from 'lucide-react';
 import { generateNaca4Points } from '../domains/wing/naca';
+import { Modal } from './primitives/Modal';
+import { Button } from './primitives/Button';
 
 interface AirfoilDesignerModalProps {
   isOpen: boolean;
@@ -30,8 +32,6 @@ export const AirfoilDesignerModal: React.FC<AirfoilDesignerModalProps> = ({
     }
   }, [currentNaca, isOpen]);
 
-  if (!isOpen) return null;
-
   const activeCode = `${camberPct}${camberPos}${thicknessPct < 10 ? '0' + thicknessPct : thicknessPct}`;
   const points = generateNaca4Points(activeCode, 80);
 
@@ -41,157 +41,131 @@ export const AirfoilDesignerModal: React.FC<AirfoilDesignerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto select-none">
-      <div className="bg-[#0a0f18] border border-[#16202f] rounded-2xl w-full max-w-3xl flex flex-col shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="p-4 border-b border-[#16202f] flex items-center justify-between bg-[#0e1624]">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <Sliders className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Generador y Morphing de Perfiles NACA Interactivo
-              </h2>
-              <p className="text-xs text-[#8ea3bd]">
-                Diseñe la geometría exacta del perfil 2D ajustando curvatura, espesor y posición de curvatura máxima.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#0e1624] text-[#8ea3bd] hover:text-white transition cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Modal Body */}
-        <div className="p-6 space-y-6">
-          {/* Active NACA Display */}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
-            <div>
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Código Generado</span>
-              <div className="text-2xl font-mono font-extrabold text-white">
-                NACA <span className="text-cyan-400">{activeCode}</span>
-              </div>
-            </div>
-            <div className="text-right text-xs text-[#8ea3bd] space-y-0.5 font-mono">
-              <div>Curvatura Máx: <span className="text-white font-bold">{camberPct}% c</span></div>
-              <div>Posición Curvatura: <span className="text-white font-bold">{camberPos * 10}% c</span></div>
-              <div>Espesor Máximo: <span className="text-white font-bold">{thicknessPct}% c</span></div>
-            </div>
-          </div>
-
-          {/* Interactive Sliders */}
-          <div className="grid md:grid-cols-3 gap-4 p-4 rounded-xl bg-[#0e1624] border border-[#16202f]">
-            {/* Camber % */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-[#8ea3bd]">1. Curvatura (Camber)</span>
-                <span className="text-cyan-400 font-mono">{camberPct}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="9"
-                step="1"
-                value={camberPct}
-                onChange={e => setCamberPct(parseInt(e.target.value, 10))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-              <p className="text-[10px] text-[#5b6f8c]">0% = Perfil Simétrico. &gt;0% = Mayor sustentación $C_L$.</p>
-            </div>
-
-            {/* Camber Position */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-[#8ea3bd]">2. Posición Curvatura</span>
-                <span className="text-cyan-400 font-mono">{camberPos * 10}%</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="9"
-                step="1"
-                value={camberPos}
-                onChange={e => setCamberPos(parseInt(e.target.value, 10))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-              <p className="text-[10px] text-[#5b6f8c]">Ubicación del punto más curvo a lo largo de la cuerda.</p>
-            </div>
-
-            {/* Thickness % */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-[#8ea3bd]">3. Espesor Relativo</span>
-                <span className="text-cyan-400 font-mono">{thicknessPct}%</span>
-              </div>
-              <input
-                type="range"
-                min="4"
-                max="28"
-                step="1"
-                value={thicknessPct}
-                onChange={e => setThicknessPct(parseInt(e.target.value, 10))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-              <p className="text-[10px] text-[#5b6f8c]">Mayor espesor = Mayor rigidez estructural y menor Flutter.</p>
-            </div>
-          </div>
-
-          {/* Airfoil SVG Interactive Plot */}
-          <div className="p-4 rounded-xl bg-[#0e1624] border border-[#16202f] space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-[#e8f1fb]">Vista 2D Geometría de Perfil</span>
-              <div className="flex items-center gap-3 text-[10px] font-mono text-[#8ea3bd]">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400"></span> Extradós / Intradós
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span> Centro Aerodinámico (0.25c)
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full h-52 bg-[#05070c] rounded-lg border border-[#16202f] p-2 flex items-center justify-center">
-              <svg viewBox="-0.1 -0.35 1.2 0.7" className="w-full h-full overflow-visible">
-                {/* Center Line Grid */}
-                <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
-                <line x1="0.25" y1="-0.3" x2="0.25" y2="0.3" stroke="#16202f" strokeDasharray="0.02" strokeWidth="0.005" />
-
-                {/* Profile Filled Shape */}
-                {points && points.upper && (
-                  <path
-                    d={`M ${points.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${points.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
-                    fill="rgba(34, 211, 238, 0.12)"
-                    stroke="#22d3ee"
-                    strokeWidth="0.012"
-                  />
-                )}
-
-                {/* Aerodynamic Center Marker (0.25c) */}
-                <circle cx="0.25" cy="0" r="0.018" fill="#fbbf24" />
-                <text x="0.28" y="0.05" fill="#fbbf24" fontSize="0.035" fontWeight="bold">0.25c</text>
-              </svg>
-            </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Generador y Morphing de Perfiles NACA Interactivo"
+      description="Diseñe la geometría exacta del perfil 2D ajustando curvatura, espesor y posición de curvatura máxima."
+      size="lg"
+    >
+      {/* Active NACA Display */}
+      <div className="flex items-center justify-between p-4 rounded-xl bg-panel2 border border-line mb-6">
+        <div>
+          <span className="text-xs font-bold text-accent uppercase tracking-wider">Código Generado</span>
+          <div className="text-2xl font-mono font-extrabold text-hi">
+            NACA <span className="text-accent">{activeCode}</span>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-[#16202f] bg-[#0e1624] flex items-center justify-between">
-          <span className="text-xs text-[#5b6f8c]">
-            * El perfil NACA {activeCode} se sincronizará en todos los cálculos aerodinámicos y el renderizado 3D.
-          </span>
-          <button
-            onClick={handleApply}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-[#05070c] font-bold text-xs hover:brightness-110 transition flex items-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/20"
-          >
-            <Check className="w-4 h-4" />
-            <span>Aplicar NACA {activeCode} al Simulador</span>
-          </button>
+        <div className="text-right text-xs text-lo space-y-0.5 font-mono">
+          <div>Curvatura Máx: <span className="text-hi font-bold">{camberPct}% c</span></div>
+          <div>Posición Curvatura: <span className="text-hi font-bold">{camberPos * 10}% c</span></div>
+          <div>Espesor Máximo: <span className="text-hi font-bold">{thicknessPct}% c</span></div>
         </div>
       </div>
-    </div>
+
+      {/* Interactive Sliders */}
+      <div className="grid md:grid-cols-3 gap-4 p-4 rounded-xl bg-panel2 border border-line mb-6">
+        {/* Camber % */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-lo">1. Curvatura (Camber)</span>
+            <span className="text-accent font-mono">{camberPct}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="9"
+            step="1"
+            value={camberPct}
+            onChange={e => setCamberPct(parseInt(e.target.value, 10))}
+            className="w-full accent-cyan-400 cursor-pointer"
+          />
+          <p className="text-[10px] text-dim">0% = Perfil Simétrico. &gt;0% = Mayor sustentación $C_L$.</p>
+        </div>
+
+        {/* Camber Position */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-lo">2. Posición Curvatura</span>
+            <span className="text-accent font-mono">{camberPos * 10}%</span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="9"
+            step="1"
+            value={camberPos}
+            onChange={e => setCamberPos(parseInt(e.target.value, 10))}
+            className="w-full accent-cyan-400 cursor-pointer"
+          />
+          <p className="text-[10px] text-dim">Ubicación del punto más curvo a lo largo de la cuerda.</p>
+        </div>
+
+        {/* Thickness % */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="text-lo">3. Espesor Relativo</span>
+            <span className="text-accent font-mono">{thicknessPct}%</span>
+          </div>
+          <input
+            type="range"
+            min="4"
+            max="28"
+            step="1"
+            value={thicknessPct}
+            onChange={e => setThicknessPct(parseInt(e.target.value, 10))}
+            className="w-full accent-cyan-400 cursor-pointer"
+          />
+          <p className="text-[10px] text-dim">Mayor espesor = Mayor rigidez estructural y menor Flutter.</p>
+        </div>
+      </div>
+
+      {/* Airfoil SVG Interactive Plot */}
+      <div className="p-4 rounded-xl bg-panel2 border border-line space-y-2 mb-6">
+        <div className="flex items-center justify-between text-xs font-semibold">
+          <span className="text-hi">Vista 2D Geometría de Perfil</span>
+          <div className="flex items-center gap-3 text-[10px] font-mono text-lo">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-accent"></span> Extradós / Intradós
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-warn"></span> Centro Aerodinámico (0.25c)
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full h-52 bg-ink rounded-lg border border-line p-2 flex items-center justify-center">
+          <svg viewBox="-0.1 -0.35 1.2 0.7" className="w-full h-full overflow-visible">
+            {/* Center Line Grid */}
+            <line x1="-0.1" y1="0" x2="1.1" y2="0" stroke="var(--color-line)" strokeDasharray="0.02" strokeWidth="0.005" />
+            <line x1="0.25" y1="-0.3" x2="0.25" y2="0.3" stroke="var(--color-line)" strokeDasharray="0.02" strokeWidth="0.005" />
+
+            {/* Profile Filled Shape */}
+            {points && points.upper && (
+              <path
+                d={`M ${points.upper.map(p => `${p.x},${-p.y}`).join(' L ')} L ${points.lower.slice().reverse().map(p => `${p.x},${-p.y}`).join(' L ')} Z`}
+                fill="rgba(34, 211, 238, 0.12)"
+                stroke="var(--color-accent)"
+                strokeWidth="0.012"
+              />
+            )}
+
+            {/* Aerodynamic Center Marker (0.25c) */}
+            <circle cx="0.25" cy="0" r="0.018" fill="var(--color-warn)" />
+            <text x="0.28" y="0.05" fill="var(--color-warn)" fontSize="0.035" fontWeight="bold">0.25c</text>
+          </svg>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="pt-4 border-t border-line flex items-center justify-between">
+        <span className="text-xs text-dim">
+          * El perfil NACA {activeCode} se sincronizará en todos los cálculos aerodinámicos y el renderizado 3D.
+        </span>
+        <Button size="sm" icon={Check} onClick={handleApply}>
+          Aplicar NACA {activeCode} al Simulador
+        </Button>
+      </div>
+    </Modal>
   );
 };
