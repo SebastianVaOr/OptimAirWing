@@ -138,18 +138,25 @@ export class GeneticOptimizer {
       const nacaCode = HIGH_LOAD_F1_NACAS[nacaIdx] || '6412';
       const sweep = Math.min(limits.sweep.max, Math.max(limits.sweep.min, ind[3] ?? preset.sweep));
 
+      const cr = Number(preset.Cr.toFixed(2));
+      const ct = Number(preset.Ct.toFixed(2));
+      const meanChord = (cr + ct) / 2;
+      const c_flap = 0.25 * meanChord;
+      const gapOptMm = Math.round(0.015 * c_flap * 1000);
+      const overlapOptMm = Math.round(0.01 * c_flap * 1000);
+
       return {
         b: Number((fixedSpanM ?? preset.b).toFixed(2)),
-        Cr: Number(preset.Cr.toFixed(2)),
-        Ct: Number(preset.Ct.toFixed(2)),
+        Cr: cr,
+        Ct: ct,
         sweep_deg: Number(sweep.toFixed(2)),
         twist_deg: Number(twist.toFixed(2)),
         alpha_deg: Number(alpha.toFixed(2)),
         nacaCode,
         isMultiElement: true,
         numElements: 2,
-        flapGapMm: 12,
-        flapOverlapMm: 8,
+        flapGapMm: gapOptMm,
+        flapOverlapMm: overlapOptMm,
         flapAngleDeg: 28
       };
     }
@@ -334,8 +341,8 @@ export class GeneticOptimizer {
       penaltySum += 0.10;
     }
 
-    // Factor de penalización suave lineal (evita colapsos exponenciales agresivos)
-    const penaltyFactor = Math.max(0.70, 1.0 - penaltySum * 0.25);
+    // Factor de penalización exponencial: nunca negativo, mejor discriminación
+    const penaltyFactor = Math.max(0.5, Math.exp(-penaltySum * 0.25));
 
     const mode = requirements?.optimization_mode || 'balance';
     
@@ -586,7 +593,7 @@ export class GeneticOptimizer {
     // el resultado se marca como no convergido (bestParams se devuelve pero flaggeado).
     const totalEvaluated = Math.max(1, this.popSize * (this.generations + 1));
     const discardedRatio = Math.min(1, this.discardedCount / totalEvaluated);
-    const converged = bestFitness > 0 && discardedRatio <= 0.9;
+    const converged = bestFitness > 0 && discardedRatio <= 0.4 && this.generations >= 50;
 
     let viability: ViabilityAnalysis | undefined = undefined;
     if (requirements) {

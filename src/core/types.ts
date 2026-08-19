@@ -4,7 +4,7 @@
 
 import { SectorViabilityDiagnostic } from '../domains/wing/sectorGuardrails';
 import { BucklingAnalysisResult } from '../domains/wing/buckling';
-import { CFDValidationResult } from '../domains/wing/cfdValidator';
+import { ConsistencyCheckResult } from '../domains/wing/empiricalSelfConsistency';
 import { MonteCarloAnalysisResult } from '../domains/wing/montecarlo';
 import { FlightDynamicsResult } from '../domains/wing/flightDynamics';
 import { VehicleCategory } from '../domains/vehicleDomain';
@@ -206,7 +206,7 @@ export interface DesignRequirements {
   optimization_level?: 'basic' | 'neuralfoil' | 'structural' | 'full_custom';
   optimization_mode?: OptimizationMode;
   optimization_mode_type?: OptimizationSourceMode;
-  run_cfd_validation?: boolean;
+  run_consistency_check?: boolean;
 
   // Novedades v11.0 / v11.1: Restricciones Hard y Exploración Libre
   unconstrained?: boolean; // Si es true, desactiva rechazos hard para exploración libre
@@ -273,7 +273,7 @@ export interface ViabilityAnalysis {
 
   // Novedades v10.0: Pre-diseño Espacial
   bucklingAnalysis?: BucklingAnalysisResult;
-  cfdValidation?: CFDValidationResult;
+  consistencyCheck?: ConsistencyCheckResult;
   monteCarloAnalysis?: MonteCarloAnalysisResult;
   flightDynamics?: FlightDynamicsResult;
   surrogateModelSource?: string;

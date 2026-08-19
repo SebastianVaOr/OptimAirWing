@@ -4,7 +4,7 @@
  * Extraído exactamente del motor legado 'calcularAerodinamica'.
  */
 
-import { generarNACA } from './naca';
+import { generarNACA, computeAlphaZero } from './naca';
 import { LegacyWingPayload, LegacyWingInput } from '../../core/types';
 
 // FIX (8): Re-exportación unificada de los tipos de entrada desde types.ts
@@ -51,8 +51,8 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
   const cosSweep = Math.cos(sweep);
   const a = (a0 * cosSweep) / (1 + ((a0 * cosSweep) / (Math.PI * AR)) * (1 + tau));
 
-  // Ángulo de sustentación nula (alpha0) estimado por el camber
-  const alpha0 = -(m / 0.2) * 0.349;
+  // Ángulo de sustentación nula (alpha0) desde teoría de lámina delgada (Abbott)
+  const alpha0 = computeAlphaZero(nacaCode);
 
   // Coeficiente de sustentación preliminar
   let CL_raw = a * (alpha - alpha0);
@@ -61,11 +61,17 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
   let multiElementClBonus = 0;
   let multiElementCdPenalty = 0;
   if (isMultiElement || numElements > 1) {
-    // Rendimiento óptimo del slot ocurre cuando gap ~ 12mm y overlap ~ 8mm
-    const gapRatio = Math.max(0.2, Math.min(2.0, (flapGapMm || 12) / 12));
-    const gapEfficiency = Math.exp(-Math.pow(gapRatio - 1.0, 2) * 2.5); // Eficiencia de succión de ranura
+    // Cálculo de la cuerda del flap (~25% de la cuerda media) y óptimos escalados
+    const meanChord = (Cr + Ct) / 2;
+    const c_flap = 0.25 * meanChord; // flap ≈ 25% de la cuerda media
+    const gapOptMm = 0.015 * c_flap * 1000; // 1.5% de la cuerda del flap
+    const overlapOptMm = 0.01 * c_flap * 1000; // 1% de la cuerda del flap
     
-    const overlapRatio = Math.max(0.2, Math.min(2.0, (flapOverlapMm || 8) / 8));
+    // Eficiencia de slot escalable: ratio contra óptimo geométrico
+    const gapRatio = Math.max(0.2, Math.min(2.0, (flapGapMm || 12) / gapOptMm));
+    const gapEfficiency = Math.exp(-Math.pow(gapRatio - 1.0, 2) * 2.5);
+    
+    const overlapRatio = Math.max(0.2, Math.min(2.0, (flapOverlapMm || 8) / overlapOptMm));
     const overlapEfficiency = Math.exp(-Math.pow(overlapRatio - 1.0, 2) * 2.0);
 
     const flapRad = ((flapAngleDeg || 25) * Math.PI) / 180;

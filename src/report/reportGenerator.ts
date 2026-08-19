@@ -13,7 +13,7 @@ export function generateTechnicalReportHtml(
   viabilityInput?: ViabilityAnalysis
 ): string {
   const disclaimerText =
-    "Las predicciones e índices de viabilidad de esta plataforma son estimaciones técnico-económicas de diseño conceptual. No sustituyen ensayos en túnel de viento, simulación CFD validada, análisis de elementos finitos (FEA) ni procesos de certificación aeronáutica oficial.";
+    "Las predicciones e índices de viabilidad de esta plataforma son estimaciones técnico-económicas de diseño conceptual. No sustituyen ensayos en túnel de viento, simulación CROSS-CHECK validada, análisis de elementos finitos (FEA) ni procesos de certificación aeronáutica oficial.";
 
   // Si se pasaron requerimientos pero no viabilidad explícita, la calculamos
   const defaultReqs: DesignRequirements = requirements || {
@@ -54,7 +54,7 @@ export function generateTechnicalReportHtml(
             <span style="background: rgba(34, 211, 238, 0.15); color: #38bdf8; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
               Base: ${viability.viabilityScore} / 100
             </span>
-            <span style="background: ${viability.stabilityStatus === 'danger' || (viability.cfdValidation && (viability.cfdValidation.deltaCLPct > 15 || viability.cfdValidation.deltaCDPct > 15)) ? 'rgba(244, 63, 94, 0.25)' : viability.stabilityStatus === 'warning' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.25)'}; color: ${viability.stabilityStatus === 'danger' || (viability.cfdValidation && (viability.cfdValidation.deltaCLPct > 15 || viability.cfdValidation.deltaCDPct > 15)) ? '#fda4af' : viability.stabilityStatus === 'warning' ? '#fcd34d' : '#34d399'}; font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 20px; border: 1px solid ${viability.stabilityStatus === 'danger' || (viability.cfdValidation && (viability.cfdValidation.deltaCLPct > 15 || viability.cfdValidation.deltaCDPct > 15)) ? 'rgba(244, 63, 94, 0.5)' : viability.stabilityStatus === 'warning' ? 'rgba(245, 158, 11, 0.5)' : 'rgba(52, 211, 153, 0.5)'};">
+            <span style="background: ${viability.stabilityStatus === 'danger' || (viability.consistencyCheck && (viability.consistencyCheck.deltaCLPct > 15 || viability.consistencyCheck.deltaCDPct > 15)) ? 'rgba(244, 63, 94, 0.25)' : viability.stabilityStatus === 'warning' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.25)'}; color: ${viability.stabilityStatus === 'danger' || (viability.consistencyCheck && (viability.consistencyCheck.deltaCLPct > 15 || viability.consistencyCheck.deltaCDPct > 15)) ? '#fda4af' : viability.stabilityStatus === 'warning' ? '#fcd34d' : '#34d399'}; font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 20px; border: 1px solid ${viability.stabilityStatus === 'danger' || (viability.consistencyCheck && (viability.consistencyCheck.deltaCLPct > 15 || viability.consistencyCheck.deltaCDPct > 15)) ? 'rgba(244, 63, 94, 0.5)' : viability.stabilityStatus === 'warning' ? 'rgba(245, 158, 11, 0.5)' : 'rgba(52, 211, 153, 0.5)'};">
               Score Ajustado Riesgo: ${viability.riskAdjustedScore ?? viability.viabilityScore} / 100
             </span>
           </div>
@@ -66,9 +66,9 @@ export function generateTechnicalReportHtml(
                 🔴 GEOMETRÍA EN LISTA NEGRA PROHIBIDA - DESCALIFICACIÓN DE RIESGO (0/100)<br/>
                 <span style="font-weight: 400; font-size: 12px; color: #fda4af;">${viability.stabilityMessage}</span>
               </div>`
-            : viability.cfdValidation && (viability.cfdValidation.deltaCLPct > 15.0 || viability.cfdValidation.deltaCDPct > 15.0)
+            : viability.consistencyCheck && (viability.consistencyCheck.deltaCLPct > 15.0 || viability.consistencyCheck.deltaCDPct > 15.0)
             ? `<div style="background: rgba(225, 29, 72, 0.2); border: 2px solid #e11d48; color: #fecdd3; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-weight: 800; font-size: 13px; text-align: center; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);">
-                🔴 DISEÑO NO CONFIABLE - DISCREPANCIA CROSS-CHECK > 15% (dCL: ${viability.cfdValidation.deltaCLPct}%, dCD: ${viability.cfdValidation.deltaCDPct}%). REQUIERE ITERACIÓN.<br/>
+                🔴 DISEÑO NO CONFIABLE - DISCREPANCIA CROSS-CHECK > 15% (dCL: ${viability.consistencyCheck.deltaCLPct}%, dCD: ${viability.consistencyCheck.deltaCDPct}%). REQUIERE ITERACIÓN.<br/>
                 <span style="font-weight: 400; font-size: 12px; color: #fda4af;">Se ha aplicado una penalización automática del -50% al Score por divergencia del modelo empírico vs la verificación de coherencia de línea sustentadora.</span>
               </div>`
             : ''
@@ -285,38 +285,38 @@ export function generateTechnicalReportHtml(
       </div>
 
       <!-- SECCIÓN B.7: VERIFICACIÓN DE COHERENCIA DEL MODELO EMPÍRICO -->
-      ${viability.cfdValidation ? `
+      ${viability.consistencyCheck ? `
         <div style="background: #0e1624; padding: 16px; border-radius: 8px; border: 1px solid #16202f; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16202f; padding-bottom: 6px; margin-bottom: 10px;">
             <h3 style="margin: 0; font-size: 14px; color: #38bdf8; font-weight: 700;">
               B.7 Verificación de Coherencia del Modelo Empírico (Cross-check Lifting-Line)
             </h3>
-            <span style="background: ${viability.cfdValidation.validated ? 'rgba(52, 211, 153, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color: ${viability.cfdValidation.validated ? '#34d399' : '#fcd34d'}; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
-              ${viability.cfdValidation.statusLabel}
+            <span style="background: ${viability.consistencyCheck.validated ? 'rgba(52, 211, 153, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color: ${viability.consistencyCheck.validated ? '#34d399' : '#fcd34d'}; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">
+              ${viability.consistencyCheck.statusLabel}
             </span>
           </div>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 11px;">
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
               <span style="color: #8ea3bd; display: block;">CL Cross-check vs Base:</span>
-              <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CL} vs ${viability.cfdValidation.baseline.CL} (Δ ${viability.cfdValidation.deltaCLPct}%)</strong>
+              <strong style="color: #e8f1fb;">${viability.consistencyCheck.crosscheck.CL} vs ${viability.consistencyCheck.baseline.CL} (Δ ${viability.consistencyCheck.deltaCLPct}%)</strong>
             </div>
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
               <span style="color: #8ea3bd; display: block;">CD Cross-check vs Base:</span>
-              <strong style="color: #e8f1fb;">${viability.cfdValidation.cfd.CD} vs ${viability.cfdValidation.baseline.CD} (Δ ${viability.cfdValidation.deltaCDPct}%)</strong>
+              <strong style="color: #e8f1fb;">${viability.consistencyCheck.crosscheck.CD} vs ${viability.consistencyCheck.baseline.CD} (Δ ${viability.consistencyCheck.deltaCDPct}%)</strong>
             </div>
             <div style="background: #05070c; padding: 8px; border-radius: 4px;">
               <span style="color: #8ea3bd; display: block;">Motor de Verificación:</span>
-              <strong style="color: #38bdf8;">${viability.cfdValidation.solver}</strong>
+              <strong style="color: #38bdf8;">${viability.consistencyCheck.solver}</strong>
             </div>
           </div>
           ${
-            viability.cfdValidation.deltaCLPct > 30 || viability.cfdValidation.deltaCDPct > 30
+            viability.consistencyCheck.deltaCLPct > 30 || viability.consistencyCheck.deltaCDPct > 30
               ? `<div style="background: rgba(244, 63, 94, 0.15); border: 1px solid #fb7185; color: #fda4af; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
-                  🔴 DIFERENCIA CRÍTICA: El diseño no debe fabricarse sin una validación CFD adicional. El modelo empírico no es fiable para esta configuración.
+                  🔴 DIFERENCIA CRÍTICA: El diseño no debe fabricarse sin una validación CROSS-CHECK adicional. El modelo empírico no es fiable para esta configuración.
                 </div>`
-              : viability.cfdValidation.deltaCLPct > 20 || viability.cfdValidation.deltaCDPct > 20
+              : viability.consistencyCheck.deltaCLPct > 20 || viability.consistencyCheck.deltaCDPct > 20
               ? `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; color: #fcd34d; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 11px;">
-                  ⚠️ ADVERTENCIA: El modelo empírico de línea sustentadora muestra una diferencia significativa con la referencia de coherencia. Esto puede deberse a efectos no lineales (separación, compresibilidad) o a que el perfil tiene alta comba. Se recomienda validar este diseño con simulaciones de alta fidelidad (CFD real) antes de fabricar.
+                  ⚠️ ADVERTENCIA: El modelo empírico de línea sustentadora muestra una diferencia significativa con la referencia de coherencia. Esto puede deberse a efectos no lineales (separación, compresibilidad) o a que el perfil tiene alta comba. Se recomienda validar este diseño con simulaciones de alta fidelidad (CROSS-CHECK real) antes de fabricar.
                 </div>`
               : ''
           }
@@ -496,3 +496,4 @@ export function generateTechnicalReportHtml(
     </div>
   `;
 }
+

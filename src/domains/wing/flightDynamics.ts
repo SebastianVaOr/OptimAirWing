@@ -83,7 +83,12 @@ export function computeLongitudinalStability(
   const dutchRollNum = u0 * u0 * (Cn_beta * Math.abs(Cl_p) + Math.abs(Cl_beta) * Math.abs(Cn_r));
   const dutchRollDen = Math.max(0.1, (AR_eff * 0.3) * (AR_eff * 0.5));
   const dutchRollFreq = Math.min(20, Math.sqrt(dutchRollNum / dutchRollDen));
-  const dutchRollDamping = 0.15 + 0.04 * AR_eff; // empirical relation
+  
+  // Amortiguamiento del Dutch roll desde derivadas de estabilidad (Nelson, Flight Stability)
+  // ζ_dr = -(Ixx·Cn_r + Izz·Cl_p) / (2·√(Ixx·Izz·ω²))
+  const Ixx = AR_eff * 0.3;
+  const Izz = AR_eff * 0.5;
+  const dutchRollDamping = -((Ixx * Cn_r + Izz * Cl_p) / (2 * Math.sqrt(Ixx * Izz * dutchRollFreq * dutchRollFreq)));
   let dutchRollStatus = 'Estable';
   if (dutchRollDamping < 0.05) dutchRollStatus = 'Inestable';
   else if (dutchRollDamping < 0.15) dutchRollStatus = 'Marginal';

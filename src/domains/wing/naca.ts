@@ -177,6 +177,93 @@ export function generarNACA(codigo: string, numPuntos = 200): NACAPoints {
   return { x_u, y_u, x_l, y_l, m, p, t };
 }
 
+/**
+ * Calcula el ángulo de sustentación nula (α₀) mediante integración numérica
+ * de la teoría de lámina delgada sobre la mean-line real del perfil NACA.
+ * Fórmula: α₀ = −(1/π)·∫₀^π (dy_c/dx)·(cosθ − 1)·dθ, con x = (1−cosθ)/2
+ * (Abbott & von Doenhoff, Theory of Wing Sections)
+ * 
+ * Para NACA 4 dígitos: la fórmula cerrada es α₀ = −(2m/π)·[(1/p)·ln(p/(1-p)) + ...]
+ * Implementamos integración numérica para máxima precisión y soporte de 5 dígitos.
+ */
+export function computeAlphaZero(codigo: string): number {
+  const cleanCode = codigo ? codigo.trim() : '2412';
+  
+  // Parse NACA code parameters
+  let m = 0, p = 0;
+  let isFive = false;
+  let fiveR = 0, fiveK1 = 0, fiveK21 = 0;
+  
+  if (/^\d{4}$/.test(cleanCode)) {
+    m = parseInt(cleanCode[0], 10) / 100;
+    p = parseInt(cleanCode[1], 10) / 10;
+  } else if (/^\d{5}$/.test(cleanCode)) {
+    const first = parseInt(cleanCode[0], 10);
+    const pos = parseInt(cleanCode.slice(1, 3), 10);
+    const reflex = cleanCode[2] === '1';
+    p = parseInt(cleanCode[1], 10) / 20;
+    
+    if (reflex) {
+      const e = NACA5_REFLEX[pos] || NACA5_REFLEX[31];
+      fiveR = e.r;
+      fiveK1 = e.k1 * (first / 2);
+      fiveK21 = e.k21;
+    } else {
+      const e = NACA5_STANDARD[pos] || NACA5_STANDARD[30];
+      fiveR = e.r;
+      fiveK1 = e.k1 * (first / 2);
+      fiveK21 = 0;
+    }
+    isFive = true;
+  }
+  
+  // Perfiles simétricos: α₀ = 0
+  if (!isFive && m === 0) return 0;
+  if (isFive && fiveK1 === 0) return 0;
+  
+  // Función derivada de la mean-line
+  function dyc_dx(xx: number): number {
+    if (isFive) {
+      if (fiveK21 > 0) {
+        const r3 = fiveR * fiveR * fiveR;
+        const c1 = fiveK21 * Math.pow(1 - fiveR, 3);
+        if (xx < fiveR) {
+          return (fiveK1 / 6) * (3 * Math.pow(xx - fiveR, 2) - c1 - r3);
+        }
+        return (fiveK1 / 6) * (3 * fiveK21 * Math.pow(xx - fiveR, 2) - c1 - r3);
+      }
+      if (xx < fiveR) {
+        return (fiveK1 / 6) * (3 * xx * xx - 6 * fiveR * xx + fiveR * fiveR * (3 - fiveR));
+      }
+      return -(fiveK1 * Math.pow(fiveR, 3)) / 6;
+    }
+    // NACA 4 dígitos
+    if (p <= 0) return 0;
+    if (xx < p) {
+      return ((2 * m) / (p * p)) * (p - xx);
+    } else {
+      return ((2 * m) / ((1 - p) * (1 - p))) * (p - xx);
+    }
+  }
+  
+  // Integración numérica trapecial sobre θ ∈ [0, π]
+  const nTheta = 100;
+  let integral = 0;
+  
+  for (let i = 0; i <= nTheta; i++) {
+    const theta = (i / nTheta) * Math.PI;
+    const x = (1 - Math.cos(theta)) / 2;
+    const dydx = dyc_dx(x);
+    const weight = (i === 0 || i === nTheta) ? 0.5 : 1.0;
+    integral += weight * dydx * (Math.cos(theta) - 1);
+  }
+  
+  const dTheta = Math.PI / nTheta;
+  const alpha0_rad = -(1 / Math.PI) * integral * dTheta;
+  
+  return parseFloat(alpha0_rad.toFixed(6));
+}
+
 export function generateNaca4Points(codigo: string, numPuntos = 80) {
   const naca = generarNACA(codigo, numPuntos);
   const upper = naca.x_u.map((x, i) => ({ x, y: naca.y_u[i] }));

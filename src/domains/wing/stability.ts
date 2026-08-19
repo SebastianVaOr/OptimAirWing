@@ -30,6 +30,8 @@ export interface QuantitativeStructuralResult {
   divergenceSpeedMs: number;
   divergenceMargin: number;
   flutterRisk: 'bajo' | 'medio' | 'alto';
+  flutterSpeedMs: number;
+  flutterMargin: number;
   aileronReversalRisk: 'bajo' | 'medio' | 'alto';
   wingLoadingKgM2: number;
   stallSpeedMs: number;
@@ -222,20 +224,36 @@ export function computeQuantitativeStructuralAnalysis(
   divergenceSpeedMs = parseFloat(Math.min(1500, Math.max(10, divergenceSpeedMs)).toFixed(1));
   const divergenceMargin = parseFloat((divergenceSpeedMs / Math.max(1, cruiseVelocityMs)).toFixed(2));
 
-  // 5. Riesgo de Flutter (Frecuencias Acopladas Flexión vs Torsión)
+  // 5. Flutter Screening v2 (2-GDL bending-torsion, quasi-steady)
+  // Parámetros para sección típica binaria
   const wingMassEffKg = wingMassKg ?? Math.max(0.5, totalWeightKg * 0.1);
-  const mu = Math.max(0.5, wingMassEffKg / Math.max(0.5, params.b)); // masa del ala por metro
-  const f_flex = (3.52 / (2 * Math.PI)) * Math.sqrt((E_pa * box.I_m4) / (mu * Math.pow(semiSpan, 4)));
-  const I_p_mass_per_len = mu * (Math.pow(meanChord, 2) / 8); // inercia polar de masa por unidad de longitud
-  const f_torsion = (1 / (2 * Math.PI)) * Math.sqrt(GJ / (I_p_mass_per_len * Math.pow(semiSpan, 2)));
-
-  const freqGap = Math.abs(f_flex - f_torsion) / Math.max(0.1, f_torsion);
+  const mu = Math.max(0.5, wingMassEffKg / Math.max(0.5, params.b));
+  const omega_flex = (3.52 / (2 * Math.PI)) * Math.sqrt((E_pa * box.I_m4) / (mu * Math.pow(semiSpan, 4))) * (2 * Math.PI);
+  const I_p_mass_per_len = mu * (Math.pow(meanChord, 2) / 8);
+  const omega_torsion = Math.sqrt(GJ / (I_p_mass_per_len * Math.pow(semiSpan, 2)));
+  
+  const b_h = meanChord / 2; // semi-cuerda
+  const r_alpha_sq = 0.5; // radio de giro al cuadrado normalizado (típico ~0.5)
+  const e_ac = 0.15 * meanChord; // offset AC-EA
+  const mu_mass_ratio = mu / (Math.PI * rho * b_h * b_h); // mass ratio dimensional
+  
+  // V-g screening: flutter cuando modos se acoplan
+  // Aproximación: V_flutter desde coalescencia de frecuencias con acoplamiento aerodinámico
+  const freq_ratio = omega_flex / omega_torsion;
+  const V_flutter_estimate = omega_torsion * b_h * Math.sqrt(
+    Math.max(0.1, mu_mass_ratio * r_alpha_sq * Math.abs(1 - freq_ratio * freq_ratio))
+  );
+  
+  const flutterMargin = V_flutter_estimate / Math.max(1, cruiseVelocityMs);
   let flutterRisk: 'bajo' | 'medio' | 'alto' = 'bajo';
-  if (freqGap < 0.20 || (params.sweep_deg < -5 && flexuralSafetyFactor < 1.5)) {
+  if (flutterMargin < 1.5 || (params.sweep_deg < -5 && flexuralSafetyFactor < 1.5)) {
     flutterRisk = 'alto';
-  } else if (freqGap < 0.35 || params.sweep_deg < 0) {
+  } else if (flutterMargin < 2.0 || params.sweep_deg < 0) {
     flutterRisk = 'medio';
   }
+  
+  const f_flex = omega_flex / (2 * Math.PI);
+  const f_torsion = omega_torsion / (2 * Math.PI);
 
   // 6. Inversión de Alerones (Aileron Reversal)
   const reversalSpeedMs = 0.85 * divergenceSpeedMs * Math.sqrt(mat.shear_modulus / (mat.elastic_modulus * 0.3));
@@ -262,6 +280,8 @@ export function computeQuantitativeStructuralAnalysis(
     divergenceSpeedMs,
     divergenceMargin,
     flutterRisk,
+    flutterSpeedMs: parseFloat(V_flutter_estimate.toFixed(1)),
+    flutterMargin: parseFloat(flutterMargin.toFixed(2)),
     aileronReversalRisk,
     wingLoadingKgM2,
     stallSpeedMs,

@@ -68,7 +68,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
   const [laborCostPerHour, setLaborCostPerHour] = useState<number>(50);
   const [estimatedManufacturingHours, setEstimatedManufacturingHours] = useState<number>(20);
   const [optLevel, setOptLevel] = useState<'basic' | 'neuralfoil' | 'structural' | 'full_custom'>('neuralfoil');
-  const [runCfdValidation, setRunCfdValidation] = useState<boolean>(true);
+  const [runConsistencyCheck, setrunConsistencyCheck] = useState<boolean>(true);
 
   // Handler para cargar presets al cambiar de sector
   const handleSectorChange = (newSector: TargetSector) => {
@@ -296,7 +296,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
       optimization_level: optLevel,
       optimization_mode: optMode,
       optimization_mode_type: optModeType,
-      run_cfd_validation: runCfdValidation,
+      run_consistency_check: runConsistencyCheck,
 
       // Hard constraints v11.1 y Candados de Parámetros
       unconstrained,
@@ -593,7 +593,7 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
             laborCostPerHour={laborCostPerHour} setLaborCostPerHour={setLaborCostPerHour}
             estimatedManufacturingHours={estimatedManufacturingHours} setEstimatedManufacturingHours={setEstimatedManufacturingHours}
             optLevel={optLevel} setOptLevel={setOptLevel}
-            runCfdValidation={runCfdValidation} setRunCfdValidation={setRunCfdValidation}
+            runConsistencyCheck={runConsistencyCheck} setrunConsistencyCheck={setrunConsistencyCheck}
             discardedCount={discardedCount}
             currentParams={effectiveParams}
             selectedVehicle={appState.selectedVehicle}

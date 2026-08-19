@@ -31,7 +31,9 @@ describe('calcularEmpirico', () => {
   });
 
   it('multi-element F1 wing with flap generates different CL', () => {
-    const multi = calcularEmpirico({ ...baseParams, isMultiElement: true, numElements: 2, flapAngleDeg: 10 });
+    // Gap/overlap escalados a la cuerda: gap_opt ≈ 0.015·c_flap, overlap_opt ≈ 0.01·c_flap
+    // c_flap ≈ 0.25·mean_chord = 0.25·1.0 = 0.25m → gap_opt ≈ 3.75mm, overlap_opt ≈ 2.5mm
+    const multi = calcularEmpirico({ ...baseParams, isMultiElement: true, numElements: 2, flapAngleDeg: 10, flapGapMm: 4, flapOverlapMm: 3 });
     expect(multi.CL).toBeGreaterThan(0.5);
     expect(multi.CD).toBeGreaterThan(0);
   });

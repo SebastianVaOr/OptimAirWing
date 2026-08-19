@@ -109,7 +109,13 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
       case 'f1_monaco':
         store.setVehicleCategory('f1_motorsport');
         store.updateF1Params({ speedKmh: 210, groundHeightMm: 35, gurneyFlapMm: 12, numElements: 3 });
-        onChange({ nacaCode: '6412', Cr: 0.46, Ct: 0.38, b: 1.05, sweep_deg: 0, twist_deg: -2, alpha_deg: 16, isMultiElement: true, flapAngleDeg: 35, flapGapMm: 14, flapOverlapMm: 10 });
+        {
+          const cr = 0.46, ct = 0.38;
+          const meanChord = (cr + ct) / 2;
+          const gapOpt = Math.round(0.015 * 0.25 * meanChord * 1000);
+          const overlapOpt = Math.round(0.01 * 0.25 * meanChord * 1000);
+          onChange({ nacaCode: '6412', Cr: cr, Ct: ct, b: 1.05, sweep_deg: 0, twist_deg: -2, alpha_deg: 16, isMultiElement: true, flapAngleDeg: 35, flapGapMm: gapOpt, flapOverlapMm: overlapOpt });
+        }
         break;
       case 'hydrofoil_v':
         store.setVehicleCategory('hydrofoil_nautical');

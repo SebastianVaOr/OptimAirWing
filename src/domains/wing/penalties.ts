@@ -5,7 +5,7 @@ import { checkSweepStability, checkStallCharacteristics, computeQuantitativeStru
 
 import { checkSectorViability, SectorViabilityDiagnostic } from './sectorGuardrails';
 import { analyzeBucklingStability } from './buckling';
-import { submitAndPollCFD } from './cfdValidator';
+import { runConsistencyCheck } from './empiricalSelfConsistency';
 import { runMonteCarloSimulations } from './montecarlo';
 import { computeLongitudinalStability } from './flightDynamics';
 import { getSurrogateModelInfo } from './surrogateRegistry';
@@ -213,7 +213,7 @@ export function computeViabilityAnalysis(
   const isMotorsport = req.sector?.startsWith('f1_') || req.sector === 'gt_spoiler';
   const isHydrofoil = req.sector?.startsWith('hydrofoil_');
 
-  const totalPenalty = Math.min(0.85, wPen + cPen + fPen + sPen);
+  const totalPenalty = Math.min(1.5, wPen + cPen + fPen + sPen);
   const ldVal = 'LD' in aero && aero.LD ? aero.LD : (aero.CL / Math.max(0.001, aero.CD));
   const maxTargetLD = 
     isMotorsport
@@ -227,11 +227,12 @@ export function computeViabilityAnalysis(
       : 18.0;
 
   const baseScore = Math.min(100, Math.max(0, (ldVal / maxTargetLD) * 100));
-  const viabilityScore = Math.round(baseScore * (1 - totalPenalty));
+  // Penalización exponencial: nunca cruza cero, monotónica, mejor discriminación
+  const viabilityScore = Math.round(baseScore * Math.exp(-totalPenalty));
   
-  // CFD Validation (solo si el usuario lo solicita explícitamente)
-  const cfdVal = req.run_cfd_validation === true
-    ? submitAndPollCFD(params, { CL: aero.CL, CD: aero.CD, Cm: aero.Cm ?? 0 })
+  // Cross-check de consistencia (solo si el usuario lo solicita explícitamente)
+  const consistencyResult = req.run_consistency_check === true
+    ? runConsistencyCheck(params, { CL: aero.CL, CD: aero.CD, Cm: aero.Cm ?? 0 })
     : undefined;
 
   // Análisis Estructural Cuantitativo, Pandeo y Dinámica de Vuelo
@@ -255,7 +256,7 @@ export function computeViabilityAnalysis(
     req.maneuver_load_factor_g ?? 2.5
   );
 
-  // Puntuación de Viabilidad Ajustada por Riesgo Estructural, Pandeo, Deflexión y Discrepancia CFD
+  // Puntuación de Viabilidad Ajustada por Riesgo Estructural, Pandeo, Deflexión y Discrepancia CROSS-CHECK
   let riskPenaltyFactor = 1.0;
 
   // RULE 4: LISTA NEGRA DE GEOMETRÍAS PROHIBIDAS (Descalificación Total = 0/100)
@@ -265,9 +266,9 @@ export function computeViabilityAnalysis(
     riskPenaltyFactor *= 0.8;
   }
 
-  // RULE 3: REGLA DEL 15% DE DISCREPANCIA CFD (solo aplica si run_cfd_validation === true)
-  const hasCfdDiscrepancy = !!cfdVal && (cfdVal.deltaCLPct > 15.0 || cfdVal.deltaCDPct > 15.0);
-  if (hasCfdDiscrepancy) {
+  // RULE 3: REGLA DEL 15% CROSS-CHECK (solo aplica si run_consistency_check === true)
+  const hasDiscrepancy = !!consistencyResult && (consistencyResult.deltaCLPct > 15.0 || consistencyResult.deltaCDPct > 15.0);
+  if (hasDiscrepancy) {
     riskPenaltyFactor *= 0.50; // Reducción a la mitad de la nota por falta de confiabilidad
   }
 
@@ -299,8 +300,8 @@ export function computeViabilityAnalysis(
   if (stability.status === 'danger') {
     recs.unshift(`🔴 DESCALIFICACIÓN DE LISTA NEGRA: ${stability.message}`);
   }
-  if (hasCfdDiscrepancy) {
-    recs.unshift(`🔴 REGLA DEL 15% CFD ACTIVA: La predicción empírica difiere del CFD en >15% (dCL: ${cfdVal.deltaCLPct}%, dCD: ${cfdVal.deltaCDPct}%). Score penalizado un -50%. DISEÑO NO CONFIABLE - REQUIERE ITERACIÓN.`);
+  if (hasDiscrepancy) {
+    recs.unshift(`🔴 REGLA DEL 15% CROSS-CHECK ACTIVA: La predicción empírica difiere del CROSS-CHECK en >15% (dCL: ${consistencyResult.deltaCLPct}%, dCD: ${consistencyResult.deltaCDPct}%). Score penalizado un -50%. DISEÑO NO CONFIABLE - REQUIERE ITERACIÓN.`);
   }
   if (flightDyn.staticMarginPct > 35.0) {
     recs.push(`⚠️ MARGEN ESTÁTICO: ${flightDyn.staticMarginPct}% (>35% MAC). Penalización por hipersensibilidad de control aplicada.`);
@@ -419,9 +420,11 @@ export function computeViabilityAnalysis(
 
     // Novedades v10.0: Pre-diseño Espacial
     bucklingAnalysis: buckAnal,
-    cfdValidation: cfdVal,
+    consistencyCheck: consistencyResult,
     monteCarloAnalysis: monteCarloRes,
     flightDynamics: flightDyn,
     surrogateModelSource: getSurrogateModelInfo(undefined, req.optimization_level).name,
   };
 }
+
+

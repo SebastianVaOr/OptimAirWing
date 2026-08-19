@@ -1,9 +1,9 @@
 import { LegacyWingPayload } from '../../core/types';
-import { generarNACA } from './naca';
+import { generarNACA, computeAlphaZero } from './naca';
 
-export interface CFDValidationResult {
+export interface ConsistencyCheckResult {
   solver: string;
-  cfd: {
+  crosscheck: {
     CL: number;
     CD: number;
     Cm: number;
@@ -20,12 +20,12 @@ export interface CFDValidationResult {
 
 /**
  * Cross-check empírico de línea sustentadora (segundo orden) contra el modelo base.
- * No es CFD externo: es una verificación sincrónica de coherencia del modelo.
+ * No es CFD externo: es una verificación sincrónica de coherencia interna del modelo.
  */
-export function submitAndPollCFD(
+export function runConsistencyCheck(
   params: LegacyWingPayload,
   baselineAero: { CL: number; CD: number; Cm?: number }
-): CFDValidationResult {
+): ConsistencyCheckResult {
   const Cr = params.Cr || 1.2;
   const Ct = params.Ct || 0.8;
   const b = params.b || 5.0;
@@ -36,8 +36,7 @@ export function submitAndPollCFD(
   const OswaldE = 0.86;
 
   // Modelo de referencia con camber: CL = a*(alpha - alpha0)
-  const naca = generarNACA(params.nacaCode, 20);
-  const alpha0Ref = -(naca.m / 0.2) * 0.349; // mismo estimador de ángulo de sustentación nula que empirical.ts
+  const alpha0Ref = computeAlphaZero(params.nacaCode); // teoría de lámina delgada (Abbott)
   const alphaRad = (alpha * Math.PI) / 180;
 
   const a_ref = (2 * Math.PI) / (1 + (2 * Math.PI) / (Math.PI * OswaldE * AR));
@@ -59,9 +58,9 @@ export function submitAndPollCFD(
 
   return {
     solver: 'empirical_lifting_line_crosscheck',
-    cfd: {
+    crosscheck: {
       CL: parseFloat(CL_ref.toFixed(4)),
-      CD: parseFloat(Math.max(0.005, CD_ref).toFixed(4)),
+      CD: parseFloat(CD_ref.toFixed(5)),
       Cm: parseFloat(Cm_ref.toFixed(4)),
     },
     baseline: {

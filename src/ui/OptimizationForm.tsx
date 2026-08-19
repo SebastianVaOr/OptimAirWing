@@ -24,7 +24,7 @@ interface Props {
   laborCostPerHour: number; setLaborCostPerHour: (v: number) => void;
   estimatedManufacturingHours: number; setEstimatedManufacturingHours: (v: number) => void;
   optLevel: string; setOptLevel: React.Dispatch<React.SetStateAction<'basic' | 'neuralfoil' | 'structural' | 'full_custom'>>;
-  runCfdValidation: boolean; setRunCfdValidation: (v: boolean) => void;
+  runConsistencyCheck: boolean; setrunConsistencyCheck: (v: boolean) => void;
   discardedCount: number;
   currentParams: LegacyWingPayload;
   selectedVehicle: string;
@@ -186,3 +186,4 @@ export const OptimizationForm: React.FC<Props> = (p) => {
     </div>
   );
 };
+
