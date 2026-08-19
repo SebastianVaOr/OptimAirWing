@@ -12,8 +12,8 @@ interface ParameterPanelProps {
   onChange: (updated: Partial<LegacyWingPayload>) => void;
 }
 
-const groupCard = 'bg-[#0e1624] p-3 rounded-lg border border-[#16202f] flex flex-col gap-1.5';
-const groupLabel = 'text-[#8ea3bd] text-xs font-medium';
+const groupCard = 'bg-panel2 p-3 rounded-lg border border-line flex flex-col gap-1.5';
+const groupLabel = 'text-lo text-xs font-medium';
 
 export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange }) => {
   const { t } = useTranslation();
@@ -127,19 +127,19 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
   const vehicleBtn = (active: boolean, activeTone: string) =>
     `flex flex-col items-center justify-center p-2 rounded text-xs font-semibold border transition cursor-pointer ${
-      active ? activeTone : 'bg-[#05070c] text-[#8ea3bd] border-[#16202f] hover:border-[#223048]'
+      active ? activeTone : 'bg-ink text-lo border-line hover:border-line2'
     }`;
 
   const vehicleMeta: Record<string, { icon: React.ElementType; active: string; iconColor: string }> = {
-    aircraft: { icon: Plane, active: 'bg-[#22d3ee]/10 text-[#67e8f9] border-[#22d3ee]/40', iconColor: 'text-[#22d3ee]' },
-    f1_motorsport: { icon: Car, active: 'bg-[#f87171]/10 text-[#fda4af] border-[#f87171]/40', iconColor: 'text-[#f87171]' },
-    hydrofoil_nautical: { icon: Anchor, active: 'bg-[#60a5fa]/10 text-[#93c5fd] border-[#60a5fa]/40', iconColor: 'text-[#60a5fa]' },
+    aircraft: { icon: Plane, active: 'bg-accent/10 text-accent2 border-accent/40', iconColor: 'text-accent' },
+    f1_motorsport: { icon: Car, active: 'bg-df1/10 text-bad border-df1/40', iconColor: 'text-df1' },
+    hydrofoil_nautical: { icon: Anchor, active: 'bg-dhydro/10 text-dhydro border-dhydro/40', iconColor: 'text-dhydro' },
   };
 
   return (
-    <aside className="w-full lg:w-80 lg:min-w-[320px] bg-[#0a0f18] border-b lg:border-b-0 lg:border-r border-[#16202f] p-4 flex flex-col gap-4 overflow-y-auto select-none shrink-0 h-full">
-      <div className="flex items-center justify-between border-b border-[#16202f] pb-2">
-        <div className="flex items-center gap-2 text-[#22d3ee] font-bold text-sm">
+    <aside className="w-full lg:w-80 lg:min-w-[320px] bg-panel border-b lg:border-b-0 lg:border-r border-line p-4 flex flex-col gap-4 overflow-y-auto select-none shrink-0 h-full">
+      <div className="flex items-center justify-between border-b border-line pb-2">
+        <div className="flex items-center gap-2 text-accent font-bold text-sm">
           <Sliders className="w-4 h-4" />
           <span className="font-display">Geometría y Dominio</span>
         </div>
@@ -147,21 +147,20 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           onClick={() => setIsExpertUnlocked(!isExpertUnlocked)}
           className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded font-bold transition cursor-pointer border ${
             isExpertUnlocked
-              ? 'bg-[#fbbf24]/10 text-[#fde68a] border-[#fbbf24]/40 hover:bg-[#fbbf24]/20'
-              : 'bg-[#34d399]/10 text-[#6ee7b7] border-[#34d399]/40 hover:bg-[#34d399]/20'
+              ? 'bg-warn/10 text-warn border-warn/40 hover:bg-warn/20'
+              : 'bg-ok/10 text-ok border-ok/40 hover:bg-ok/20'
           }`}
           title={isExpertUnlocked ? 'Modo Experto: Límites Desbloqueados' : 'Presets con Candado: Guardarraíles Forzados'}
         >
-          {isExpertUnlocked ? <Unlock className="w-3 h-3 text-[#fbbf24]" /> : <Lock className="w-3 h-3 text-[#34d399]" />}
+          {isExpertUnlocked ? <Unlock className="w-3 h-3 text-warn" /> : <Lock className="w-3 h-3 text-ok" />}
           <span>{isExpertUnlocked ? 'Modo Experto' : 'Candado Activo'}</span>
         </button>
       </div>
 
-      {/* Selector de Dominio de Vehículo (FASE 1) */}
-      <div className="flex flex-col gap-1.5 bg-[#0e1624] p-2 rounded-lg border border-[#16202f]">
+      <div className="flex flex-col gap-1.5 bg-panel2 p-2 rounded-lg border border-line">
         <label className="hud-label flex items-center justify-between">
           <span>Dominio del Vehículo</span>
-          <span className="text-[#22d3ee] text-[9px]">FASE 1</span>
+          <span className="text-accent text-[9px]">FASE 1</span>
         </label>
         <div className="grid grid-cols-3 gap-1">
           {(Object.keys(vehicleMeta) as Array<keyof typeof vehicleMeta>).map(key => {
@@ -189,7 +188,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 }}
                 className={vehicleBtn(active, meta.active)}
               >
-                <Icon className={`w-4 h-4 mb-1 ${active ? meta.iconColor : 'text-[#5b6f8c]'}`} />
+                <Icon className={`w-4 h-4 mb-1 ${active ? meta.iconColor : 'text-dim'}`} />
                 <span>{key === 'aircraft' ? 'Aviación' : key === 'f1_motorsport' ? 'F1 / Auto' : 'Náutica'}</span>
               </button>
             );
@@ -197,24 +196,22 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
         </div>
       </div>
 
-      {/* Presets Rápido */}
-      <div className="flex items-center gap-1.5 bg-[#0e1624] p-1.5 rounded-lg border border-[#16202f]">
-        <span className="text-[11px] text-[#8ea3bd] font-medium px-1">Presets:</span>
-        <button onClick={() => applyPreset('cessna')} className="text-[11px] px-2 py-1 rounded bg-[#0a0f18] text-[#67e8f9] hover:bg-[#22d3ee]/15 transition cursor-pointer">
+      <div className="flex items-center gap-1.5 bg-panel2 p-1.5 rounded-lg border border-line">
+        <span className="text-[11px] text-lo font-medium px-1">Presets:</span>
+        <button onClick={() => applyPreset('cessna')} className="text-[11px] px-2 py-1 rounded bg-panel text-accent2 hover:bg-accent/15 transition cursor-pointer">
           Cessna
         </button>
-        <button onClick={() => applyPreset('f1_rear')} className="text-[11px] px-2 py-1 rounded bg-[#0a0f18] text-[#fda4af] hover:bg-[#f87171]/15 transition cursor-pointer">
+        <button onClick={() => applyPreset('f1_rear')} className="text-[11px] px-2 py-1 rounded bg-panel text-bad hover:bg-df1/15 transition cursor-pointer">
           F1 Wing
         </button>
-        <button onClick={() => applyPreset('hydrofoil_v')} className="text-[11px] px-2 py-1 rounded bg-[#0a0f18] text-[#93c5fd] hover:bg-[#60a5fa]/15 transition cursor-pointer">
+        <button onClick={() => applyPreset('hydrofoil_v')} className="text-[11px] px-2 py-1 rounded bg-panel text-dhydro hover:bg-dhydro/15 transition cursor-pointer">
           Foil T-Bar
         </button>
       </div>
 
-      {/* Controles Específicos por Dominio */}
       {currentVehicle === 'f1_motorsport' && (
-        <div className="bg-[#1a0b0b] border border-[#f87171]/30 p-3 rounded-lg flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-[#f87171] border-b border-[#f87171]/20 pb-1">
+        <div className="bg-df1/5 border border-df1/30 p-3 rounded-lg flex flex-col gap-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-df1 border-b border-df1/20 pb-1">
             <span className="flex items-center gap-1">
               <Zap className="w-3.5 h-3.5" />
               <span>Parámetros F1 & Downforce</span>
@@ -222,8 +219,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           </div>
 
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[#8ea3bd]">Velocidad de Pista</span>
-            <span className="text-[#fda4af] font-mono font-bold">{appState.f1Params.speedKmh} km/h</span>
+            <span className="text-lo">Velocidad de Pista</span>
+            <span className="text-df1 font-mono font-bold">{appState.f1Params.speedKmh} km/h</span>
           </div>
           <input
             type="range"
@@ -236,8 +233,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
 
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[#8ea3bd]">Efecto Suelo (Altura h)</span>
-            <span className="text-[#fda4af] font-mono font-bold">{appState.f1Params.groundHeightMm} mm</span>
+            <span className="text-lo">Efecto Suelo (Altura h)</span>
+            <span className="text-df1 font-mono font-bold">{appState.f1Params.groundHeightMm} mm</span>
           </div>
           <input
             type="range"
@@ -250,8 +247,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
 
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[#8ea3bd]">Gurney Flap</span>
-            <span className="text-[#fda4af] font-mono font-bold">{appState.f1Params.gurneyFlapMm} mm</span>
+            <span className="text-lo">Gurney Flap</span>
+            <span className="text-df1 font-mono font-bold">{appState.f1Params.gurneyFlapMm} mm</span>
           </div>
           <input
             type="range"
@@ -266,8 +263,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
       )}
 
       {currentVehicle === 'hydrofoil_nautical' && (
-        <div className="bg-[#0a1828] border border-[#60a5fa]/30 p-3 rounded-lg flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-[#60a5fa] border-b border-[#60a5fa]/20 pb-1">
+        <div className="bg-dhydro/5 border border-dhydro/30 p-3 rounded-lg flex flex-col gap-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-dhydro border-b border-dhydro/20 pb-1">
             <span className="flex items-center gap-1">
               <Anchor className="w-3.5 h-3.5" />
               <span>Parámetros Hydrofoil Náutico</span>
@@ -275,8 +272,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           </div>
 
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[#8ea3bd]">Velocidad del Agua</span>
-            <span className="text-[#93c5fd] font-mono font-bold">{appState.hydroParams.speedKnots} kts (nudos)</span>
+            <span className="text-lo">Velocidad del Agua</span>
+            <span className="text-dhydro font-mono font-bold">{appState.hydroParams.speedKnots} kts (nudos)</span>
           </div>
           <input
             type="range"
@@ -289,8 +286,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
 
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[#8ea3bd]">Inmersión del Foil</span>
-            <span className="text-[#93c5fd] font-mono font-bold">{appState.hydroParams.immersionDepthM} m</span>
+            <span className="text-lo">Inmersión del Foil</span>
+            <span className="text-dhydro font-mono font-bold">{appState.hydroParams.immersionDepthM} m</span>
           </div>
           <input
             type="range"
@@ -306,17 +303,16 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
       {/* Control Groups */}
       <div className="flex flex-col gap-3.5">
-        {/* NACA Code */}
-        <div className="bg-[#0e1624] p-3 rounded-lg border border-[#16202f]">
+        <div className="bg-panel2 p-3 rounded-lg border border-line">
           <div className="flex justify-between items-center mb-1.5">
-            <label className="text-xs text-[#e8f1fb] font-medium flex items-center gap-1">
+            <label className="text-xs text-hi font-medium flex items-center gap-1">
               <span>Perfil NACA</span>
-              <HelpCircle className="w-3 h-3 text-[#5b6f8c]" aria-label="Código de 4 dígitos. Ej: 2412 (2% camber, 40% pos, 12% espesor)" />
+              <HelpCircle className="w-3 h-3 text-dim" aria-label="Código de 4 dígitos. Ej: 2412 (2% camber, 40% pos, 12% espesor)" />
             </label>
             {isValidNaca ? (
-              <span className="text-[10px] text-[#34d399] flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Válido</span>
+              <span className="text-[10px] text-ok flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Válido</span>
             ) : (
-              <span className="text-[10px] text-[#fb7185] flex items-center gap-0.5"><AlertCircle className="w-3 h-3" /> 4 dígitos</span>
+              <span className="text-[10px] text-bad flex items-center gap-0.5"><AlertCircle className="w-3 h-3" /> 4 dígitos</span>
             )}
           </div>
           <input
@@ -343,7 +339,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => handleCrChange(parseFloat(e.target.value) || minCr)}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">m</span>
+              <span className="text-[11px] text-dim">m</span>
             </div>
           </div>
           <input
@@ -371,7 +367,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => handleCtChange(parseFloat(e.target.value) || minCt)}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">m</span>
+              <span className="text-[11px] text-dim">m</span>
             </div>
           </div>
           <input
@@ -399,7 +395,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => handleBChange(parseFloat(e.target.value) || minB)}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">m</span>
+              <span className="text-[11px] text-dim">m</span>
             </div>
           </div>
           <input
@@ -427,7 +423,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => onChange({ sweep_deg: parseFloat(e.target.value) || 0 })}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">°</span>
+              <span className="text-[11px] text-dim">°</span>
             </div>
           </div>
           <input
@@ -455,7 +451,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => onChange({ twist_deg: parseFloat(e.target.value) || 0 })}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">°</span>
+              <span className="text-[11px] text-dim">°</span>
             </div>
           </div>
           <input
@@ -483,7 +479,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 onChange={e => onChange({ alpha_deg: parseFloat(e.target.value) || 0 })}
                 className="ctl-number"
               />
-              <span className="text-[11px] text-[#5b6f8c]">°</span>
+              <span className="text-[11px] text-dim">°</span>
             </div>
           </div>
           <input
@@ -498,13 +494,12 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
         </div>
       </div>
 
-      {/* 2D Airfoil Section */}
-      <div className="mt-auto border-t border-[#16202f] pt-3">
-        <div className="flex items-center gap-1.5 text-xs text-[#8ea3bd] font-semibold mb-2">
-          <Layers className="w-3.5 h-3.5 text-[#22d3ee]" />
+      <div className="mt-auto border-t border-line pt-3">
+        <div className="flex items-center gap-1.5 text-xs text-lo font-semibold mb-2">
+          <Layers className="w-3.5 h-3.5 text-accent" />
           <span>Vista de Sección 2D</span>
         </div>
-        <div ref={profileContainerRef} className="w-full h-24 bg-[#05070c] rounded border border-[#16202f]" />
+        <div ref={profileContainerRef} className="w-full h-24 bg-ink rounded border border-line" />
       </div>
     </aside>
   );
