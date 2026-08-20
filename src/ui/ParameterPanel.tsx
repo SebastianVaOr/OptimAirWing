@@ -21,6 +21,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
   const [nacaInput, setNacaInput] = useState(params.nacaCode);
   const [isValidNaca, setIsValidNaca] = useState(true);
   const [isExpertUnlocked, setIsExpertUnlocked] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
 
   const [appState, setAppState] = useState<AppState>(store.getState());
 
@@ -50,7 +51,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
   const currentVehicle = appState.selectedVehicle;
 
-  // Mapeo de sector para límites con candado
   const activeSectorKey = currentVehicle === 'f1_motorsport'
     ? 'f1_rear_wing'
     : currentVehicle === 'hydrofoil_nautical'
@@ -59,7 +59,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
   const sectorLimits = getSectorLimits(activeSectorKey);
 
-  // Rangos dinámicos según candado
   const minB = isExpertUnlocked ? 0.5 : sectorLimits.b.min;
   const maxB = isExpertUnlocked ? 35.0 : sectorLimits.b.max;
   const minCr = isExpertUnlocked ? 0.1 : sectorLimits.Cr.min;
@@ -69,7 +68,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
   const handleCrChange = (val: number) => {
     let newCr = Math.max(minCr, Math.min(maxCr, val));
-    // Guardarraíl: b >= 1.5 * Cr
     let newB = params.b;
     if (newB < 1.5 * newCr) {
       newB = Number((1.5 * newCr).toFixed(2));
@@ -125,42 +123,44 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
     }
   };
 
-  const vehicleBtn = (active: boolean, activeTone: string) =>
-    `flex flex-col items-center justify-center p-2 rounded text-xs font-semibold border transition cursor-pointer ${
-      active ? activeTone : 'bg-ink text-lo border-line hover:border-line2'
-    }`;
-
-  const vehicleMeta: Record<string, { icon: React.ElementType; active: string; iconColor: string }> = {
-    aircraft: { icon: Plane, active: 'bg-accent/10 text-accent2 border-accent/40', iconColor: 'text-accent' },
-    f1_motorsport: { icon: Car, active: 'bg-df1/10 text-bad border-df1/40', iconColor: 'text-df1' },
-    hydrofoil_nautical: { icon: Anchor, active: 'bg-dhydro/10 text-dhydro border-dhydro/40', iconColor: 'text-dhydro' },
+  const vehicleMeta: Record<string, { icon: React.ElementType; label: string }> = {
+    aircraft: { icon: Plane, label: 'Aviación' },
+    f1_motorsport: { icon: Car, label: 'F1 / Auto' },
+    hydrofoil_nautical: { icon: Anchor, label: 'Náutica' },
   };
 
   return (
     <aside className="w-full lg:w-80 lg:min-w-[320px] bg-panel border-b lg:border-b-0 lg:border-r border-line p-4 flex flex-col gap-4 overflow-y-auto select-none shrink-0 h-full">
+      <div className="breadcrumb">
+        Mainpage<span className="breadcrumb-sep">/</span>Simulator<span className="breadcrumb-sep">/</span><span className="breadcrumb-active">Parameters</span>
+      </div>
+
       <div className="flex items-center justify-between border-b border-line pb-2">
         <div className="flex items-center gap-2 text-accent font-bold text-sm">
           <Sliders className="w-4 h-4" />
           <span className="font-display">Geometría y Dominio</span>
         </div>
-        <button
-          onClick={() => setIsExpertUnlocked(!isExpertUnlocked)}
-          className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded font-bold transition cursor-pointer border ${
-            isExpertUnlocked
-              ? 'bg-warn/10 text-warn border-warn/40 hover:bg-warn/20'
-              : 'bg-ok/10 text-ok border-ok/40 hover:bg-ok/20'
-          }`}
-          title={isExpertUnlocked ? 'Modo Experto: Límites Desbloqueados' : 'Presets con Candado: Guardarraíles Forzados'}
-        >
-          {isExpertUnlocked ? <Unlock className="w-3 h-3 text-warn" /> : <Lock className="w-3 h-3 text-ok" />}
-          <span>{isExpertUnlocked ? 'Modo Experto' : 'Candado Activo'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="micro-paginator">
+            <span className={activeSection === 0 ? 'micro-paginator-active' : ''}>|</span>
+            {' 01 02 03 '}
+            <span className={activeSection === 2 ? 'micro-paginator-active' : ''}>|</span>
+          </span>
+          <button
+            onClick={() => setIsExpertUnlocked(!isExpertUnlocked)}
+            className={`chip ${isExpertUnlocked ? 'chip-active' : ''}`}
+            title={isExpertUnlocked ? 'Modo Experto: Límites Desbloqueados' : 'Presets con Candado: Guardarraíles Forzados'}
+          >
+            {isExpertUnlocked ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+            <span>{isExpertUnlocked ? 'Experto' : 'Candado'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5 bg-panel2 p-2 rounded-lg border border-line">
         <label className="hud-label flex items-center justify-between">
           <span>Dominio del Vehículo</span>
-          <span className="text-accent text-[9px]">FASE 1</span>
+          <span className="badge-accent">FASE 1</span>
         </label>
         <div className="grid grid-cols-3 gap-1">
           {(Object.keys(vehicleMeta) as Array<keyof typeof vehicleMeta>).map(key => {
@@ -186,10 +186,10 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                     }
                   }
                 }}
-                className={vehicleBtn(active, meta.active)}
+                className={`chip flex-col items-center justify-center p-2 text-xs font-semibold ${active ? 'chip-active' : ''}`}
               >
-                <Icon className={`w-4 h-4 mb-1 ${active ? meta.iconColor : 'text-dim'}`} />
-                <span>{key === 'aircraft' ? 'Aviación' : key === 'f1_motorsport' ? 'F1 / Auto' : 'Náutica'}</span>
+                <Icon className={`w-4 h-4 mb-1 ${active ? 'text-accent' : 'text-dim'}`} />
+                <span>{meta.label}</span>
               </button>
             );
           })}
@@ -197,30 +197,31 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
       </div>
 
       <div className="flex items-center gap-1.5 bg-panel2 p-1.5 rounded-lg border border-line">
-        <span className="text-[11px] text-lo font-medium px-1">Presets:</span>
-        <button onClick={() => applyPreset('cessna')} className="text-[11px] px-2 py-1 rounded bg-panel text-accent2 hover:bg-accent/15 transition cursor-pointer">
+        <span className="hud-label px-1">Presets:</span>
+        <button onClick={() => applyPreset('cessna')} className="chip text-[11px]">
           Cessna
         </button>
-        <button onClick={() => applyPreset('f1_rear')} className="text-[11px] px-2 py-1 rounded bg-panel text-bad hover:bg-df1/15 transition cursor-pointer">
+        <button onClick={() => applyPreset('f1_rear')} className="chip text-[11px]">
           F1 Wing
         </button>
-        <button onClick={() => applyPreset('hydrofoil_v')} className="text-[11px] px-2 py-1 rounded bg-panel text-dhydro hover:bg-dhydro/15 transition cursor-pointer">
+        <button onClick={() => applyPreset('hydrofoil_v')} className="chip text-[11px]">
           Foil T-Bar
         </button>
       </div>
 
       {currentVehicle === 'f1_motorsport' && (
-        <div className="bg-df1/5 border border-df1/30 p-3 rounded-lg flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-df1 border-b border-df1/20 pb-1">
-            <span className="flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5" />
+        <div className="bg-panel2 border border-df1/30 p-3 rounded-lg flex flex-col gap-2.5">
+          <div className="flex items-center justify-between border-b border-line pb-1">
+            <span className="flex items-center gap-1 hud-label">
+              <Zap className="w-3.5 h-3.5 text-df1" />
               <span>Parámetros F1 & Downforce</span>
             </span>
+            <span className="badge-bad">F1</span>
           </div>
 
           <div className="flex justify-between items-center text-xs">
             <span className="text-lo">Velocidad de Pista</span>
-            <span className="text-df1 font-mono font-bold">{appState.f1Params.speedKmh} km/h</span>
+            <span className="hud-data text-df1">{appState.f1Params.speedKmh} km/h</span>
           </div>
           <input
             type="range"
@@ -234,7 +235,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
           <div className="flex justify-between items-center text-xs">
             <span className="text-lo">Efecto Suelo (Altura h)</span>
-            <span className="text-df1 font-mono font-bold">{appState.f1Params.groundHeightMm} mm</span>
+            <span className="hud-data text-df1">{appState.f1Params.groundHeightMm} mm</span>
           </div>
           <input
             type="range"
@@ -248,7 +249,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
           <div className="flex justify-between items-center text-xs">
             <span className="text-lo">Gurney Flap</span>
-            <span className="text-df1 font-mono font-bold">{appState.f1Params.gurneyFlapMm} mm</span>
+            <span className="hud-data text-df1">{appState.f1Params.gurneyFlapMm} mm</span>
           </div>
           <input
             type="range"
@@ -263,17 +264,18 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
       )}
 
       {currentVehicle === 'hydrofoil_nautical' && (
-        <div className="bg-dhydro/5 border border-dhydro/30 p-3 rounded-lg flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-dhydro border-b border-dhydro/20 pb-1">
-            <span className="flex items-center gap-1">
-              <Anchor className="w-3.5 h-3.5" />
+        <div className="bg-panel2 border border-dhydro/30 p-3 rounded-lg flex flex-col gap-2.5">
+          <div className="flex items-center justify-between border-b border-line pb-1">
+            <span className="flex items-center gap-1 hud-label">
+              <Anchor className="w-3.5 h-3.5 text-dhydro" />
               <span>Parámetros Hydrofoil Náutico</span>
             </span>
+            <span className="badge-teal">Hydro</span>
           </div>
 
           <div className="flex justify-between items-center text-xs">
             <span className="text-lo">Velocidad del Agua</span>
-            <span className="text-dhydro font-mono font-bold">{appState.hydroParams.speedKnots} kts (nudos)</span>
+            <span className="hud-data text-teal">{appState.hydroParams.speedKnots} kts (nudos)</span>
           </div>
           <input
             type="range"
@@ -287,7 +289,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
 
           <div className="flex justify-between items-center text-xs">
             <span className="text-lo">Inmersión del Foil</span>
-            <span className="text-dhydro font-mono font-bold">{appState.hydroParams.immersionDepthM} m</span>
+            <span className="hud-data text-teal">{appState.hydroParams.immersionDepthM} m</span>
           </div>
           <input
             type="range"
@@ -301,18 +303,17 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
         </div>
       )}
 
-      {/* Control Groups */}
       <div className="flex flex-col gap-3.5">
         <div className="bg-panel2 p-3 rounded-lg border border-line">
           <div className="flex justify-between items-center mb-1.5">
-            <label className="text-xs text-hi font-medium flex items-center gap-1">
+            <label className="hud-label flex items-center gap-1">
               <span>Perfil NACA</span>
               <HelpCircle className="w-3 h-3 text-dim" aria-label="Código de 4 dígitos. Ej: 2412 (2% camber, 40% pos, 12% espesor)" />
             </label>
             {isValidNaca ? (
-              <span className="text-[10px] text-ok flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Válido</span>
+              <span className="badge-ok"><CheckCircle2 className="w-3 h-3 inline" /> Válido</span>
             ) : (
-              <span className="text-[10px] text-bad flex items-center gap-0.5"><AlertCircle className="w-3 h-3" /> 4 dígitos</span>
+              <span className="badge-bad"><AlertCircle className="w-3 h-3 inline" /> 4 dígitos</span>
             )}
           </div>
           <input
@@ -320,12 +321,11 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
             value={nacaInput}
             maxLength={5}
             onChange={e => handleNacaChange(e.target.value)}
-            className="ctl-input font-bold"
+            className="input font-mono font-bold w-full"
             placeholder="2412"
           />
         </div>
 
-        {/* Cuerda Raíz Cr */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel}>Cuerda raíz (Cr)</span>
@@ -353,7 +353,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
         </div>
 
-        {/* Cuerda Punta Ct */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel}>Cuerda punta (Ct)</span>
@@ -381,7 +380,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
         </div>
 
-        {/* Envergadura b */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel}>Envergadura (b)</span>
@@ -409,7 +407,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
         </div>
 
-        {/* Flecha Sweep */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel}>Flecha (Sweep)</span>
@@ -437,7 +434,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
         </div>
 
-        {/* Torsión Twist */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel}>Torsión (Twist)</span>
@@ -465,7 +461,6 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           />
         </div>
 
-        {/* Ángulo de Ataque Alpha */}
         <div className={groupCard}>
           <div className="flex justify-between items-center text-xs">
             <span className={groupLabel} title={PARAM_TOOLTIPS.alpha}>Ángulo de Ataque (α)</span>
@@ -495,11 +490,11 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
       </div>
 
       <div className="mt-auto border-t border-line pt-3">
-        <div className="flex items-center gap-1.5 text-xs text-lo font-semibold mb-2">
+        <div className="hud-label flex items-center gap-1.5 mb-2">
           <Layers className="w-3.5 h-3.5 text-accent" />
           <span>Vista de Sección 2D</span>
         </div>
-        <div ref={profileContainerRef} className="w-full h-24 bg-ink rounded border border-line" />
+        <div ref={profileContainerRef} className="instrument-frame w-full h-24 bg-ink rounded border border-line" />
       </div>
     </aside>
   );

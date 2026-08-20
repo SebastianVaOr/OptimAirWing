@@ -8,12 +8,12 @@ import { buildWingMesh } from '../domains/wing/viewer3d';
 import { LegacyWingPayload } from '../core/types';
 import { RotateCw, Compass, Grid3x3, Plane, Car, Anchor } from 'lucide-react';
 import { store } from '../core/store';
+import { Chip } from './primitives/Chip';
 
 interface ThreeViewerProps {
   params: LegacyWingPayload;
 }
 
-// FIX (5): Uso de selectedVehicle sincronizado con el store, que a su vez mapea TargetSector a VehicleCategory vía mapSectorToVehicleCategory
 export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -42,19 +42,16 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     const width = container.clientWidth || 600;
     const height = container.clientHeight || 400;
 
-    // Scene setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x05070c);
     scene.fog = new THREE.Fog(0x05070c, 20, 40);
     sceneRef.current = scene;
 
-    // Camera setup
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(8, 6, 12);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer setup
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -65,7 +62,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Controls setup
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -73,7 +69,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     controls.autoRotateSpeed = 1.5;
     controlsRef.current = controls;
 
-    // Lighting
     const ambient = new THREE.AmbientLight(0x404060, 0.8);
     scene.add(ambient);
 
@@ -95,7 +90,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     fillLight.position.set(0, -3, 5);
     scene.add(fillLight);
 
-    // Grid Helper
     const gridColor = isHydrofoil ? 0x0284c7 : isF1 ? 0xd97706 : 0x16202f;
     const grid = new THREE.GridHelper(24, 24, gridColor, 0x0e1624);
     grid.position.y = -2;
@@ -104,7 +98,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     const axesHelper = new THREE.AxesHelper(3);
     scene.add(axesHelper);
 
-    // Post-processing: Bloom
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
@@ -113,7 +106,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     composerRef.current = composer;
     bloomPassRef.current = bloomPass;
 
-    // Streamline particles (wind tunnel effect)
     const particleCount = 500;
     const particleGeo = new THREE.BufferGeometry();
     const particlePos = new Float32Array(particleCount * 3);
@@ -135,23 +127,19 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
-    // Wing Group
     const wingGroup = new THREE.Group();
     scene.add(wingGroup);
     wingGroupRef.current = wingGroup;
 
-    // Build Initial Wing Mesh
     const mesh = buildWingMesh(params, store.getState().selectedVehicle);
     wingGroup.add(mesh);
 
-    // Animation Loop
     let animationFrameId: number;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       controls.update();
 
-      // Animate streamlines
       const pos = particles.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount; i++) {
         pos[i * 3] += particleVel[i] * 0.5;
@@ -163,7 +151,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     };
     animate();
 
-    // Resize Observer
     const handleResize = () => {
       if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
       const w = containerRef.current.clientWidth;
@@ -189,7 +176,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     };
   }, [selectedVehicle]);
 
-  // Update wing mesh when params or vehicle category change
   useEffect(() => {
     if (!wingGroupRef.current) return;
     const wingGroup = wingGroupRef.current;
@@ -204,7 +190,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     wingGroup.add(newMesh);
   }, [params, selectedVehicle]);
 
-  // Wireframe toggle
   useEffect(() => {
     if (!wingGroupRef.current) return;
     wingGroupRef.current.traverse(child => {
@@ -219,7 +204,6 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
     });
   }, [showWireframe]);
 
-  // Update auto rotate setting
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.autoRotate = autoRotate;
@@ -236,46 +220,44 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
 
   return (
     <div className="relative w-full h-full bg-ink overflow-hidden select-none">
+      <div className="absolute top-3 left-3 z-10">
+        <span className="breadcrumb">
+          Mainpage<span className="breadcrumb-sep">/</span>Simulator<span className="breadcrumb-sep">/</span><span className="breadcrumb-active">Viewport</span>
+        </span>
+      </div>
+
+      <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center justify-center pointer-events-none">
+        <span className="vertical-text pr-1">3D VIEWPORT</span>
+      </div>
+
+      <div className="absolute inset-3 instrument-frame pointer-events-none z-5" />
+
       <div ref={containerRef} className="w-full h-full" />
 
-      {/* Viewport Top Controls Overlay & Category Domain Switcher */}
-      <div className="absolute top-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 z-10 pointer-events-none">
+      <div className="absolute top-12 left-3 right-3 flex flex-wrap items-center justify-between gap-2 z-10 pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto">
-          <button
+          <Chip
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition cursor-pointer ${
-              autoRotate
-                ? 'bg-accent/20 text-accent2 border-accent/40'
-                : 'bg-panel2/90 text-lo border-line hover:text-white'
-            }`}
+            variant={autoRotate ? 'accent' : 'default'}
           >
             <RotateCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin' : ''}`} />
             <span>Giro 3D</span>
-          </button>
+          </Chip>
 
-          <button
+          <Chip
             onClick={() => setShowWireframe(!showWireframe)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition cursor-pointer ${
-              showWireframe
-                ? 'bg-accent/20 text-accent2 border-accent/40'
-                : 'bg-panel2/90 text-lo border-line hover:text-white'
-            }`}
-            title="Toggle Wireframe"
+            variant={showWireframe ? 'accent' : 'default'}
           >
             <Grid3x3 className="w-3.5 h-3.5" />
             <span>Malla</span>
-          </button>
-          <button
-            onClick={resetCamera}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-panel2/90 text-lo border border-line hover:text-white transition cursor-pointer"
-            title="Reset Vista (R)"
-          >
+          </Chip>
+
+          <Chip onClick={resetCamera}>
             <Compass className="w-3.5 h-3.5" />
-            <span>Centrar (R)</span>
-          </button>
+            <span>Centrar</span>
+          </Chip>
         </div>
 
-        {/* Dedicated Domain Vehicle Tabs */}
         <div className="flex items-center gap-1 bg-panel2/95 p-1 rounded-xl border border-line text-xs font-bold pointer-events-auto shadow-lg">
           <button
             onClick={() => store.setVehicleCategory('aircraft')}
@@ -307,29 +289,28 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({ params }) => {
         </div>
       </div>
 
-      {/* 3D Coordinates & Dimensions HUD (Top Right) */}
-      <div className="absolute top-14 right-3 hidden sm:flex flex-col items-end gap-1 text-[11px] font-mono bg-panel2/80 backdrop-blur-sm p-2.5 rounded-lg border border-line text-lo">
+      <div className="absolute top-16 right-3 hidden sm:flex flex-col items-end gap-1.5 text-[11px] font-mono bg-panel2/80 backdrop-blur-sm p-2.5 rounded-lg border border-line">
         <div className="flex items-center gap-2">
-          <span className="text-bad font-bold">Envergadura (b):</span>
-          <span className="text-hi font-bold">{params.b.toFixed(2)} m</span>
+          <span className="hud-label">Envergadura (b):</span>
+          <span className="hud-data">{params.b.toFixed(2)} m</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-ok font-bold">Ángulo α:</span>
-          <span className="text-hi font-bold">{params.alpha_deg}°</span>
+          <span className="hud-label">Ángulo α:</span>
+          <span className="hud-data">{params.alpha_deg}°</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-accent font-bold">Cuerdas (Cr / Ct):</span>
-          <span className="text-hi font-bold">{params.Cr.toFixed(2)} m / {params.Ct.toFixed(2)} m</span>
+          <span className="hud-label">Cuerdas (Cr / Ct):</span>
+          <span className="hud-data">{params.Cr.toFixed(2)} m / {params.Ct.toFixed(2)} m</span>
         </div>
         {selectedVehicle === 'f1_motorsport' && (
-          <div className="flex items-center gap-2 text-df1 text-[10px] pt-1 border-t border-line">
+          <div className="flex items-center gap-2 badge-bad text-[10px] pt-1 border-t border-line">
             <span>Configuración multi-elemento (Mainplane + DRS Flap)</span>
           </div>
         )}
       </div>
 
       <div className="absolute bottom-3 right-3 text-[10px] text-dim font-mono bg-panel2/80 px-2 py-0.5 rounded border border-line">
-        OptimAirWing 3D • Renderizado de Geometría
+        OptimAirWing 3D · Renderizado de Geometría
       </div>
     </div>
   );

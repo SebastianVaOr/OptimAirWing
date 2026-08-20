@@ -41,10 +41,10 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-ink/90 backdrop-blur-lg border-b border-line px-3 sm:px-4 py-2 flex items-center justify-between gap-2 select-none">
       <div className="flex items-center gap-2 shrink-0">
-        <div className="w-7 h-7 rounded-md bg-accent/10 border border-accent/30 flex items-center justify-center hud-bracket">
+        <div className="w-7 h-7 rounded-md bg-accent/10 border border-accent/30 flex items-center justify-center">
           <Plane className="w-4 h-4 text-accent" aria-hidden="true" />
         </div>
-        <span className="font-display font-bold text-sm text-hi tracking-tight hidden sm:inline">OptimAirWing</span>
+        <span className="font-serif font-bold text-sm text-hi tracking-tight hidden sm:inline">OptimAirWing</span>
         {fidelity && (
           <Badge variant="accent" className="hidden lg:inline-flex text-[9px]">
             {fidelity}
