@@ -37,7 +37,7 @@ const Spinner = () => (
 
 export default function App() {
   const [state, setState] = useState<AppState>(store.getState());
-  const [viewMode, setViewMode] = useState<'landing' | 'simulator'>('simulator');
+  const [viewMode, setViewMode] = useState<'landing' | 'simulator'>('landing');
   const [mobileTab, setMobileTab] = useState<'params' | 'viewer' | 'results'>('viewer');
   const [isPredicting, setIsPredicting] = useState(false);
 
