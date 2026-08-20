@@ -548,6 +548,33 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
             valNaca={valNaca} setValNaca={setValNaca}
           />
 
+          {/* Start Optimization Button */}
+          {!isRunning && !isFinished && (
+            <button
+              onClick={() => startOptimization(false)}
+              disabled={creditsRemaining < requiredCredits}
+              className={`w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+                creditsRemaining < requiredCredits
+                  ? 'bg-line text-dim border border-line cursor-not-allowed'
+                  : 'bg-accent text-ink hover:bg-accent2 shadow-md shadow-accent/20'
+              }`}
+            >
+              <Zap className="w-4 h-4" />
+              <span>Ejecutar Optimización</span>
+              <span className="text-[10px] font-mono opacity-70">(1 crédito)</span>
+            </button>
+          )}
+
+          {isRunning && (
+            <button
+              onClick={stopOptimization}
+              className="w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 bg-bad/20 text-bad border border-bad/40 hover:bg-bad/30 transition cursor-pointer"
+            >
+              <StopCircle className="w-4 h-4" />
+              <span>Detener Optimización</span>
+            </button>
+          )}
+
           {/* Progress Bar */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between text-xs font-mono">
