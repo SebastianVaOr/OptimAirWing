@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Lock, CreditCard, ShieldCheck, UserCheck, ArrowRight, Zap, CheckCircle2, Sparkles } from 'lucide-react';
 import { updateAdminOrgPlan } from '../api/client';
 import { store } from '../core/store';
+import { Modal } from './primitives/Modal';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,8 +25,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,19 +109,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-panel border border-line rounded-xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-line bg-panel2">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-            <Lock className="w-4 h-4" />
-            <span>Acceso a OptimAirWing IA Engine</span>
-          </div>
-          <button onClick={onClose} className="text-lo hover:text-white transition cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex border-b border-line bg-ink">
+    <Modal isOpen={isOpen} onClose={onClose} title="Autenticación" size="md">
+        <div className="flex border-b border-line bg-ink -mt-5 -mx-5 px-5 pt-2">
           <button onClick={() => setTab('checkout')}
             className={`flex-1 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${tab === 'checkout' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-lo hover:text-white'}`}>
             <CreditCard className="w-3.5 h-3.5" />
@@ -135,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="-mx-5 px-5 pb-5">
           {errorMsg && (
             <div className="mb-4 p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-300 text-xs font-semibold">{errorMsg}</div>
           )}
@@ -213,7 +201,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </form>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

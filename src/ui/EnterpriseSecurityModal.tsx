@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, Key, CreditCard, Download, Server, Plus, Trash2, CheckCircle2, Lock, Zap, Coins, ExternalLink } from 'lucide-react';
 import { store, AppState, ApiKeyItem } from '../core/store';
+import { Modal } from './primitives/Modal';
 
 interface EnterpriseSecurityModalProps {
   isOpen: boolean;
@@ -24,8 +25,6 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
     return () => unsub();
   }, []);
 
-  if (!isOpen) return null;
-
   const handleBuyTokens = (tokens: number, costEur: number, desc: string) => {
     store.purchaseTokens(tokens, costEur, desc);
     setPaymentSuccessMsg(`¡Recarga exitosa! Se han acreditado +${tokens.toLocaleString()} Tokens a su balance Enterprise.`);
@@ -46,32 +45,9 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in select-none">
-      <div className="relative w-full max-w-4xl bg-panel border border-line rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-line bg-panel2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-hi flex items-center gap-2">
-                <span>Enterprise Security, Tokens & Gateway</span>
-                <span className="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/30">Fase 2</span>
-              </h2>
-              <p className="text-xs text-lo">Gestión de pagos, tokens de cómputo HPC, llaves API y encriptación militar</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-lo hover:text-white hover:bg-panel2 transition cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <Modal isOpen={isOpen} onClose={onClose} title="Seguridad Empresarial" size="lg">
         {/* Modal Navigation Tabs */}
-        <div className="flex items-center gap-2 px-6 pt-3 bg-ink border-b border-line">
+        <div className="flex items-center gap-2 bg-ink border-b border-line">
           <button
             onClick={() => setActiveTab('tokens')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer ${
@@ -474,7 +450,6 @@ export const EnterpriseSecurityModal: React.FC<EnterpriseSecurityModalProps> = (
             Cerrar Ventana
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

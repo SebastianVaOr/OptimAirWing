@@ -28,6 +28,7 @@ import {
   SensitivityItem,
   FatigueAnalysisResult
 } from '../domains/marketReadiness';
+import { Modal } from './primitives/Modal';
 
 interface MarketReadinessModalProps {
   isOpen: boolean;
@@ -61,8 +62,6 @@ export const MarketReadinessModal: React.FC<MarketReadinessModalProps> = ({ isOp
     }
   }, [appState.legacyParams, appState.prediction, appState.selectedVehicle, appState.f1Params, selectedMaterial]);
 
-  if (!isOpen) return null;
-
   const handleDownloadSTEP = () => {
     const content = generateSTEPFileContent(appState.legacyParams);
     const blob = new Blob([content], { type: 'model/step' });
@@ -84,30 +83,7 @@ export const MarketReadinessModal: React.FC<MarketReadinessModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in select-none">
-      <div className="relative w-full max-w-5xl bg-panel border border-line rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-line bg-panel2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-hi flex items-center gap-2">
-                <span>Módulos Imbatibles OptimAirWing (Market-Ready)</span>
-                <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">Commercial Suite</span>
-              </h2>
-              <p className="text-xs text-lo">Validación con túneles de viento, análisis de sensibilidad, CAD STEP, fatiga y benchmarks de industria</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-lo hover:text-white hover:bg-panel2 transition cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <Modal isOpen={isOpen} onClose={onClose} title="Lectura de Mercado" size="lg">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1 px-6 pt-3 bg-ink border-b border-line overflow-x-auto">
           <button
@@ -518,7 +494,6 @@ export const MarketReadinessModal: React.FC<MarketReadinessModalProps> = ({ isOp
             Cerrar
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

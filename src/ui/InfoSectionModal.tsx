@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Globe, ShieldCheck, Cpu, LineChart, Zap, Layers, FileText, CheckCircle2, Lock, Cookie, HelpCircle } from 'lucide-react';
+import { Modal } from './primitives/Modal';
 
 export type InfoTab = 'quienes-somos' | 'servicios' | 'planes' | 'normativa';
 
@@ -24,25 +25,8 @@ export const InfoSectionModal: React.FC<InfoSectionModalProps> = ({
     }
   }, [initialTab]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-panel border border-line rounded-xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[90vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-line bg-panel2 shrink-0">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-            <Globe className="w-4 h-4" />
-            <span>OptimAirWing Información & Servicios</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-lo hover:text-white rounded-lg bg-ink border border-line transition cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
+    <Modal isOpen={isOpen} onClose={onClose} title="Información" size="lg">
         {/* Nav Tabs */}
         <div className="flex items-center gap-2 px-5 py-2.5 bg-ink border-b border-line overflow-x-auto text-xs font-semibold shrink-0">
           <button
@@ -223,7 +207,6 @@ export const InfoSectionModal: React.FC<InfoSectionModalProps> = ({
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

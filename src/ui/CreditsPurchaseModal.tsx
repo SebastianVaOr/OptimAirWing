@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Zap, CheckCircle2, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { store } from '../core/store';
+import { Modal } from './primitives/Modal';
 
 interface CreditsPurchaseModalProps {
   isOpen: boolean;
@@ -11,8 +12,6 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
   const [buyingPack, setBuyingPack] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const handleBuy = async (packSize: number) => {
     setBuyingPack(packSize);
@@ -49,19 +48,8 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-panel border border-line rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-line bg-panel2">
-          <div className="flex items-center gap-2.5 text-cyan-400 font-bold">
-            <Zap className="w-5 h-5 fill-current text-cyan-400" />
-            <span>Paquetes de Créditos de Optimización OptimAirWing</span>
-          </div>
-          <button onClick={onClose} className="text-lo hover:text-white transition cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-6 flex flex-col gap-5">
+    <Modal isOpen={isOpen} onClose={onClose} title="Paquetes de Créditos" size="md">
+        <div className="flex flex-col gap-5">
           {errorMsg && (
             <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-300 text-xs font-semibold">{errorMsg}</div>
           )}
@@ -108,7 +96,6 @@ export const CreditsPurchaseModal: React.FC<CreditsPurchaseModalProps> = ({ isOp
             <span>Pago seguro garantizado. Los créditos adicionales no caducan y se suman a su saldo disponible.</span>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
