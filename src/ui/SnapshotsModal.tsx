@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Bookmark, RotateCcw, Calendar, Cpu } from 'lucide-react';
+import { Bookmark, RotateCcw, Calendar } from 'lucide-react';
 import { Snapshot } from '../core/types';
+import { Modal, Button, Badge } from './primitives';
 
 interface SnapshotsModalProps {
   isOpen: boolean;
@@ -15,67 +16,52 @@ export const SnapshotsModal: React.FC<SnapshotsModalProps> = ({
   snapshots,
   onLoadSnapshot
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0a0f18] border border-[#16202f] rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#16202f] bg-[#0e1624]">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold">
-            <Bookmark className="w-5 h-5" />
-            <span>Diseños Guardados (Snapshots)</span>
+    <Modal isOpen={isOpen} onClose={onClose} title="Diseños Guardados (Snapshots)" size="lg">
+      <div className="flex flex-col gap-3">
+        {snapshots.length === 0 ? (
+          <div className="py-12 text-center text-dim flex flex-col items-center gap-2">
+            <Bookmark className="w-8 h-8 opacity-40" />
+            <p className="text-sm">No hay snapshots guardados en esta sesión.</p>
+            <p className="text-xs text-lo">Presione la tecla (G) o el botón Guardar para conservar un estado de diseño.</p>
           </div>
-          <button onClick={onClose} className="text-[#8ea3bd] hover:text-white transition cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-5 overflow-y-auto flex flex-col gap-3">
-          {snapshots.length === 0 ? (
-            <div className="py-12 text-center text-[#5b6f8c] flex flex-col items-center gap-2">
-              <Bookmark className="w-8 h-8 opacity-40" />
-              <p className="text-sm">No hay snapshots guardados en esta sesión.</p>
-              <p className="text-xs text-[#8ea3bd]">Presione la tecla (G) o el botón Guardar para conservar un estado de diseño.</p>
-            </div>
-          ) : (
-            snapshots.map(snap => (
-              <div
-                key={snap.id}
-                className="bg-[#0e1624] border border-[#16202f] p-4 rounded-lg flex items-center justify-between hover:border-cyan-500/40 transition"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-[#e8f1fb]">{snap.name}</span>
-                    <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                      NACA {snap.params.nacaCode}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-[#8ea3bd]">
-                    <span>Envergadura: <strong>{snap.params.b}m</strong></span>
-                    <span>L/D: <strong className="text-cyan-300">{snap.result.LD.toFixed(2)}</strong></span>
-                    <span>CL: <strong className="text-emerald-400">{snap.result.CL.toFixed(4)}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[11px] text-[#5b6f8c]">
-                    <Calendar className="w-3 h-3" />
-                    <span>{snap.timestamp}</span>
-                  </div>
+        ) : (
+          snapshots.map(snap => (
+            <div
+              key={snap.id}
+              className="bg-panel2 border border-line p-4 rounded-lg flex items-center justify-between hover:border-accent/40 transition"
+            >
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-hi">{snap.name}</span>
+                  <Badge variant="accent">NACA {snap.params.nacaCode}</Badge>
                 </div>
-
-                <button
-                  onClick={() => {
-                    onLoadSnapshot(snap);
-                    onClose();
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30 transition text-xs font-semibold cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Cargar</span>
-                </button>
+                <div className="flex items-center gap-3 text-xs text-lo">
+                  <span>Envergadura: <strong>{snap.params.b}m</strong></span>
+                  <span>L/D: <strong className="text-accent">{snap.result.LD.toFixed(2)}</strong></span>
+                  <span>CL: <strong className="text-ok">{snap.result.CL.toFixed(4)}</strong></span>
+                </div>
+                <div className="flex items-center gap-1 text-[11px] text-dim">
+                  <Calendar className="w-3 h-3" />
+                  <span>{snap.timestamp}</span>
+                </div>
               </div>
-            ))
-          )}
-        </div>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={RotateCcw}
+                onClick={() => {
+                  onLoadSnapshot(snap);
+                  onClose();
+                }}
+              >
+                Cargar
+              </Button>
+            </div>
+          ))
+        )}
       </div>
-    </div>
+    </Modal>
   );
 };

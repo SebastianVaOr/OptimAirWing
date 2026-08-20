@@ -1,5 +1,6 @@
 import React from 'react';
 import { Inbox } from 'lucide-react';
+import { Button } from './primitives';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -11,18 +12,20 @@ interface EmptyStateProps {
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-      <div className="w-12 h-12 rounded-full bg-[#0e1624] flex items-center justify-center mb-3 text-[#5b6f8c]">
+      <div className="w-12 h-12 rounded-full bg-panel2 flex items-center justify-center mb-3 text-dim">
         {icon || <Inbox className="w-6 h-6" />}
       </div>
-      <p className="text-sm font-semibold text-[#8ea3bd]">{title}</p>
-      {description && <p className="text-xs text-[#5b6f8c] mt-1 max-w-xs">{description}</p>}
+      <p className="text-sm font-semibold text-lo">{title}</p>
+      {description && <p className="text-xs text-dim mt-1 max-w-xs">{description}</p>}
       {action && (
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
+          className="mt-4"
           onClick={action.onClick}
-          className="mt-4 px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition cursor-pointer"
         >
           {action.label}
-        </button>
+        </Button>
       )}
     </div>
   );

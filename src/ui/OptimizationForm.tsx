@@ -72,17 +72,17 @@ export const OptimizationForm: React.FC<Props> = (p) => {
           </div>
           <select value={p.sector} onChange={e => handleSectorChange(e.target.value as TargetSector)}
             className="bg-ink border border-line text-hi rounded px-2.5 py-1.5 focus:border-accent focus:outline-none font-medium">
-            <optgroup label="🏎️ Motorsport">
+            <optgroup label="Motorsport">
               <option value="f1_rear_wing">F1 Alerón Trasero DRS</option>
               <option value="f1_front_wing">F1 Alerón Delantero</option>
               <option value="gt_spoiler">GT3 Spoiler</option>
             </optgroup>
-            <optgroup label="🚤 Náutica">
+            <optgroup label="Nautica">
               <option value="hydrofoil_racing">Hydrofoil Regata AC75</option>
               <option value="hydrofoil_efoil">Surf / E-Foil</option>
               <option value="hydrofoil_ferry">Hydrofoil Ferry</option>
             </optgroup>
-            <optgroup label="✈️ Aeronáutica">
+            <optgroup label="Aeronautica">
               <option value="uav">Dron / UAV</option>
               <option value="comercial">Aviación Comercial</option>
               <option value="glider">Velero</option>
