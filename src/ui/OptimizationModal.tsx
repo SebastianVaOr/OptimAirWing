@@ -407,6 +407,14 @@ export const OptimizationModal: React.FC<OptimizationModalProps> = ({
             >
               <span>+ Comprar Créditos</span>
             </button>
+
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-lo hover:text-hi hover:bg-well transition-colors cursor-pointer"
+              aria-label="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
