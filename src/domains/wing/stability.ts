@@ -7,6 +7,8 @@ import { DesignRequirements, LegacyWingPayload, StructuralMaterial } from '../..
 import { MATERIALS_DB, MaterialProperties } from './materials';
 import { generarNACA } from './naca';
 import { computeSparBox, computeSparTorsionConstant, nacaThicknessRatio } from './sparGeometry';
+import { analyzeManufacturingEffects, ManufacturingProcess } from '../structural/manufacturing';
+import { computeSafetyFactorWithConfidence, UncertaintySource } from '../uncertainty/cascade';
 
 export interface StabilityCheckResult {
   status: 'safe' | 'warning' | 'danger';
@@ -25,6 +27,7 @@ export interface QuantitativeStructuralResult {
   bendingMomentNm: number;
   maxStressMpa: number;
   flexuralSafetyFactor: number;
+  safetyFactorCI: [number, number];  // 95% confidence interval [lower, upper]
   tipDeflectionMm: number;
   tipDeflectionPercent: number;
   divergenceSpeedMs: number;
@@ -192,7 +195,36 @@ export function computeQuantitativeStructuralAnalysis(
 
   // FS flexión = σ_yield / σ_max (sin clamp: el semáforo debe discriminar; cap solo de visualización a 50)
   const fsRaw = mat.yield_strength / Math.max(0.1, maxStressMpa);
-  const flexuralSafetyFactor = parseFloat(Math.min(50, Math.max(0.1, fsRaw)).toFixed(2));
+
+  // Apply manufacturing knockdown factor
+  const mfgProcess = (reqs?.manufacturing_process || 'cnc_machining') as ManufacturingProcess;
+  const mfgAnalysis = analyzeManufacturingEffects(mfgProcess, {
+    ultimate_strength_MPa: mat.yield_strength,
+    fatigue_strength_MPa: mat.ultimate_strength,
+    buckling_load_N: 0,
+    elastic_modulus_GPa: mat.elastic_modulus,
+  });
+  const K_manufacturing = mfgAnalysis.knockdownFactors.combined;
+
+  const fsNominal = Math.min(50, Math.max(0.1, fsRaw * K_manufacturing));
+
+  // Uncertainty propagation: FS with 95% confidence interval
+  const sigma_stress_MPa = maxStressMpa * 0.1; // 10% stress uncertainty
+  const uncertainties: UncertaintySource[] = [
+    { parameter: 'yield_strength_MPa', nominalValue: mat.yield_strength, stdDev: mat.yield_strength * 0.05, distribution: 'normal', unit: 'MPa', description: 'Material yield strength variability' },
+    { parameter: 'max_stress_MPa', nominalValue: maxStressMpa, stdDev: sigma_stress_MPa, distribution: 'normal', unit: 'MPa', description: 'Bending stress uncertainty' },
+    { parameter: 'knockdown', nominalValue: K_manufacturing, stdDev: K_manufacturing * 0.03, distribution: 'uniform', unit: '', description: 'Manufacturing knockdown variability' },
+  ];
+
+  const sfResult = computeSafetyFactorWithConfidence(
+    (p) => (p.yield_strength_MPa * p.knockdown) / Math.max(0.1, p.max_stress_MPa),
+    uncertainties,
+    reqs?.safety_factor ?? 1.5,
+    2000
+  );
+
+  const flexuralSafetyFactor = parseFloat(Math.min(50, Math.max(0.1, fsNominal)).toFixed(2));
+  const safetyFactorCI = sfResult.FS_CI_95;
 
   // 3. Deflexión de Punta: viga en ménsula con carga repartida δ = (L/2)·s³/(8·E·I)
   const E_pa = mat.elastic_modulus * 1e9;
@@ -275,6 +307,7 @@ export function computeQuantitativeStructuralAnalysis(
     bendingMomentNm: Math.round(rootBendingMomentNm),
     maxStressMpa,
     flexuralSafetyFactor,
+    safetyFactorCI: [Number(safetyFactorCI[0].toFixed(2)), Number(safetyFactorCI[1].toFixed(2))],
     tipDeflectionMm,
     tipDeflectionPercent,
     divergenceSpeedMs,

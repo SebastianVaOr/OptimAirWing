@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sliders, HelpCircle, Layers, CheckCircle2, AlertCircle, Plane, Car, Anchor, Zap, Lock, Unlock } from 'lucide-react';
-import { LegacyWingPayload } from '../core/types';
+import { LegacyWingPayload, FidelityMode } from '../core/types';
 import { renderProfile2D } from '../domains/wing/viewer2d';
 import { store, AppState } from '../core/store';
 import { getSectorLimits } from '../domains/wing/sectorGuardrails';
 import { PARAM_TOOLTIPS } from '../core/tooltips';
 import { useTranslation } from 'react-i18next';
+import { FidelitySelector } from './components/FidelitySelector';
+import { ConfidencePanel } from './components/ConfidencePanel';
+import { FlightConditionsPanel } from './components/flight/FlightConditionsPanel';
 
 interface ParameterPanelProps {
   params: LegacyWingPayload;
@@ -195,6 +198,30 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
           })}
         </div>
       </div>
+
+      <FidelitySelector
+        selected={appState.fidelityMode}
+        onSelect={(mode: FidelityMode) => store.setFidelityMode(mode)}
+      />
+
+      {appState.confidenceMetrics && (
+        <ConfidencePanel
+          metrics={appState.confidenceMetrics}
+          fidelityMode={appState.fidelityMode}
+        />
+      )}
+
+      <FlightConditionsPanel
+        mode={appState.flightMode}
+        onModeChange={(mode) => store.setFlightMode(mode)}
+        selectedPresetId={appState.flightPresetId}
+        onPresetSelect={(preset) => store.setFlightPreset(preset.id)}
+        conditions={appState.flightConditions}
+        manualAltitude={appState.manualAltitude_m}
+        manualVelocity={appState.manualVelocity_ms}
+        onManualAltitudeChange={(h) => store.setManualAltitude(h)}
+        onManualVelocityChange={(v) => store.setManualVelocity(v)}
+      />
 
       <div className="flex items-center gap-1.5 bg-panel2 p-1.5 rounded-lg border border-line">
         <span className="hud-label px-1">Presets:</span>

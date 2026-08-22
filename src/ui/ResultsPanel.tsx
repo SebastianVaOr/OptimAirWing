@@ -4,6 +4,9 @@ import { Calculator, Bookmark, Activity, Info, Zap, CheckCircle2, RotateCcw, Car
 import { store, AppState } from '../core/store';
 import { computeVehiclePhysics } from '../domains/vehicleDomain';
 import { Badge } from './primitives/Badge';
+import { DerivedSpeedsPanel } from './components/flight/DerivedSpeedsPanel';
+import { VnDiagram } from './components/structural/VnDiagram';
+import { computeDesignLoads } from '../domains/structural/designLoads';
 
 interface ResultsPanelProps {
   prediction: PredictionResult | null;
@@ -254,6 +257,23 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ prediction, params, 
           Calculado con corrección de Helmbold para planta alar trapezoidal. La resistencia inducida varía inversamente con el alargamiento alar (AR) y la eficiencia de Oswald (e).
         </p>
       </div>
+
+      {appState.flightConditions && (
+        <>
+          <DerivedSpeedsPanel conditions={appState.flightConditions} />
+          <VnDiagram
+            loads={computeDesignLoads(appState.flightConditions, {
+              category: 'normal',
+              weight_kg: prediction.weight_kg ?? 5,
+              wingArea_m2: prediction.S_m2,
+              span_m: params.b,
+              meanChord_m: (params.Cr + params.Ct) / 2,
+              CL_alpha: 2 * Math.PI,
+            })}
+            compact
+          />
+        </>
+      )}
     </div>
   );
 };

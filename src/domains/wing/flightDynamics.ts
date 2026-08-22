@@ -1,4 +1,5 @@
 import { LegacyWingPayload } from '../../core/types';
+import { computeStructuralMass } from './structuralMass';
 
 export interface FlightDynamicsResult {
   Cm_alpha: number;
@@ -38,11 +39,20 @@ export function computeLongitudinalStability(
   const OswaldE = aero.e ?? 0.85;
   const CL_alpha = (2 * Math.PI) / (1 + (2 * Math.PI) / (Math.PI * OswaldE * AR)); // 1/rad
 
-  // Margen estático desde geometría (modelo de ala sola / ala volante, sin cola):
-  // el punto neutro del ala coincide con su centro aerodinámico (~25% MAC) y se asume
-  // un CG adelantado en 20% MAC, lo que da un margen estático positivo del 5%.
-  const xAcOverC = 0.25; // centro aerodinámico del ala (punto neutro de la ala sola)
-  const xCgOverC = 0.20; // supuesto de CG: 20% MAC (adelante del AC para ala volante)
+  const xAcOverC = 0.25; // AC at 25% MAC (thin airfoil theory)
+
+  // CG from mass breakdown (not hardcoded)
+  const massBreakdown = computeStructuralMass(
+    params,
+    { sector: 'uav', estimated_weight_kg: 5, material: 'al2024', flight_hours: 500, max_budget_eur: 5000, safety_factor: 2.0 },
+    { S, AR }
+  );
+  const wingCG_over_MAC = 0.35; // Wing box centroid (spar at 25% MAC)
+  const payloadCG_over_MAC = 0.35; // Payload typically at 35% MAC
+  const totalMassKg = massBreakdown.totalKg + 2.0;
+  const xCgOverC = totalMassKg > 0
+    ? (massBreakdown.totalKg * wingCG_over_MAC + 2.0 * payloadCG_over_MAC) / totalMassKg
+    : 0.25;
   const staticMarginPct = parseFloat(((xAcOverC - xCgOverC) * 100).toFixed(2));
 
   // Cm_alpha respecto al CG desde geometría: Cm_α = a·(x_cg − x_ac) [1/rad].

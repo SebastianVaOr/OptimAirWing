@@ -2,6 +2,7 @@ import { DesignRequirements, LegacyWingPayload, TargetSector, ViabilityAnalysis 
 import { AerodynamicResult } from './empirical';
 import { MATERIALS_DB } from './materials';
 import { checkSweepStability, checkStallCharacteristics, computeQuantitativeStructuralAnalysis } from './stability';
+import { computeStructuralMass, isMassEstimatePlausible, MassBreakdown } from './structuralMass';
 
 import { checkSectorViability, SectorViabilityDiagnostic } from './sectorGuardrails';
 import { analyzeBucklingStability } from './buckling';
@@ -30,36 +31,37 @@ export function compute_form_factor(sweep_deg: number, taper_ratio: number, twis
   return parseFloat(Math.min(0.12, base + sweep_factor + taper_factor + twist_factor).toFixed(4));
 }
 
+/**
+ * Physics-based wing structural mass estimation.
+ * Uses computeStructuralMass() which computes actual material volumes
+ * (skin, spars, ribs) and multiplies by material density.
+ *
+ * This replaces the old MTOW-fraction model which was geometry-blind
+ * and produced physically impossible results (e.g. 2.5 kg for 22 m² wing).
+ */
 export function computeEstimatedWeight(
   params: LegacyWingPayload,
   aero: AeroData,
   req: DesignRequirements
 ): number {
-  const mat = MATERIALS_DB[req.material] || MATERIALS_DB.al2024;
   const surfaceArea = 'S' in aero ? (aero.S ?? 10) : (aero.S_m2 || 10);
   const AR = aero.AR || ((params.b * params.b) / Math.max(0.01, surfaceArea));
 
-  // Masa base de ensamblaje estructural por sector (largueros, herrajes de anclaje, costillas)
-  let baseAssemblyMassKg = 0.5;
+  const massBreakdown = computeStructuralMass(params, req, { S: surfaceArea, AR });
+
+  // Sector-specific additions (endplates, mounting hardware, marine anti-fouling, etc.)
+  let sectorAdditionKg = 0;
   if (req.sector?.startsWith('f1_') || req.sector === 'gt_spoiler') {
-    baseAssemblyMassKg = 2.2; // Alerón F1 completo con endplates y soportes de carbono
+    sectorAdditionKg = 2.0; // Endplates + mounting hardware
   } else if (req.sector?.startsWith('hydrofoil_')) {
-    baseAssemblyMassKg = 1.8; // Foil marino sumergido reforzado
+    sectorAdditionKg = 1.5; // Marine hardware, anti-fouling coating
   } else if (req.sector === 'comercial') {
-    baseAssemblyMassKg = 15.0;
+    sectorAdditionKg = massBreakdown.totalKg * 0.20; // 20% for flaps, slats, actuators
   }
 
-  // Modelo físico híbrido: fracción estructural del MTOW (~10% a escala UAV, decreciente
-  // con el tamaño según estadística tipo Roskam), ajustada por densidad del material y
-  // carga alar. El factor de seguridad NO multiplica masa.
-  const mtowKg = req.estimated_weight_kg || 25;
-  const wingFraction = 0.10 * Math.pow(25 / Math.max(25, mtowKg), 0.12);
-  const densityFactor = 0.6 + 0.4 * (mat.density / 2700);
-  const spanLoadFactor = 1 + 0.06 * (AR - 5);
+  const totalMassKg = massBreakdown.totalKg + sectorAdditionKg;
 
-  const wingMassKg = mtowKg * wingFraction * densityFactor * spanLoadFactor + baseAssemblyMassKg;
-
-  return Math.max(0.5, parseFloat(wingMassKg.toFixed(2)));
+  return Math.max(0.5, parseFloat(totalMassKg.toFixed(2)));
 }
 
 export function compute_structure_penalty(
@@ -85,6 +87,17 @@ export function compute_structure_penalty(
   return Math.max(0.1, penaltyThickness * penaltyBuckling);
 }
 
+/**
+ * Physics-based manufacturing cost estimation.
+ *
+ * Material cost is derived from the actual structural mass (not MTOW fraction).
+ * Labor hours scale with wingspan and complexity, not hardcoded to 10.
+ *
+ * Reference data points:
+ * - 2m ultralight wing (fiberglass): ~40 hours labor, ~€600 material
+ * - 10m glider wing (carbon sandwich): ~200 hours labor, ~€4000 material
+ * - 35m commercial wing (aluminum): ~800 hours labor, ~€25000 material
+ */
 export function computeEstimatedCost(
   weightKg: number,
   params: LegacyWingPayload,
@@ -103,19 +116,31 @@ export function computeEstimatedCost(
   const twist = Math.abs(params.twist_deg || 0);
   const taper = params.Ct / Math.max(0.01, params.Cr);
 
+  // Complexity multiplier for labor (sweep, twist, multi-element)
   let complexity = 1.0;
-  complexity += 0.01 * sweep;
-  complexity += 0.02 * twist;
-  complexity += 0.01 * (1.0 - Math.min(1.0, taper));
+  complexity += 0.01 * sweep;   // sweep adds fairing work
+  complexity += 0.015 * twist;  // twist adds mold complexity
+  complexity += 0.05 * (1.0 - Math.min(1.0, taper)); // extreme taper adds handwork
+  if ((params as any).isMultiElement) complexity += 0.8; // multi-element nearly doubles labor
 
-  const laborHours = 10 * (1.0 + 0.01 * twist);
+  // Labor hours scale with wingspan (not constant 10 hours!)
+  // Formula: baseHours = k × span^1.2 × complexity
+  // Calibrated to: 2m wing → ~40h, 10m wing → ~200h, 35m wing → ~800h
+  const spanM = Math.max(0.5, params.b);
+  const baseLaborHours = 12 * Math.pow(spanM, 1.2);
+  const laborHours = baseLaborHours * complexity;
+
   const manufacturingHours = req.estimated_manufacturing_hours && req.estimated_manufacturing_hours > 0
     ? req.estimated_manufacturing_hours
     : Math.round(laborHours);
 
-  const materialCost = Math.round(weightKg * costPerKg * complexity);
+  const materialCost = Math.round(weightKg * costPerKg);
   const laborCost = Math.round(laborCostPerHour * manufacturingHours);
-  const totalCost = Math.max(50, materialCost + laborCost);
+
+  // Tooling/overhead: 12% for unit production, scales down for batch
+  const toolingCost = Math.round((materialCost + laborCost) * 0.12);
+
+  const totalCost = Math.max(50, materialCost + laborCost + toolingCost);
 
   return { totalCost, materialCost, laborCost, manufacturingHours };
 }

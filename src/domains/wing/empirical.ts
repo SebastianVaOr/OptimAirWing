@@ -22,6 +22,8 @@ export interface AerodynamicResult {
   CDi: number;
   alpha0: number;
   a: number;
+  CL_max: number;
+  alpha_stall_deg: number;
 }
 
 export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
@@ -137,7 +139,9 @@ export function calcularEmpirico(params: LegacyWingInput): AerodynamicResult {
     CD0: Number(CD0.toFixed(5)),
     CDi: Number(CDiCorrected.toFixed(5)),
     alpha0: Number(alpha0.toFixed(4)),
-    a: Number(a.toFixed(4))
+    a: Number(a.toFixed(4)),
+    CL_max: Number(maxClLimit.toFixed(3)),
+    alpha_stall_deg: Number(((maxClLimit - alpha0 * 180 / Math.PI) / (a * 180 / Math.PI)).toFixed(1)),
   };
 }
 

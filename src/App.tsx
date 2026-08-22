@@ -22,8 +22,11 @@ import { AirfoilDesignerModal } from './ui/AirfoilDesignerModal';
 import { PolarsDashboardModal } from './ui/PolarsDashboardModal';
 import { ExportDownloadModal } from './ui/ExportDownloadModal';
 import { LandingPage } from './ui/LandingPage';
-import { LegacyWingPayload } from './core/types';
+import { LegacyWingPayload, PredictionResult } from './core/types';
 import { fetchLegacyPrediction } from './api/client';
+import { predict } from './domains/wing/predictionEngine';
+import { computeFlightConditions } from './domains/flight/conditions';
+import { computeStructuralMass } from './domains/wing/structuralMass';
 import { useTheme } from './core/theme';
 import { useAutoSave } from './core/autoSave';
 import { useTranslation } from 'react-i18next';
@@ -64,16 +67,85 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch prediction on parameter updates
+  // Compute flight conditions from wing params + flight mode
+  useEffect(() => {
+    if (viewMode !== 'simulator') return;
+
+    const wp = state.legacyParams;
+    const wingArea = wp.Cr * wp.b * (1 + wp.Ct / wp.Cr) / 2;
+    const meanChord = (wp.Cr + wp.Ct) / 2;
+    const AR = (wp.b ** 2) / wingArea;
+
+    // Physics-based mass estimation instead of hardcoded formula
+    const massBreakdown = computeStructuralMass(
+      wp,
+      { sector: 'uav', estimated_weight_kg: 5, material: 'al2024', flight_hours: 500, max_budget_eur: 5000, safety_factor: 2.0 },
+      { S: wingArea, AR }
+    );
+    const estimatedMass = Math.max(3.0, massBreakdown.totalKg * 2.2);  // Wing + payload + systems (2.2× wing mass)
+    const CL_alpha = 2 * Math.PI;
+    const CL_max = 1.4;
+
+    const conditions = computeFlightConditions(
+      {
+        mode: state.flightMode,
+        missionPresetId: state.flightPresetId,
+        altitude_m: state.manualAltitude_m,
+        velocity_m_s: state.manualVelocity_ms,
+        weight_kg: estimatedMass,
+        wingArea_m2: wingArea,
+        targetCL: 0.6,
+      },
+      {
+        meanChord_m: meanChord,
+        wingArea_m2: wingArea,
+        totalWeight_kg: estimatedMass,
+        CL_max,
+        AR,
+        CL_alpha,
+      }
+    );
+
+    store.setFlightConditions(conditions);
+  }, [state.flightMode, state.flightPresetId, state.manualAltitude_m, state.manualVelocity_ms, state.legacyParams, viewMode]);
+
+  // Fetch prediction on parameter updates (respects fidelity mode)
   useEffect(() => {
     let isCancelled = false;
 
     const syncPrediction = async () => {
       setIsPredicting(true);
       try {
-        const result = await fetchLegacyPrediction(state.legacyParams);
+        let prediction: PredictionResult;
+        let confidenceMetrics = null;
+
+        if (state.fidelityMode === 'neuralfoil') {
+          // NeuralFoil + VLM 3D mode
+          if (!state.flightConditions) {
+            prediction = await fetchLegacyPrediction(state.legacyParams);
+          } else {
+            const result = await predict({
+              params: state.legacyParams,
+              fidelity: 'neuralfoil',
+              flightConditions: state.flightConditions,
+            });
+            prediction = result;
+            confidenceMetrics = result.confidenceMetrics ?? null;
+          }
+        } else if (state.fidelityMode === 'advanced') {
+          const result = await predict({
+            params: state.legacyParams,
+            fidelity: 'advanced',
+            flightConditions: state.flightConditions ?? undefined,
+          });
+          prediction = result;
+          confidenceMetrics = result.confidenceMetrics ?? null;
+        } else {
+          prediction = await fetchLegacyPrediction(state.legacyParams);
+        }
+
         if (!isCancelled) {
-          store.setPrediction(result);
+          store.setPredictionExtended({ prediction, confidenceMetrics });
         }
       } finally {
         if (!isCancelled) setIsPredicting(false);
@@ -85,7 +157,7 @@ export default function App() {
     return () => {
       isCancelled = true;
     };
-  }, [state.legacyParams]);
+  }, [state.legacyParams, state.fidelityMode, state.flightConditions]);
 
   // Global Keyboard Shortcuts
   useEffect(() => {
