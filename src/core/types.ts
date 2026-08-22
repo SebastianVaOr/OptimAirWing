@@ -110,6 +110,64 @@ export interface NauticalSectorState {
   waterDensityKgM3: number;
 }
 
+export type FidelityMode = 'normal' | 'advanced' | 'neuralfoil' | 'cfd_validation';
+
+export interface FidelityModeConfig {
+  id: FidelityMode;
+  name: string;
+  description: string;
+  speed: string;
+  accuracy: string;
+  credits: number;
+  available: boolean;
+  technology: string;
+  badge?: string;
+}
+
+export const FIDELITY_MODES: FidelityModeConfig[] = [
+  {
+    id: 'normal',
+    name: 'Modo Normal',
+    description: 'Modelo paramétrico físico basado en Lifting-Line mejorado. Transparente y verificable.',
+    speed: '< 2 segundos',
+    accuracy: '±8% CL, ±12% CD',
+    credits: 1,
+    available: true,
+    technology: 'Lifting-Line + Raymer Structural',
+  },
+  {
+    id: 'advanced',
+    name: 'Modo Avanzado',
+    description: 'Red neuronal entrenada con 100k simulaciones XFOIL. Inferencia instantánea en tu navegador.',
+    speed: '< 50ms',
+    accuracy: '±3% CL, ±5% CD',
+    credits: 5,
+    available: true,
+    technology: 'ONNX Neural Surrogate',
+    badge: 'RECOMENDADO',
+  },
+  {
+    id: 'cfd_validation',
+    name: 'Validación CFD',
+    description: 'Simulación CFD completa con SU2. Máxima fidelidad. Próximamente disponible.',
+    speed: '~2-5 minutos',
+    accuracy: '±1% CL, ±2% CD',
+    credits: 25,
+    available: false,
+    technology: 'SU2 CFD Solver',
+    badge: 'PRÓXIMAMENTE',
+  },
+];
+
+export interface ConfidenceMetrics {
+  modelVersion: string;
+  rmsePercent: number;
+  samplesInTrainingRange: number;
+  distanceFromTrainingCentroid: number;
+  isWithinSafeRange: boolean;
+  warnings: string[];
+}
+
 export interface PredictionResult {
   CL: number;
   CD: number;
@@ -129,6 +187,12 @@ export interface PredictionResult {
     alpha0?: number;
     a?: number;
   };
+}
+
+export interface PredictionResultExtended extends PredictionResult {
+  fidelityMode: FidelityMode;
+  confidenceMetrics?: ConfidenceMetrics;
+  inferenceTimeMs?: number;
 }
 
 export interface Snapshot {
@@ -196,17 +260,18 @@ export interface DesignRequirements {
   material: StructuralMaterial;
   flight_hours: number;
   max_budget_eur: number;
-  safety_factor: number; // Margen sobre tensiones límite (1.5 - 4.0). NO es factor de carga.
-  maneuver_load_factor_g?: number; // Factor de carga de maniobra (n-g). Default 2.5
-  cruise_altitude_m?: number; // Altitud de crucero (m) para densidad ISA. Default por sector.
-  cruise_velocity_ms?: number; // Velocidad de crucero (m/s) - default 50
-  cost_per_kg_material?: number; // €/kg (custom u opcional)
-  labor_cost_per_hour?: number; // €/h (default 50 €/h)
-  estimated_manufacturing_hours?: number; // h (default 10-30h)
+  safety_factor: number;
+  maneuver_load_factor_g?: number;
+  cruise_altitude_m?: number;
+  cruise_velocity_ms?: number;
+  cost_per_kg_material?: number;
+  labor_cost_per_hour?: number;
+  estimated_manufacturing_hours?: number;
   optimization_level?: 'basic' | 'neuralfoil' | 'structural' | 'full_custom';
   optimization_mode?: OptimizationMode;
   optimization_mode_type?: OptimizationSourceMode;
   run_consistency_check?: boolean;
+  manufacturing_process?: string;
 
   // Novedades v11.0 / v11.1: Restricciones Hard y Exploración Libre
   unconstrained?: boolean; // Si es true, desactiva rechazos hard para exploración libre

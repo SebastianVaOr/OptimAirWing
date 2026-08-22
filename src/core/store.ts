@@ -2,10 +2,11 @@
  * Central Reactive Pub/Sub Store para OptimAirWing
  */
 
-import { LegacyWingPayload, WingParams, PredictionResult, Snapshot, OrganizationInfo, PlanTier, TargetSector, mapSectorToVehicleCategory } from './types';
+import { LegacyWingPayload, WingParams, PredictionResult, Snapshot, OrganizationInfo, PlanTier, TargetSector, mapSectorToVehicleCategory, FidelityMode, ConfidenceMetrics } from './types';
 import { VehicleCategory, F1Params, HydrofoilParams } from '../domains/vehicleDomain';
 import { AppState, ApiKeyItem, BillingInvoice } from './storeTypes';
 import { calcularEmpirico } from '../domains/wing/empirical';
+import { FlightMode, FlightConditions } from '../domains/flight/conditions';
 
 export function legacyToWingParams(legacy: LegacyWingPayload): WingParams {
   const root_chord_m = Math.max(0.02, legacy.Cr);
@@ -129,7 +130,14 @@ class Store {
       isOptimizing: false,
       optProgress: { gen: 0, maxGen: 80, bestFit: 0, avgFit: 0 },
       optHistory: { best: [], avg: [] },
-      activeTab: 'designer'
+      activeTab: 'designer',
+      fidelityMode: 'normal',
+      confidenceMetrics: null,
+      flightMode: 'basic',
+      flightPresetId: 'recon_drone',
+      flightConditions: null,
+      manualAltitude_m: 150,
+      manualVelocity_ms: 15,
     };
 
     // Intentar sincronizar créditos desde servidor de forma asíncrona
@@ -222,6 +230,52 @@ class Store {
 
   private notify(): void {
     this.listeners.forEach(l => l(this.state));
+  }
+
+  setFidelityMode(mode: FidelityMode): void {
+    if (mode === this.state.fidelityMode) return;
+    this.state = { ...this.state, fidelityMode: mode, confidenceMetrics: null };
+    this.notify();
+  }
+
+  setConfidenceMetrics(metrics: ConfidenceMetrics | null): void {
+    this.state = { ...this.state, confidenceMetrics: metrics };
+    this.notify();
+  }
+
+  setPredictionExtended(extended: { prediction: PredictionResult; confidenceMetrics: ConfidenceMetrics | null }): void {
+    this.state = {
+      ...this.state,
+      prediction: extended.prediction,
+      confidenceMetrics: extended.confidenceMetrics,
+    };
+    this.notify();
+  }
+
+  setFlightMode(mode: FlightMode): void {
+    if (mode === this.state.flightMode) return;
+    this.state = { ...this.state, flightMode: mode, flightConditions: null };
+    this.notify();
+  }
+
+  setFlightPreset(presetId: string): void {
+    this.state = { ...this.state, flightPresetId: presetId };
+    this.notify();
+  }
+
+  setFlightConditions(conditions: FlightConditions): void {
+    this.state = { ...this.state, flightConditions: conditions };
+    this.notify();
+  }
+
+  setManualAltitude(h: number): void {
+    this.state = { ...this.state, manualAltitude_m: h };
+    this.notify();
+  }
+
+  setManualVelocity(v: number): void {
+    this.state = { ...this.state, manualVelocity_ms: v };
+    this.notify();
   }
 
   updateLegacyParams(partial: Partial<LegacyWingPayload>): void {

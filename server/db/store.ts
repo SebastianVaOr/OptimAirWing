@@ -155,10 +155,17 @@ class BackendDatabase {
     return this.rowToOrg(row);
   }
 
+  // Whitelist of allowed columns to update (prevents SQL injection via column name)
+  private static readonly UPDATABLE_ORG_COLUMNS = new Set([
+    'name', 'plan', 'stripe_customer_id', 'owner_email',
+    'predictions_used_month', 'optimizations_used_month', 'extra_credits',
+  ]);
+
   updateOrg(id: string, fields: Partial<Organization>): void {
     const sets: string[] = [];
     const vals: any[] = [];
     for (const [key, val] of Object.entries(fields)) {
+      if (!BackendDatabase.UPDATABLE_ORG_COLUMNS.has(key)) continue;
       sets.push(`${key} = ?`);
       vals.push(val);
     }
@@ -298,6 +305,17 @@ class BackendDatabase {
     };
   }
 
+  findUserById(userId: number): { id: number; orgId: string; email: string; role: string } | undefined {
+    const row = this.sqlite.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
+    if (!row) return undefined;
+    return {
+      id: row.id,
+      orgId: row.org_id,
+      email: row.email,
+      role: row.role,
+    };
+  }
+
   saveRefreshToken(orgId: string, tokenHash: string, expiresAt: string): void {
     this.sqlite.prepare(`
       INSERT INTO refresh_tokens (org_id, token_hash, expires_at) VALUES (?, ?, ?)
@@ -312,6 +330,10 @@ class BackendDatabase {
 
   deleteRefreshToken(tokenHash: string): void {
     this.sqlite.prepare('DELETE FROM refresh_tokens WHERE token_hash = ?').run(tokenHash);
+  }
+
+  deleteRefreshTokensByOrgId(orgId: string): void {
+    this.sqlite.prepare('DELETE FROM refresh_tokens WHERE org_id = ?').run(orgId);
   }
 
   cleanupExpiredRefreshTokens(): void {
@@ -367,6 +389,58 @@ class BackendDatabase {
   close(): void {
     this.sqlite.close();
     logger.info('Conexión a base de datos cerrada');
+  }
+
+  /**
+   * GDPR Art. 17 - Right to Erasure ("Right to be Forgotten")
+   * Completely anonymizes all data for an organization:
+   * - Deletes designs, profiles, refresh tokens, audit logs, org_members, invites
+   * - Anonymizes user records (replace email with hash, delete password)
+   * - Anonymizes organization record
+   */
+  gdprDeleteOrganization(orgId: string): { deleted: number; anonymized: number } {
+    const counts = { deleted: 0, anonymized: 0 };
+
+    const deleteTransaction = this.sqlite.transaction(() => {
+      // Delete all user data
+      const r1 = this.sqlite.prepare('DELETE FROM design_versions WHERE org_id = ?').run(orgId);
+      counts.deleted += r1.changes;
+
+      const r2 = this.sqlite.prepare('DELETE FROM custom_profiles WHERE org_id = ?').run(orgId);
+      counts.deleted += r2.changes;
+
+      const r3 = this.sqlite.prepare('DELETE FROM refresh_tokens WHERE org_id = ?').run(orgId);
+      counts.deleted += r3.changes;
+
+      const r4 = this.sqlite.prepare('DELETE FROM org_members WHERE org_id = ?').run(orgId);
+      counts.deleted += r4.changes;
+
+      const r5 = this.sqlite.prepare('DELETE FROM invites WHERE org_id = ?').run(orgId);
+      counts.deleted += r5.changes;
+
+      // Anonymize users (keep record but remove PII)
+      const anonymizedEmail = `deleted_${Date.now()}@anonymized.invalid`;
+      const anonymizedHash = 'DELETED';
+      const r6 = this.sqlite.prepare(
+        'UPDATE users SET email = ?, password_hash = ?, role = ? WHERE org_id = ?'
+      ).run(anonymizedEmail, anonymizedHash, 'deleted', orgId);
+      counts.anonymized += r6.changes;
+
+      // Anonymize org record
+      const r7 = this.sqlite.prepare(
+        'UPDATE organizations SET name = ?, owner_email = ? WHERE id = ?'
+      ).run('[DELETED BY USER]', 'deleted@anonymized.invalid', orgId);
+      counts.anonymized += r7.changes;
+
+      // Keep audit logs for legal compliance (but anonymize org reference)
+      this.sqlite.prepare(
+        "UPDATE audit_logs SET org_id = ? WHERE org_id = ?"
+      ).run(`anonymized_${orgId}`, orgId);
+    });
+
+    deleteTransaction();
+    logger.info({ orgId, ...counts }, 'GDPR deletion completed');
+    return counts;
   }
 }
 

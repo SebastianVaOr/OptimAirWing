@@ -1,6 +1,7 @@
-import { LegacyWingPayload, WingParams, PredictionResult, Snapshot, OrganizationInfo, PlanTier, TargetSector } from './types';
+import { LegacyWingPayload, WingParams, PredictionResult, Snapshot, OrganizationInfo, PlanTier, TargetSector, FidelityMode, ConfidenceMetrics } from './types';
 import { VehicleCategory } from '../domains/vehicleDomain';
 import { F1Params, HydrofoilParams } from '../domains/vehicleDomain';
+import { FlightMode, FlightConditions } from '../domains/flight/conditions';
 
 export interface ApiKeyItem {
   id: string;
@@ -37,4 +38,13 @@ export interface AppState {
   optProgress: { gen: number; maxGen: number; bestFit: number; avgFit: number };
   optHistory: { best: number[]; avg: number[] };
   activeTab: 'designer' | 'snapshots' | 'docs';
+  fidelityMode: FidelityMode;
+  confidenceMetrics: ConfidenceMetrics | null;
+
+  // Flight conditions
+  flightMode: FlightMode;
+  flightPresetId: string;
+  flightConditions: FlightConditions | null;
+  manualAltitude_m: number;
+  manualVelocity_ms: number;
 }

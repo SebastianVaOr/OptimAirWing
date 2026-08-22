@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { createServer as createViteServer } from 'vite';
 import { v1Router } from './server/api/v1Router';
 import { adminRouter } from './server/admin/adminRouter';
+import { gdprRouter } from './server/api/gdprRouter';
 import { dbAdapter } from './server/db/adapter';
 import {
   requireAuth, signToken, signRefreshToken, orgScoped,
@@ -13,6 +14,7 @@ import {
   revokeRefreshToken, checkBruteForce, recordFailedAttempt,
   resetLoginAttempts,
 } from './server/middleware/auth';
+import { csrfProtection, setCsrfCookie } from './server/middleware/csrf';
 import { rateLimit } from './server/middleware/rateLimiter';
 import { createCheckoutSession, handleStripeWebhook, createBillingPortalSession } from './server/lib/stripe';
 import { sendWelcomeEmail, sendPasswordResetEmail } from './server/lib/email';
@@ -89,8 +91,31 @@ async function startServer() {
   pruneOldBackups(30);
 
   app.use(helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
-    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // Tailwind requires unsafe-inline
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        fontSrc: ["'self'"],
+        connectSrc: ["'self'", 'wss:', 'ws:'],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] as const : null,
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Required for Three.js assets
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+    noSniff: true,
+    xssFilter: true,
   }));
 
   app.use(express.json({ limit: '1mb' }));
@@ -125,6 +150,17 @@ async function startServer() {
 
   app.use(rateLimit);
 
+  // CSRF protection (Double-Submit Cookie pattern)
+  app.use(csrfProtection);
+
+  // Additional security headers
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    next();
+  });
+
   // Métricas Prometheus
   app.use((req, res, next) => {
     const start = Date.now();
@@ -156,8 +192,11 @@ async function startServer() {
 
   const registerSchema = z.object({
     email: z.string().email('Email inválido'),
-    password: z.string().min(8, 'Mínimo 8 caracteres'),
-    orgName: z.string().optional(),
+    password: z.string().min(12, 'Mínimo 12 caracteres').regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,}$/,
+      'Debe incluir al menos una mayúscula, una minúscula y un número'
+    ),
+    orgName: z.string().max(100).optional(),
   });
 
   const checkoutSchema = z.object({
@@ -191,6 +230,7 @@ async function startServer() {
       const refreshToken = signRefreshToken(payload);
       await storeRefreshToken(orgId, refreshToken);
       setAuthCookies(res, accessToken, refreshToken);
+      setCsrfCookie(res);
 
       sendWelcomeEmail(email, orgName || orgId);
 
@@ -217,15 +257,8 @@ async function startServer() {
       let user = db.findUserByEmail(email);
 
       if (!user) {
-        const validSecret = process.env.ADMIN_SECRET_KEY || 'dev_secret';
-        if (password === validSecret) {
-          const token = signToken({ orgId: email || 'org_demo', role: email === 'admin' ? 'admin' : 'user', plan: 'professional' });
-          const refreshToken = signRefreshToken({ orgId: email || 'org_demo', role: email === 'admin' ? 'admin' : 'user', plan: 'professional' });
-          await storeRefreshToken(email || 'org_demo', refreshToken);
-          setAuthCookies(res, token, refreshToken);
-          resetLoginAttempts(email || 'org_demo');
-          return res.json({ token, refreshToken, orgId: email || 'org_demo' });
-        }
+        // REMOVED: Admin secret key bypass (security vulnerability)
+        // All authentication must go through proper user accounts
         recordFailedAttempt(req);
         return sendError(res, 401, 'INVALID_CREDENTIALS', 'Credenciales inválidas');
       }
@@ -243,6 +276,7 @@ async function startServer() {
       const refreshToken = signRefreshToken(payload);
       await storeRefreshToken(user.orgId, refreshToken);
       setAuthCookies(res, accessToken, refreshToken);
+      setCsrfCookie(res);
       resetLoginAttempts(email);
 
       logger.info({ orgId: user.orgId, email }, 'Usuario autenticado');
@@ -270,6 +304,7 @@ async function startServer() {
       const newRefreshToken = signRefreshToken({ orgId: payload.orgId, role: payload.role, userId: payload.userId });
       await storeRefreshToken(payload.orgId, newRefreshToken);
       setAuthCookies(res, newAccessToken, newRefreshToken);
+      setCsrfCookie(res);
 
       res.json({ token: newAccessToken, refreshToken: newRefreshToken });
     } catch (err) {
@@ -299,20 +334,29 @@ async function startServer() {
     res.json({ status: 'ok', message: 'Si el email existe, recibirás instrucciones para restablecer tu contraseña' });
   });
 
-  app.post('/api/auth/reset-password', async (req, res) => {
+  app.post('/api/auth/reset-password', validate(z.object({
+    token: z.string().min(1, 'Token requerido'),
+    password: z.string().min(12, 'Mínimo 12 caracteres para contraseñas').regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{12,}$/,
+      'La contraseña debe incluir mayúscula, minúscula, número y carácter especial'
+    ),
+  })), async (req, res) => {
     const { token, password } = req.body;
-    if (!token || !password) return sendError(res, 400, 'MISSING_FIELDS', 'Token y contraseña requeridos');
-    if (password.length < 8) return sendError(res, 400, 'WEAK_PASSWORD', 'La contraseña debe tener al menos 8 caracteres');
 
     const payload = require('./server/middleware/auth').verifyToken(token);
     if (!payload) return sendError(res, 401, 'INVALID_TOKEN', 'Token inválido o expirado');
 
-    const passwordHash = await hashPassword(password);
-    const { db } = require('./server/db/store');
-    require('better-sqlite3');
-    const Database = require('better-sqlite3');
+    const user = db.findUserById(payload.userId);
+    if (!user) return sendError(res, 404, 'USER_NOT_FOUND', 'Usuario no encontrado');
 
-    res.json({ status: 'ok', message: 'Contraseña actualizada exitosamente' });
+    const passwordHash = await hashPassword(password);
+    db.updatePassword(user.id, passwordHash);
+
+    // Revoke all refresh tokens for this user (force re-login on all devices)
+    db.deleteRefreshTokensByOrgId(user.orgId);
+
+    logger.info({ userId: user.id, orgId: user.orgId }, 'Contraseña reseteada exitosamente');
+    res.json({ status: 'ok', message: 'Contraseña actualizada. Inicie sesión nuevamente.' });
   });
 
   app.post('/api/stripe/checkout', requireAuth, idempotent(3600000), validate(checkoutSchema), async (req, res) => {
@@ -406,6 +450,7 @@ async function startServer() {
   app.use('/api/user', userRouter);
   app.use('/api/upload', uploadRouter);
   app.use('/api/org', orgRouter);
+  app.use('/api/gdpr', gdprRouter);
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));

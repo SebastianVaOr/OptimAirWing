@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Cookie, Lock, FileText } from 'lucide-react';
+import { ShieldCheck, Cookie, Lock, FileText, ExternalLink } from 'lucide-react';
 import { Modal, Button } from './primitives';
 
 export const CookieBanner: React.FC = () => {
@@ -7,8 +7,8 @@ export const CookieBanner: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [preferences, setPreferences] = useState({
     necessary: true,
-    analytics: true,
-    simulationData: true
+    analytics: false,     // GDPR: opt-in by default (disabled until consent)
+    simulationData: false  // GDPR: opt-in by default (disabled until consent)
   });
 
   useEffect(() => {
@@ -23,7 +23,22 @@ export const CookieBanner: React.FC = () => {
       necessary: true,
       analytics: true,
       simulationData: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      consentVersion: '2.0',
+      legalBasis: 'Art. 6.1.a RGPD (Consentimiento explícito)',
+    }));
+    setShowBanner(false);
+    setShowDetailsModal(false);
+  };
+
+  const handleRejectOptional = () => {
+    localStorage.setItem('optimairwing_cookie_consent', JSON.stringify({
+      necessary: true,
+      analytics: false,
+      simulationData: false,
+      timestamp: new Date().toISOString(),
+      consentVersion: '2.0',
+      legalBasis: 'Art. 6.1.b RGPD (Solo cookies necesarias)',
     }));
     setShowBanner(false);
     setShowDetailsModal(false);
@@ -32,8 +47,12 @@ export const CookieBanner: React.FC = () => {
   const handleSavePreferences = () => {
     localStorage.setItem('optimairwing_cookie_consent', JSON.stringify({
       ...preferences,
-      necessary: true,
-      timestamp: new Date().toISOString()
+      necessary: true, // Always on
+      timestamp: new Date().toISOString(),
+      consentVersion: '2.0',
+      legalBasis: preferences.analytics || preferences.simulationData
+        ? 'Art. 6.1.a RGPD (Consentimiento explícito)'
+        : 'Art. 6.1.b RGPD (Solo cookies necesarias)',
     }));
     setShowBanner(false);
     setShowDetailsModal(false);
@@ -53,9 +72,16 @@ export const CookieBanner: React.FC = () => {
               </div>
               <div className="text-xs text-lo leading-relaxed">
                 <span className="font-bold text-hi block text-sm mb-0.5">
-                  Uso de Cookies y Tratamiento de Datos de Simulación
+                  Uso de Cookies y Tratamiento de Datos (RGPD)
                 </span>
-                Utilizamos cookies técnicas necesarias para autenticación y cookies analíticas para optimizar el rendimiento de la caché del motor de predicción. Cumplimos estrictamente con RGPD e ISO/IEC 27001 para la protección de sus diseños aeronáuticos.
+                Utilizamos cookies estrictamente necesarias para la autenticación. Las cookies analíticas y de caché de simulación 
+                solo se activan con su consentimiento explícito conforme al Art. 6.1 del Reglamento General de Protección de Datos (UE) 2016/679.
+                <button 
+                  onClick={() => setShowDetailsModal(true)}
+                  className="text-accent hover:underline ml-1 inline-flex items-center gap-0.5"
+                >
+                  Política de Privacidad <ExternalLink className="w-3 h-3" />
+                </button>
               </div>
             </div>
 
@@ -66,6 +92,13 @@ export const CookieBanner: React.FC = () => {
                 onClick={() => setShowDetailsModal(true)}
               >
                 Configurar
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleRejectOptional}
+              >
+                Solo Necesarias
               </Button>
               <Button
                 variant="primary"
@@ -83,12 +116,13 @@ export const CookieBanner: React.FC = () => {
       <Modal
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
-        title="Política de Cookies & Normativa de Datos OptimAirWing"
+        title="Política de Cookies & Protección de Datos (RGPD)"
         size="md"
       >
         <div className="flex flex-col gap-4 text-xs">
           <p className="text-lo leading-relaxed">
-            OptimAirWing procesa la geometría alar y las coordenadas aerodinámicas localmente en su navegador y mediante llamadas cifradas de baja latencia a nuestro servidor de predicción.
+            OptimAirWing procesa la geometría alar y las coordenadas aerodinámicas localmente en su navegador y mediante llamadas cifradas a nuestro servidor de predicción. 
+            Conforme al Art. 13 del RGPD, le informamos sobre el tratamiento de sus datos:
           </p>
 
           {/* Necessary */}
@@ -99,7 +133,8 @@ export const CookieBanner: React.FC = () => {
                 <span>Cookies Técnicas Necesarias</span>
               </div>
               <p className="text-dim mt-1 text-[11px]">
-                Requeridas para la sesión de usuario, almacenamiento de snapshots locales y validación del plan de suscripción activo. No se pueden desactivar.
+                Requeridas para la sesión de usuario (JWT), almacenamiento de snapshots locales y validación CSRF. 
+                No se pueden desactivar. <strong>Base legal: Art. 6.1.b RGPD</strong> (ejecución del contrato de servicio).
               </p>
             </div>
             <span className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-1 rounded border border-accent/20 uppercase shrink-0">
@@ -112,10 +147,12 @@ export const CookieBanner: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 font-bold text-hi">
                 <FileText className="w-3.5 h-3.5 text-dhydro" />
-                <span>Telemetría y Rendimiento de Inferencia</span>
+                <span>Telemetría y Rendimiento</span>
               </div>
               <p className="text-dim mt-1 text-[11px]">
-                Nos permite evaluar los tiempos de respuesta del motor de predicción y medir la convergencia del algoritmo genético.
+                Nos permite evaluar los tiempos de respuesta del motor de predicción y medir la convergencia del algoritmo genético. 
+                Los datos son anonimizados y no se comparten con terceros. 
+                <strong> Base legal: Art. 6.1.a RGPD</strong> (consentimiento explícito).
               </p>
             </div>
             <input
@@ -134,7 +171,9 @@ export const CookieBanner: React.FC = () => {
                 <span>Caché Local de Geometría Alar</span>
               </div>
               <p className="text-dim mt-1 text-[11px]">
-                Permite la persistencia de perfiles NACA y estados del túnel de viento virtual entre recargas de la aplicación.
+                Permite la persistencia de perfiles NACA y estados del túnel de viento virtual entre recargas de la aplicación. 
+                Todos los datos se almacenan exclusivamente en su navegador (localStorage). 
+                <strong> Base legal: Art. 6.1.a RGPD</strong> (consentimiento explícito).
               </p>
             </div>
             <input
@@ -145,9 +184,20 @@ export const CookieBanner: React.FC = () => {
             />
           </div>
 
+          {/* Data Rights */}
+          <div className="bg-panel2 p-3 rounded-lg border border-line text-[11px] text-dim">
+            <strong className="text-hi">Sus derechos (Art. 15-22 RGPD):</strong> Puede solicitar acceso, rectificación, 
+            eliminación o portabilidad de sus datos en cualquier momento contactando a nuestro Delegado de Protección de Datos 
+            en <span className="text-accent">dpo@optimairwing.app</span>. 
+            Tiene derecho a retirar su consentimiento sin que ello afecte a la licitud del tratamiento previo.
+          </div>
+
           <div className="flex items-center justify-end gap-2 pt-2">
+            <Button variant="secondary" size="sm" onClick={handleRejectOptional}>
+              Solo Necesarias
+            </Button>
             <Button variant="secondary" size="sm" onClick={handleSavePreferences}>
-              Guardar Configuración
+              Guardar Selección
             </Button>
             <Button variant="primary" size="sm" onClick={handleAcceptAll}>
               Aceptar Todas
