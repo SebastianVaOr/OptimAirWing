@@ -107,7 +107,8 @@ export function computeStructuralMass(
 
   // Spar wall thickness: sized to carry bending load with safety factor
   const yieldStressPa = mat.yield_strength * 1e6;
-  const requiredSectionModulus = rootBendingMomentNm / (yieldStressPa / (req.safety_factor || 2.5));
+  const DESIGN_SF = 1.5;
+  const requiredSectionModulus = rootBendingMomentNm / (yieldStressPa / DESIGN_SF);
   // For hollow box: Z ≈ 2 × sparWidthM × sparHeightM × tWall → tWall = Z / (2 × w × h)
   const sparWallThicknessM = Math.max(
     0.001, // 1 mm minimum manufacturing
@@ -125,7 +126,7 @@ export function computeStructuralMass(
     sparWidthM * 0.5, // panel width between stringers
     compressiveStressPa,
     mat,
-    req.safety_factor || 2.5
+    DESIGN_SF
   );
   const skinKg = wettedAreaM2 * skinThicknessM * mat.density;
 
@@ -186,7 +187,10 @@ export function computeStructuralMass(
   // --- Sanity checks ---
   // Minimum wing mass: at least 2 kg even for the smallest wing (manufacturing reality)
   const minimumWingMassKg = Math.max(2.0, wingAreaM2 * 0.3); // at least 0.3 kg/m²
-  const finalTotalKg = Math.max(minimumWingMassKg, totalKg);
+  // Maximum wing mass: 20% of MTOW (typical range is 10-18% for metal wings)
+  const maximumWingMassKg = req.estimated_weight_kg * 0.20;
+  const clampedTotalKg = Math.min(totalKg, maximumWingMassKg);
+  const finalTotalKg = Math.max(minimumWingMassKg, clampedTotalKg);
 
   return {
     skinKg: parseFloat(skinKg.toFixed(3)),

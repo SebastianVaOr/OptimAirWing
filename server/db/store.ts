@@ -15,6 +15,7 @@ export interface Organization {
   predictions_used_month: number;
   optimizations_used_month: number;
   extra_credits: number;
+  is_admin?: boolean;
   createdAt?: string;
 }
 
@@ -62,6 +63,7 @@ class BackendDatabase {
         predictions_used_month INTEGER NOT NULL DEFAULT 0,
         optimizations_used_month INTEGER NOT NULL DEFAULT 0,
         extra_credits INTEGER NOT NULL DEFAULT 0,
+        is_admin INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -159,6 +161,7 @@ class BackendDatabase {
   private static readonly UPDATABLE_ORG_COLUMNS = new Set([
     'name', 'plan', 'stripe_customer_id', 'owner_email',
     'predictions_used_month', 'optimizations_used_month', 'extra_credits',
+    'is_admin',
   ]);
 
   updateOrg(id: string, fields: Partial<Organization>): void {
@@ -184,6 +187,7 @@ class BackendDatabase {
       predictions_used_month: row.predictions_used_month,
       optimizations_used_month: row.optimizations_used_month,
       extra_credits: row.extra_credits,
+      is_admin: row.is_admin === 1,
       createdAt: row.created_at,
     };
   }
@@ -441,6 +445,27 @@ class BackendDatabase {
     deleteTransaction();
     logger.info({ orgId, ...counts }, 'GDPR deletion completed');
     return counts;
+  }
+
+  createSuperAdmin(email: string, passwordHash: string): { orgId: string; email: string } {
+    const orgId = `admin_${Date.now()}`;
+    this.sqlite.transaction(() => {
+      this.sqlite.prepare(`
+        INSERT INTO organizations (id, name, owner_email, plan, extra_credits, is_admin)
+        VALUES (?, ?, ?, 'enterprise', 999999999, 1)
+      `).run(orgId, 'Super Admin', email);
+      this.sqlite.prepare(`
+        INSERT INTO users (org_id, email, password_hash, role)
+        VALUES (?, ?, ?, 'admin')
+      `).run(orgId, email, passwordHash);
+    })();
+    logger.info({ orgId, email }, 'Super admin account created');
+    return { orgId, email };
+  }
+
+  isAdmin(orgId: string): boolean {
+    const row = this.sqlite.prepare('SELECT is_admin FROM organizations WHERE id = ?').get(orgId) as any;
+    return row?.is_admin === 1;
   }
 }
 

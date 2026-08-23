@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { db } from '../db/store';
 import { createBackup, listBackups, restoreBackup } from '../lib/backup';
+import { hashPassword } from '../middleware/auth';
+import { logger } from '../lib/logger';
 
 function sendError(res: import('express').Response, status: number, code: string, message: string) {
   return res.status(status).json({ error: code, message });
@@ -15,6 +17,26 @@ adminRouter.use((req, res, next) => {
     return sendError(res, 401, 'UNAUTHORIZED', 'Acceso no autorizado');
   }
   next();
+});
+
+adminRouter.post('/create-super-admin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return sendError(res, 400, 'MISSING_FIELDS', 'Email y password requeridos');
+    }
+    const existing = db.findUserByEmail(email);
+    if (existing) {
+      return sendError(res, 409, 'USER_EXISTS', 'Ya existe un usuario con ese email');
+    }
+    const passwordHash = await hashPassword(password);
+    const result = db.createSuperAdmin(email, passwordHash);
+    logger.info({ email: result.email }, 'Super admin created via API');
+    return res.json({ success: true, orgId: result.orgId, email: result.email });
+  } catch (err) {
+    logger.error({ err }, 'Error creating super admin');
+    return sendError(res, 500, 'CREATE_FAILED', 'Error al crear super admin');
+  }
 });
 
 adminRouter.get('/usage', (req, res) => {
