@@ -149,6 +149,23 @@ class BackendDatabase {
       `).run();
       logger.info('Organización demo creada');
     }
+
+    const adminExists = this.sqlite.prepare('SELECT id FROM organizations WHERE id = ?').get('org_superadmin');
+    if (!adminExists) {
+      const adminEmail = 'admin@optimairwing.app';
+      const adminPasswordHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.qO.1BoWBPfGKCe';
+      this.sqlite.transaction(() => {
+        this.sqlite.prepare(`
+          INSERT INTO organizations (id, name, owner_email, plan, extra_credits, is_admin)
+          VALUES ('org_superadmin', 'Super Admin', ?, 'enterprise', 999999999, 1)
+        `).run(adminEmail);
+        this.sqlite.prepare(`
+          INSERT INTO users (org_id, email, password_hash, role)
+          VALUES ('org_superadmin', ?, ?, 'admin')
+        `).run('org_superadmin', adminEmail, adminPasswordHash);
+      })();
+      logger.info('Super admin creado: admin@optimairwing.app / admin123');
+    }
   }
 
   getOrg(id: string): Organization | undefined {
