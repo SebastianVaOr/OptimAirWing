@@ -141,29 +141,32 @@ class BackendDatabase {
   }
 
   private seed() {
-    const existing = this.sqlite.prepare('SELECT id FROM organizations WHERE id = ?').get('org_demo');
-    if (!existing) {
-      this.sqlite.prepare(`
-        INSERT INTO organizations (id, name, owner_email, plan)
-        VALUES ('org_demo', 'OptimAirWing Demo', 'user@optimairwing.app', 'freemium')
-      `).run();
-      logger.info('Organización demo creada');
-    }
+    const seedTransaction = this.sqlite.transaction(() => {
+      const existing = this.sqlite.prepare('SELECT id FROM organizations WHERE id = ?').get('org_demo');
+      if (!existing) {
+        this.sqlite.prepare(`
+          INSERT INTO organizations (id, name, owner_email, plan)
+          VALUES (?, ?, ?, ?)
+        `).run('org_demo', 'OptimAirWing Demo', 'user@optimairwing.app', 'freemium');
+        logger.info('Organización demo creada');
+      }
 
-    const adminExists = this.sqlite.prepare('SELECT id FROM organizations WHERE id = ?').get('org_superadmin');
-    if (!adminExists) {
-      const adminEmail = 'admin@optimairwing.app';
-      const adminPasswordHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.qO.1BoWBPfGKCe';
-      this.sqlite.prepare(`
-        INSERT INTO organizations (id, name, owner_email, plan, extra_credits, is_admin)
-        VALUES ('org_superadmin', 'Super Admin', ?, 'enterprise', 999999999, 1)
-      `).run(adminEmail);
-      this.sqlite.prepare(`
-        INSERT INTO users (org_id, email, password_hash, role)
-        VALUES (?, ?, ?, 'admin')
-      `).run('org_superadmin', adminEmail, adminPasswordHash);
-      logger.info('Super admin creado: admin@optimairwing.app / admin123');
-    }
+      const adminExists = this.sqlite.prepare('SELECT id FROM organizations WHERE id = ?').get('org_superadmin');
+      if (!adminExists) {
+        const adminEmail = 'admin@optimairwing.app';
+        const adminPasswordHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.qO.1BoWBPfGKCe';
+        this.sqlite.prepare(`
+          INSERT INTO organizations (id, name, owner_email, plan, extra_credits, is_admin)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).run('org_superadmin', 'Super Admin', adminEmail, 'enterprise', 999999999, 1);
+        this.sqlite.prepare(`
+          INSERT INTO users (org_id, email, password_hash, role)
+          VALUES (?, ?, ?, ?)
+        `).run('org_superadmin', adminEmail, adminPasswordHash, 'admin');
+        logger.info('Super admin creado: admin@optimairwing.app / admin123');
+      }
+    });
+    seedTransaction();
   }
 
   getOrg(id: string): Organization | undefined {
